@@ -1,19 +1,17 @@
-"use client";
+import { auth } from "@/lib/auth/config";
+import { redirect } from "next/navigation";
+import { DashboardShell } from "@/components/dashboard/shell";
 
-import { DashboardSidebar, DashboardTopbar } from "@/components/dashboard/layout";
-
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flex min-h-screen">
-      <DashboardSidebar />
-      <div className="flex flex-1 flex-col">
-        <DashboardTopbar />
-        <main className="flex-1 p-6">{children}</main>
-      </div>
-    </div>
-  );
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  return <DashboardShell user={session.user}>{children}</DashboardShell>;
 }

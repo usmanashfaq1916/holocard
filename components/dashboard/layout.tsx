@@ -73,7 +73,10 @@ export function DashboardSidebar() {
   );
 }
 
-export function DashboardTopbar() {
+export function DashboardTopbar({ user }: { user?: { name?: string | null; email?: string | null } }) {
+  const initials = user?.name
+    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : user?.email?.[0]?.toUpperCase() || "U";
   return (
     <header className="glass sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border px-6">
       <div className="relative flex-1 max-w-md">
@@ -89,7 +92,7 @@ export function DashboardTopbar() {
           <Bell className="h-5 w-5" />
         </button>
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-medium text-primary">
-          U
+          {initials}
         </div>
       </div>
     </header>

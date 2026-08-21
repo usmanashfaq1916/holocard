@@ -48,3 +48,6 @@ next-env.d.ts
 # docx temp files
 *.docx
 ~$*
+
+.vercel
+.env*

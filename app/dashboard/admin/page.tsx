@@ -117,9 +117,26 @@ export default function AdminPage() {
                     <p className="text-sm font-medium">{user.name || "No name"}</p>
                     <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <select
+                      defaultValue="USER"
+                      onChange={async (e) => {
+                        await fetch(`/api/admin/users/${user.id}`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ plan: e.target.value }),
+                        });
+                      }}
+                      className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                    >
+                      <option value="FREE">Free</option>
+                      <option value="PRO">Pro</option>
+                      <option value="BUSINESS">Business</option>
+                    </select>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

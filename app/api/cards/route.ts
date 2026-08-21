@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth/config";
 import { cardSchema } from "@/lib/validation";
+import { canCreateCard, type PlanTier } from "@/lib/plans";
 
 export async function GET() {
   const session = await auth();
@@ -41,6 +42,22 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: "This slug is already taken" },
       { status: 409 }
+    );
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { plan: true },
+  });
+
+  const cardCount = await prisma.card.count({
+    where: { userId: session.user.id },
+  });
+
+  if (!canCreateCard(cardCount, (user?.plan || "FREE") as PlanTier)) {
+    return NextResponse.json(
+      { error: "You've reached the card limit for your plan. Upgrade to create more cards." },
+      { status: 403 }
     );
   }
 

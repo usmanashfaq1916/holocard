@@ -10,6 +10,19 @@ export async function GET() {
 
   const userId = session.user.id;
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      company: true,
+      designation: true,
+      plan: true,
+      _count: { select: { cards: true } },
+    },
+  });
+
   const totalCards = await prisma.card.count({ where: { userId } });
 
   const cardIds = (
@@ -62,6 +75,7 @@ export async function GET() {
     ]);
 
   return NextResponse.json({
+    user,
     totalCards,
     totalViews: views,
     totalQrScans: qrScans,

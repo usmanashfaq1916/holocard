@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://holocard.app"),
   title: {
     default: "HoloCard - AR Business Cards Reimagined",
     template: "%s | HoloCard",
@@ -34,12 +35,14 @@ export const metadata: Metadata = {
     title: "HoloCard - Your Business Card, Reimagined in AR",
     description:
       "Create an interactive digital business card that comes alive through Augmented Reality.",
+    images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "HoloCard - Your Business Card, Reimagined in AR",
     description:
       "Create an interactive digital business card that comes alive through Augmented Reality.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,

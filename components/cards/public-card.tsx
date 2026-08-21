@@ -81,6 +81,13 @@ export function PublicCard({ card }: { card: Card }) {
               <UserPlus className="h-4 w-4" />
               Save Contact
             </a>
+            <a
+              href={`/ar/${card.id}`}
+              className="flex h-11 items-center gap-2 rounded-lg border border-border bg-background px-4 text-sm font-medium transition-colors hover:bg-accent"
+            >
+              <Eye className="h-4 w-4" />
+              View in AR
+            </a>
             <button
               onClick={() => setShowQR(!showQR)}
               className="flex h-11 items-center gap-2 rounded-lg border border-border bg-background px-4 text-sm font-medium transition-colors hover:bg-accent"

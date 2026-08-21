@@ -41,6 +41,29 @@ async function main() {
   });
 
   console.log("Created demo card:", card.slug);
+
+  const templates = [
+    { name: "Corporate", slug: "corporate", style: "CORPORATE" as const, description: "Professional blue tones for corporate environments", config: { primaryColor: "#2563EB", bgStyle: "solid" } },
+    { name: "Executive", slug: "executive", style: "EXECUTIVE" as const, description: "Elegant dark theme for executives", config: { primaryColor: "#1E293B", bgStyle: "gradient" }, isPremium: true },
+    { name: "Developer", slug: "developer", style: "DEVELOPER" as const, description: "Monospace accents for developers", config: { primaryColor: "#22D3EE", bgStyle: "solid" } },
+    { name: "Data Analyst", slug: "data-analyst", style: "DATA_ANALYST" as const, description: "Clean and modern for data professionals", config: { primaryColor: "#8B5CF6", bgStyle: "solid" } },
+    { name: "Designer", slug: "designer", style: "DESIGNER" as const, description: "Creative and colorful for designers", config: { primaryColor: "#EC4899", bgStyle: "gradient" }, isPremium: true },
+    { name: "Freelancer", slug: "freelancer", style: "FREELANCER" as const, description: "Bold and versatile for freelancers", config: { primaryColor: "#F59E0B", bgStyle: "solid" } },
+    { name: "Startup Founder", slug: "startup-founder", style: "STARTUP_FOUNDER" as const, description: "Innovative and sleek for founders", config: { primaryColor: "#10B981", bgStyle: "gradient" }, isPremium: true },
+    { name: "Real Estate", slug: "real-estate", style: "REAL_ESTATE" as const, description: "Trust and authority for real estate", config: { primaryColor: "#059669", bgStyle: "solid" } },
+    { name: "Sales", slug: "sales", style: "SALES" as const, description: "Dynamic and engaging for salespeople", config: { primaryColor: "#EF4444", bgStyle: "solid" } },
+    { name: "Minimal", slug: "minimal", style: "MINIMAL" as const, description: "Simple and refined", config: { primaryColor: "#6B7280", bgStyle: "solid" } },
+  ];
+
+  for (const template of templates) {
+    await prisma.template.upsert({
+      where: { slug: template.slug },
+      update: {},
+      create: template,
+    });
+  }
+
+  console.log("Seeded", templates.length, "templates");
   console.log("Seeding complete!");
 }
 

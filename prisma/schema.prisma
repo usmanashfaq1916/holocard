@@ -1,0 +1,285 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum CardStatus {
+  ACTIVE
+  DRAFT
+  ARCHIVED
+  DISABLED
+}
+
+enum PlanTier {
+  FREE
+  PRO
+  BUSINESS
+}
+
+enum EventType {
+  PROFILE_VIEW
+  QR_SCAN
+  AR_LAUNCH
+  AR_SESSION
+  CONTACT_SAVE
+  PHONE_CLICK
+  EMAIL_CLICK
+  WHATSAPP_CLICK
+  LINKEDIN_CLICK
+  WEBSITE_CLICK
+  SOCIAL_CLICK
+  VIDEO_PLAY
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  MODEL_3D
+  AR_TARGET
+}
+
+enum TemplateStyle {
+  CORPORATE
+  EXECUTIVE
+  DEVELOPER
+  DATA_ANALYST
+  DESIGNER
+  FREELANCER
+  STARTUP_FOUNDER
+  REAL_ESTATE
+  SALES
+  MINIMAL
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  company       String?
+  designation   String?
+  role          UserRole  @default(USER)
+  plan          PlanTier  @default(FREE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  cards            Card[]
+  media            Media[]
+  arAssets         ARAsset[]
+  analyticsEvents  AnalyticsEvent[]
+  subscriptions    Subscription[]
+  passwordResets   PasswordResetToken[]
+
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expires   DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Card {
+  id          String     @id @default(cuid())
+  userId      String
+  slug        String     @unique
+  name        String
+  designation String?
+  company     String?
+  bio         String?
+  phone       String?
+  email       String?
+  website     String?
+  whatsapp    String?
+  linkedin    String?
+  facebook    String?
+  instagram   String?
+  twitter     String?
+  location    String?
+  profileImage String?
+  companyLogo  String?
+  status      CardStatus @default(DRAFT)
+  isPublic    Boolean    @default(true)
+  templateId  String?
+  themeConfig Json?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  socialLinks    SocialLink[]
+  analyticsEvents AnalyticsEvent[]
+  media          Media[]
+  arAssets       ARAsset[]
+
+  @@index([userId])
+  @@index([slug])
+  @@index([status])
+}
+
+model SocialLink {
+  id       String @id @default(cuid())
+  cardId   String
+  platform String
+  url      String
+  label    String?
+  icon     String?
+  order    Int    @default(0)
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId])
+}
+
+model Media {
+  id        String    @id @default(cuid())
+  userId    String
+  cardId    String?
+  type      MediaType
+  filename  String
+  url       String
+  size      Int?
+  width     Int?
+  height    Int?
+  duration  Float?
+  mimeType  String?
+  createdAt DateTime  @default(now())
+
+  user User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card Card?  @relation(fields: [cardId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([cardId])
+}
+
+model ARAsset {
+  id          String    @id @default(cuid())
+  userId      String
+  cardId      String?
+  name        String
+  type        String
+  fileUrl     String
+  fileSize    Int?
+  mimeType    String?
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card Card?  @relation(fields: [cardId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([cardId])
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  style       TemplateStyle
+  description String?
+  thumbnail   String?
+  config      Json
+  isPremium   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([style])
+  @@index([isActive])
+}
+
+model AnalyticsEvent {
+  id         String    @id @default(cuid())
+  cardId     String
+  userId     String?
+  eventType  EventType
+  deviceType String?
+  browser    String?
+  country    String?
+  referrer   String?
+  metadata   Json?
+  createdAt  DateTime  @default(now())
+
+  card Card  @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([cardId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@index([cardId, eventType])
+  @@index([cardId, createdAt])
+}
+
+model Subscription {
+  id        String    @id @default(cuid())
+  userId    String
+  plan      PlanTier
+  status    String    @default("active")
+  startDate DateTime  @default(now())
+  endDate   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { Plus, Eye, QrCode, Copy, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Eye, QrCode, Copy, Trash2, ExternalLink, GripVertical } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { QRGenerator } from "@/components/cards/qr-generator";
 import { ShareButtons } from "@/components/cards/share-buttons";
@@ -14,6 +14,7 @@ interface Card {
   designation: string | null;
   company: string | null;
   status: string;
+  order: number;
   _count: { analyticsEvents: number };
 }
 
@@ -22,12 +23,15 @@ export default function CardsPage() {
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState<string | null>(null);
   const [showShare, setShowShare] = useState<string | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const dragCounter = useRef(0);
 
   useEffect(() => {
     fetch("/api/cards")
       .then((r) => r.json())
       .then((data) => {
-        setCards(data);
+        setCards(data.sort((a: Card, b: Card) => a.order - b.order));
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -39,13 +43,75 @@ export default function CardsPage() {
     setCards(cards.filter((c) => c.id !== id));
   };
 
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggingId(id);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", id);
+  };
+
+  const handleDragEnter = (e: React.DragEvent, id: string) => {
+    e.preventDefault();
+    dragCounter.current++;
+    setDragOverId(id);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    dragCounter.current--;
+    if (dragCounter.current === 0) {
+      setDragOverId(null);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    dragCounter.current = 0;
+    setDragOverId(null);
+
+    const sourceId = e.dataTransfer.getData("text/plain");
+    if (sourceId === targetId) return;
+
+    const sourceIndex = cards.findIndex((c) => c.id === sourceId);
+    const targetIndex = cards.findIndex((c) => c.id === targetId);
+    if (sourceIndex === -1 || targetIndex === -1) return;
+
+    const newCards = [...cards];
+    const [moved] = newCards.splice(sourceIndex, 1);
+    newCards.splice(targetIndex, 0, moved);
+
+    setCards(newCards);
+    setDraggingId(null);
+
+    // Persist order to server
+    try {
+      await fetch("/api/cards/reorder", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cardIds: newCards.map((c) => c.id) }),
+      });
+    } catch {
+      // Revert on error
+      setCards(cards);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggingId(null);
+    setDragOverId(null);
+    dragCounter.current = 0;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">My Cards</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your digital business cards.
+            Manage your digital business cards. Drag to reorder.
           </p>
         </div>
         <Link href="/dashboard/cards/new" className={buttonVariants({ variant: "default" })}>
@@ -74,9 +140,28 @@ export default function CardsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((card) => (
-            <div key={card.id} className="glass rounded-xl p-5">
+            <div
+              key={card.id}
+              draggable
+              onDragStart={(e) => handleDragStart(e, card.id)}
+              onDragEnter={(e) => handleDragEnter(e, card.id)}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, card.id)}
+              onDragEnd={handleDragEnd}
+              className={`glass rounded-xl p-5 transition-all ${
+                draggingId === card.id
+                  ? "opacity-50 scale-95"
+                  : dragOverId === card.id
+                  ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                  : ""
+              }`}
+            >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
+                  <div className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
+                    <GripVertical className="h-5 w-5" />
+                  </div>
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-cyan text-sm font-bold text-white">
                     {card.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
                   </div>

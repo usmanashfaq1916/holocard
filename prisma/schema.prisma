@@ -158,6 +158,7 @@ model Card {
   companyLogo  String?
   status      CardStatus @default(DRAFT)
   isPublic    Boolean    @default(true)
+  order       Int        @default(0)
   templateId  String?
   themeConfig Json?
   createdAt   DateTime   @default(now())

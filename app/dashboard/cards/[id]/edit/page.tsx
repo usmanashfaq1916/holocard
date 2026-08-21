@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { cardSchema, type CardInput } from "@/lib/validation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ export default function EditCardPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const {
     register,
@@ -83,6 +84,31 @@ export default function EditCardPage() {
     }
   };
 
+  const generateBio = async () => {
+    setAiLoading(true);
+    try {
+      const values = watch();
+      const res = await fetch("/api/ai/generate-bio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          role: values.designation || values.name || "Professional",
+          skills: "",
+          experience: "",
+          style: "professional",
+        }),
+      });
+      if (res.ok) {
+        const { bio } = await res.json();
+        reset({ ...values, bio });
+      }
+    } catch {
+      // AI not available
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -135,7 +161,22 @@ export default function EditCardPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="bio">Bio</Label>
+                <button
+                  type="button"
+                  onClick={generateBio}
+                  disabled={aiLoading}
+                  className="flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+                >
+                  {aiLoading ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3" />
+                  )}
+                  {aiLoading ? "Generating..." : "Generate with AI"}
+                </button>
+              </div>
               <Textarea id="bio" {...register("bio")} rows={3} />
             </div>
           </div>

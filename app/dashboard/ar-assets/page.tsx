@@ -76,19 +76,36 @@ export default function ARAssetsPage() {
 
     setUploading(true);
 
-    // For now, store metadata only (Cloudinary integration comes in Phase 5)
-    const type = file.name.split(".").pop() || "unknown";
-
     try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("purpose", "model");
+
+      // Upload file to Supabase Storage via API
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json();
+        alert(err.error || "Upload failed");
+        return;
+      }
+
+      const { url, filename, mimeType, size } = await uploadRes.json();
+
+      // Create AR asset record
+      const type = file.name.split(".").pop() || "unknown";
       const res = await fetch("/api/ar-assets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: file.name,
+          name: filename,
           type,
-          fileUrl: `local://${file.name}`,
-          fileSize: file.size,
-          mimeType: file.type,
+          fileUrl: url,
+          fileSize: size,
+          mimeType,
         }),
       });
 
@@ -97,7 +114,7 @@ export default function ARAssetsPage() {
         setAssets([asset, ...assets]);
       }
     } catch {
-      // Handle error
+      alert("Upload failed. Make sure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are configured.");
     } finally {
       setUploading(false);
       e.target.value = "";

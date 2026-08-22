@@ -1,5 +1,4 @@
 import { ImageResponse } from "next/og";
-import { prisma } from "@/lib/db";
 
 export const contentType = "image/png";
 export const size = { width: 1200, height: 630 };
@@ -7,14 +6,33 @@ export const alt = "HoloCard";
 
 export default async function OGImage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const card = await prisma.card.findUnique({
-    where: { slug },
-    select: { name: true, designation: true, company: true, bio: true },
-  });
 
-  const name = card?.name || "HoloCard";
-  const role = [card?.designation, card?.company].filter(Boolean).join(" at ") || "Professional";
-  const bio = card?.bio?.slice(0, 100) || "Interactive AR Business Card";
+  let name = "HoloCard User";
+  let role = "Professional";
+  let bio = "Interactive AR Business Card";
+
+  try {
+    const { prisma } = await import("@/lib/db");
+    const card = await prisma.card.findUnique({
+      where: { slug },
+      select: { name: true, designation: true, company: true, bio: true },
+    });
+
+    if (card) {
+      name = card.name || name;
+      role = [card.designation, card.company].filter(Boolean).join(" at ") || role;
+      bio = card.bio?.slice(0, 100) || bio;
+    }
+  } catch {
+    // DB unavailable at build time — use defaults
+  }
+
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   return new ImageResponse(
     (
@@ -29,9 +47,9 @@ export default async function OGImage({ params }: { params: Promise<{ slug: stri
           background: "linear-gradient(135deg, #0A0E1A 0%, #0F172A 50%, #0C1525 100%)",
           fontFamily: "sans-serif",
           padding: "80px",
+          position: "relative",
         }}
       >
-        {/* Background glow */}
         <div
           style={{
             position: "absolute",
@@ -43,8 +61,6 @@ export default async function OGImage({ params }: { params: Promise<{ slug: stri
             background: "radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%)",
           }}
         />
-
-        {/* Avatar circle */}
         <div
           style={{
             width: "100px",
@@ -60,72 +76,19 @@ export default async function OGImage({ params }: { params: Promise<{ slug: stri
             marginBottom: "30px",
           }}
         >
-          {name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2)}
+          {initials}
         </div>
-
-        {/* Name */}
-        <div
-          style={{
-            fontSize: "48px",
-            fontWeight: "bold",
-            color: "white",
-            marginBottom: "12px",
-            textAlign: "center",
-          }}
-        >
+        <div style={{ fontSize: "48px", fontWeight: "bold", color: "white", marginBottom: "12px", textAlign: "center" }}>
           {name}
         </div>
-
-        {/* Role */}
-        <div
-          style={{
-            fontSize: "24px",
-            color: "#94A3B8",
-            marginBottom: "20px",
-            textAlign: "center",
-          }}
-        >
+        <div style={{ fontSize: "24px", color: "#94A3B8", marginBottom: "20px", textAlign: "center" }}>
           {role}
         </div>
-
-        {/* Bio */}
-        <div
-          style={{
-            fontSize: "18px",
-            color: "#64748B",
-            maxWidth: "700px",
-            textAlign: "center",
-            lineHeight: 1.5,
-          }}
-        >
+        <div style={{ fontSize: "18px", color: "#64748B", maxWidth: "700px", textAlign: "center", lineHeight: 1.5 }}>
           {bio}
         </div>
-
-        {/* Footer */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "40px",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontSize: "16px",
-            color: "#475569",
-          }}
-        >
-          <span
-            style={{
-              background: "linear-gradient(135deg, #2563EB, #22D3EE)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              fontWeight: "bold",
-            }}
-          >
+        <div style={{ position: "absolute", bottom: "40px", display: "flex", alignItems: "center", gap: "8px", fontSize: "16px", color: "#475569" }}>
+          <span style={{ background: "linear-gradient(135deg, #2563EB, #22D3EE)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: "bold" }}>
             HoloCard
           </span>
           <span>·</span>

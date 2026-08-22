@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -13,6 +14,7 @@ import {
   LogOut,
   Bell,
   Search,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -77,6 +79,41 @@ export function DashboardTopbar({ user }: { user?: { name?: string | null; email
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : user?.email?.[0]?.toUpperCase() || "U";
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [notifications, setNotifications] = useState<{ id: string; title: string; body?: string | null; read: boolean; link?: string | null; createdAt: string }[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch("/api/notifications")
+      .then((r) => r.json())
+      .then((data) => {
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unreadCount || 0);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifs(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const markAllRead = async () => {
+    await fetch("/api/notifications/read", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ markAll: true }),
+    });
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnreadCount(0);
+  };
+
   return (
     <header className="glass sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border px-6">
       <div className="relative flex-1 max-w-md">
@@ -88,9 +125,51 @@ export function DashboardTopbar({ user }: { user?: { name?: string | null; email
         />
       </div>
       <div className="flex items-center gap-4">
-        <button className="relative rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground">
-          <Bell className="h-5 w-5" />
-        </button>
+        <div className="relative" ref={notifRef}>
+          <button
+            onClick={() => setShowNotifs(!showNotifs)}
+            className="relative rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
+          {showNotifs && (
+            <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-border bg-background shadow-xl">
+              <div className="flex items-center justify-between border-b border-border p-3">
+                <h3 className="text-sm font-semibold">Notifications</h3>
+                {unreadCount > 0 && (
+                  <button onClick={markAllRead} className="text-xs text-primary hover:underline">
+                    Mark all read
+                  </button>
+                )}
+              </div>
+              <div className="max-h-80 overflow-y-auto">
+                {notifications.length === 0 ? (
+                  <p className="p-4 text-center text-sm text-muted-foreground">No notifications yet.</p>
+                ) : (
+                  notifications.map((n) => (
+                    <div
+                      key={n.id}
+                      className={`border-b border-border p-3 ${n.read ? "opacity-60" : "bg-primary/5"}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        {!n.read && <div className="mt-1 h-2 w-2 rounded-full bg-primary" />}
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{n.title}</p>
+                          {n.body && <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-medium text-primary">
           {initials}
         </div>

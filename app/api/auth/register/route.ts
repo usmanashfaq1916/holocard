@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { registerSchema } from "@/lib/validation";
+import { createNotification } from "@/lib/notify";
 
 export async function POST(req: Request) {
   try {
@@ -37,6 +38,14 @@ export async function POST(req: Request) {
         password: hashedPassword,
       },
     });
+
+    await createNotification(
+      user.id,
+      "Welcome to HoloCard!",
+      "Create your first AR business card to get started.",
+      "welcome",
+      "/dashboard/cards/new"
+    );
 
     return NextResponse.json(
       {

@@ -18,7 +18,7 @@ export async function GET() {
   const recentUsers = await prisma.user.findMany({
     take: 5,
     orderBy: { createdAt: "desc" },
-    select: { id: true, name: true, email: true, createdAt: true },
+    select: { id: true, name: true, email: true, plan: true, createdAt: true },
   });
 
   const recentCards = await prisma.card.findMany({

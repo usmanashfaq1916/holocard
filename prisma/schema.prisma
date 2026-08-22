@@ -18,6 +18,12 @@ enum CardStatus {
   DISABLED
 }
 
+enum CardVisibility {
+  PUBLIC
+  UNLISTED
+  PRIVATE
+}
+
 enum PlanTier {
   FREE
   PRO
@@ -159,6 +165,7 @@ model Card {
   companyLogo  String?
   status      CardStatus @default(DRAFT)
   isPublic    Boolean    @default(true)
+  visibility  CardVisibility @default(PUBLIC)
   order          Int        @default(0)
   accentColor    String?
   bgStyle        String?    @default("solid")

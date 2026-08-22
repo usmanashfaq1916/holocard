@@ -54,6 +54,7 @@ export const cardSchema = z.object({
   profileImage: z.string().optional(),
   companyLogo: z.string().optional(),
   templateId: z.string().optional(),
+  visibility: z.enum(["PUBLIC", "UNLISTED", "PRIVATE"]).optional(),
 });
 
 export type CardInput = z.infer<typeof cardSchema>;

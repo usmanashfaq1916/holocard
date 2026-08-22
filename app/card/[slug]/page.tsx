@@ -11,23 +11,27 @@ export async function generateMetadata({ params }: CardPageProps): Promise<Metad
   const { slug } = await params;
   const card = await prisma.card.findUnique({
     where: { slug },
-    select: { name: true, designation: true, bio: true },
+    select: { name: true, designation: true, bio: true, slug: true },
   });
 
   if (!card) return { title: "Card Not Found" };
 
+  const title = `${card.name} - ${card.designation || "Professional"} | HoloCard`;
+  const description = card.bio || `${card.name}'s digital business card on HoloCard`;
+
   return {
-    title: `${card.name}${card.designation ? ` - ${card.designation}` : ""}`,
-    description: card.bio || `Interactive digital business card for ${card.name}.`,
+    title,
+    description,
     openGraph: {
-      title: `${card.name} | HoloCard`,
-      description: card.bio || `Interactive digital business card for ${card.name}.`,
+      title,
+      description,
       type: "profile",
+      images: [`/api/og/${card.slug}`],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${card.name} | HoloCard`,
-      description: card.bio || `Interactive digital business card for ${card.name}.`,
+      title,
+      description,
     },
   };
 }
@@ -43,6 +47,10 @@ export default async function PublicCardPage({ params }: CardPageProps) {
   });
 
   if (!card || card.status !== "ACTIVE") {
+    notFound();
+  }
+
+  if (card.visibility === "PRIVATE") {
     notFound();
   }
 

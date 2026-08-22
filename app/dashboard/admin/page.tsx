@@ -20,6 +20,7 @@ interface AdminData {
     id: string;
     name: string | null;
     email: string | null;
+    plan: string;
     createdAt: string;
   }[];
   recentCards: {
@@ -35,6 +36,7 @@ export default function AdminPage() {
   const [data, setData] = useState<AdminData | null>(null);
   const [loading, setLoading] = useState(true);
   const [unauthorized, setUnauthorized] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetch("/api/admin")
@@ -99,10 +101,42 @@ export default function AdminPage() {
         ))}
       </div>
 
+      <div className="glass rounded-xl p-6">
+        <h2 className="mb-4 text-lg font-semibold">System Health</h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-green-500" />
+            <span className="text-sm">Database</span>
+            <span className="text-xs text-muted-foreground">Connected</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm">Total Users</span>
+            <span className="text-xs text-muted-foreground">
+              {loading ? "..." : data?.stats.totalUsers.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm">Total Cards</span>
+            <span className="text-xs text-muted-foreground">
+              {loading ? "..." : data?.stats.totalCards.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent users */}
         <div className="glass rounded-xl p-6">
           <h2 className="mb-4 text-lg font-semibold">Recent Users</h2>
+          {!loading && data?.recentUsers?.length ? (
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="mb-3 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          ) : null}
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
@@ -111,34 +145,43 @@ export default function AdminPage() {
             </div>
           ) : data?.recentUsers?.length ? (
             <div className="space-y-3">
-              {data.recentUsers.map((user) => (
-                <div key={user.id} className="flex items-center justify-between rounded-lg border border-border p-3">
-                  <div>
-                    <p className="text-sm font-medium">{user.name || "No name"}</p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
+              {data.recentUsers
+                .filter((user) => {
+                  if (!searchQuery) return true;
+                  const query = searchQuery.toLowerCase();
+                  return (
+                    (user.name?.toLowerCase().includes(query)) ||
+                    (user.email?.toLowerCase().includes(query))
+                  );
+                })
+                .map((user) => (
+                  <div key={user.id} className="flex items-center justify-between rounded-lg border border-border p-3">
+                    <div>
+                      <p className="text-sm font-medium">{user.name || "No name"}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <select
+                        defaultValue={user.plan}
+                        onChange={async (e) => {
+                          await fetch(`/api/admin/users/${user.id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ plan: e.target.value }),
+                          });
+                        }}
+                        className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                      >
+                        <option value="FREE">Free</option>
+                        <option value="PRO">Pro</option>
+                        <option value="BUSINESS">Business</option>
+                      </select>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <select
-                      defaultValue="USER"
-                      onChange={async (e) => {
-                        await fetch(`/api/admin/users/${user.id}`, {
-                          method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ plan: e.target.value }),
-                        });
-                      }}
-                      className="rounded-md border border-border bg-background px-2 py-1 text-xs"
-                    >
-                      <option value="FREE">Free</option>
-                      <option value="PRO">Pro</option>
-                      <option value="BUSINESS">Business</option>
-                    </select>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">No users yet.</p>

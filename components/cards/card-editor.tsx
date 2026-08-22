@@ -63,12 +63,15 @@ const cardEditorSchema = z.object({
   tiktok: z.string().optional(),
   profileImage: z.string().optional(),
   companyLogo: z.string().optional(),
+  bgImage: z.string().optional(),
+  templateId: z.string().optional(),
   accentColor: z.string().optional(),
   bgStyle: z.enum(["solid", "gradient", "glass"]).optional(),
   fontFamily: z.string().optional(),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   allowIndexing: z.boolean().optional(),
+  visibility: z.enum(["PUBLIC", "UNLISTED", "PRIVATE"]).optional(),
 });
 
 type CardEditorValues = z.infer<typeof cardEditorSchema>;
@@ -144,12 +147,15 @@ const DEFAULT_VALUES: CardEditorValues = {
   tiktok: "",
   profileImage: "",
   companyLogo: "",
+  bgImage: "",
+  templateId: "",
   accentColor: "#2563EB",
   bgStyle: "solid",
   fontFamily: "Inter",
   metaTitle: "",
   metaDescription: "",
   allowIndexing: true,
+  visibility: "PUBLIC" as const,
 };
 
 function slugify(text: string) {
@@ -188,8 +194,8 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
     const fields = [
       "name", "slug", "designation", "company", "bio", "phone", "email",
       "website", "whatsapp", "location", "linkedin", "twitter", "facebook",
-      "instagram", "profileImage", "companyLogo", "accentColor", "bgStyle",
-      "fontFamily", "metaTitle", "metaDescription", "allowIndexing",
+      "instagram", "profileImage", "companyLogo", "bgImage", "templateId", "accentColor", "bgStyle",
+      "fontFamily", "metaTitle", "metaDescription", "allowIndexing", "visibility",
     ] as const;
     fields.forEach((f) => {
       if (card[f] !== undefined && card[f] !== null) {
@@ -235,7 +241,9 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
     }
   };
 
-  const handleUpload = async (file: File, purpose: "profile" | "company") => {
+  const [bgImageUploading, setBgImageUploading] = useState(false);
+
+  const handleUpload = async (file: File, purpose: "profile" | "company" | "background") => {
     if (!cardId) {
       alert("Save the card first before uploading images");
       return;
@@ -243,11 +251,13 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("cardId", cardId);
-    formData.append("purpose", purpose === "profile" ? "profile" : "company-logo");
+    formData.append("purpose", purpose === "profile" ? "profile" : purpose === "company" ? "company-logo" : "background");
     const res = await fetch("/api/upload", { method: "POST", body: formData });
     if (res.ok) {
       const data = await res.json();
-      setValue(purpose === "profile" ? "profileImage" : "companyLogo", data.url);
+      if (purpose === "profile") setValue("profileImage", data.url);
+      else if (purpose === "company") setValue("companyLogo", data.url);
+      else setValue("bgImage", data.url);
     }
   };
 
@@ -376,6 +386,37 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
             </TabsContent>
 
             <TabsContent value="design" className="space-y-4">
+              {/* Template Selection */}
+              <div className="space-y-2">
+                <Label>Template</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "", name: "Default" },
+                    { id: "corporate", name: "Corporate" },
+                    { id: "developer", name: "Developer" },
+                    { id: "designer", name: "Designer" },
+                    { id: "freelancer", name: "Freelancer" },
+                    { id: "executive", name: "Executive" },
+                    { id: "minimal", name: "Minimal" },
+                    { id: "creative", name: "Creative" },
+                    { id: "real-estate", name: "Real Estate" },
+                    { id: "student", name: "Student" },
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setValue("templateId", t.id)}
+                      className={`rounded-lg border p-2 text-xs font-medium transition-colors ${
+                        watch("templateId") === t.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label>Accent Color</Label>
                 <div className="flex items-center gap-3">
@@ -535,6 +576,46 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                   </label>
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label>Cover Image</Label>
+                <div className="flex items-center gap-4">
+                  {formValues.bgImage ? (
+                    <img
+                      src={formValues.bgImage}
+                      alt="Cover"
+                      className="h-20 w-32 rounded-lg object-cover border border-border"
+                    />
+                  ) : (
+                    <div className="flex h-20 w-32 items-center justify-center rounded-lg bg-muted text-xs font-medium text-muted-foreground">
+                      Cover
+                    </div>
+                  )}
+                  {bgImageUploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  ) : (
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file || !cardId) return;
+                          setBgImageUploading(true);
+                          try {
+                            await handleUpload(file, "background");
+                          } finally {
+                            setBgImageUploading(false);
+                          }
+                        }}
+                      />
+                      <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}>
+                        <Image className="h-4 w-4" />{formValues.bgImage ? "Change" : "Upload"}
+                      </span>
+                    </label>
+                  )}
+                </div>
+              </div>
             </TabsContent>
 
             <TabsContent value="buttons" className="space-y-4">
@@ -637,6 +718,18 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                 >
                   Allow search engine indexing
                 </Label>
+              </div>
+              <div className="space-y-2">
+                <Label>Card Visibility</Label>
+                <select
+                  value={formValues.visibility || "PUBLIC"}
+                  onChange={(e) => setValue("visibility", e.target.value as "PUBLIC" | "UNLISTED" | "PRIVATE")}
+                  className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  <option value="PUBLIC">Public - Visible in search and listings</option>
+                  <option value="UNLISTED">Unlisted - Only accessible via direct link</option>
+                  <option value="PRIVATE">Private - Only visible to you</option>
+                </select>
               </div>
             </TabsContent>
           </Tabs>

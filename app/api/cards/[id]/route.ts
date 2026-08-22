@@ -21,6 +21,91 @@ export async function GET(_req: Request, { params }: RouteParams) {
   return NextResponse.json(card);
 }
 
+export async function POST(req: Request, { params }: RouteParams) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const card = await prisma.card.findUnique({
+    where: { id },
+    include: { socialLinks: true, buttons: true },
+  });
+
+  if (!card || card.userId !== session.user.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const body = await req.json().catch(() => ({}));
+  if (body.action !== "duplicate") {
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+  }
+
+  let newSlug = `${card.slug}-copy`;
+  const existing = await prisma.card.findUnique({ where: { slug: newSlug } });
+  if (existing) {
+    newSlug = `${card.slug}-copy-${Date.now()}`;
+  }
+
+  const duplicated = await prisma.card.create({
+    data: {
+      userId: session.user.id,
+      slug: newSlug,
+      name: `${card.name} (Copy)`,
+      designation: card.designation,
+      company: card.company,
+      bio: card.bio,
+      phone: card.phone,
+      email: card.email,
+      website: card.website,
+      whatsapp: card.whatsapp,
+      linkedin: card.linkedin,
+      facebook: card.facebook,
+      instagram: card.instagram,
+      twitter: card.twitter,
+      location: card.location,
+      profileImage: card.profileImage,
+      companyLogo: card.companyLogo,
+      status: "DRAFT",
+      isPublic: card.isPublic,
+      visibility: card.visibility,
+      accentColor: card.accentColor,
+      bgStyle: card.bgStyle,
+      bgImage: card.bgImage,
+      fontFamily: card.fontFamily,
+      cardStyle: card.cardStyle,
+      metaTitle: card.metaTitle,
+      metaDescription: card.metaDescription,
+      ogImage: card.ogImage,
+      allowIndexing: card.allowIndexing,
+      templateId: card.templateId,
+      themeConfig: card.themeConfig ?? undefined,
+      socialLinks: {
+        create: card.socialLinks.map((sl) => ({
+          platform: sl.platform,
+          url: sl.url,
+          label: sl.label,
+          icon: sl.icon,
+          order: sl.order,
+        })),
+      },
+      buttons: {
+        create: card.buttons.map((btn) => ({
+          label: btn.label,
+          icon: btn.icon,
+          url: btn.url,
+          order: btn.order,
+          isActive: btn.isActive,
+        })),
+      },
+    },
+    include: { socialLinks: true, buttons: true },
+  });
+
+  return NextResponse.json(duplicated);
+}
+
 export async function PATCH(req: Request, { params }: RouteParams) {
   const session = await auth();
   if (!session?.user?.id) {

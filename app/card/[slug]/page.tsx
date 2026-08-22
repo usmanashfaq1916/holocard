@@ -36,7 +36,10 @@ export default async function PublicCardPage({ params }: CardPageProps) {
   const { slug } = await params;
   const card = await prisma.card.findUnique({
     where: { slug },
-    include: { socialLinks: { orderBy: { order: "asc" } } },
+    include: {
+      socialLinks: { orderBy: { order: "asc" } },
+      buttons: { where: { isActive: true }, orderBy: { order: "asc" } },
+    },
   });
 
   if (!card || card.status !== "ACTIVE") {

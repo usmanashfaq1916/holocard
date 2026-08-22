@@ -99,7 +99,7 @@ export function ARModelViewer({
       >
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 5, 5]} intensity={1} />
-        <pointLight position={[-5, -5, 5]} intensity={0.5} color="#22D3EE" />
+        <pointLight position={[-5, -5, 5]} intensity={0.5} color="oklch(0.65 0.15 195)" />
 
         <Suspense fallback={null}>
           <Environment preset="city" />

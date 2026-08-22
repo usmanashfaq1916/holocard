@@ -159,10 +159,19 @@ model Card {
   companyLogo  String?
   status      CardStatus @default(DRAFT)
   isPublic    Boolean    @default(true)
-  order       Int        @default(0)
-  templateId  String?
-  themeConfig Json?
-  createdAt   DateTime   @default(now())
+  order          Int        @default(0)
+  accentColor    String?
+  bgStyle        String?    @default("solid")
+  bgImage        String?
+  fontFamily     String?
+  cardStyle      String?    @default("default")
+  metaTitle      String?
+  metaDescription String?
+  ogImage        String?
+  allowIndexing  Boolean    @default(true)
+  templateId     String?
+  themeConfig    Json?
+  createdAt      DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -170,10 +179,40 @@ model Card {
   analyticsEvents AnalyticsEvent[]
   media          Media[]
   arAssets       ARAsset[]
+  buttons        CardButton[]
+  contacts       Contact[]
 
   @@index([userId])
   @@index([slug])
   @@index([status])
+}
+
+model CardButton {
+  id        String   @id @default(cuid())
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  label     String
+  icon      String?
+  url       String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([cardId])
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  name      String?
+  email     String?
+  phone     String?
+  message   String?
+  createdAt DateTime @default(now())
+
+  @@index([cardId])
 }
 
 model SocialLink {

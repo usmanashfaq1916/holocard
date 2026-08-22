@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "About",
@@ -7,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-grid">
-      <div className="absolute inset-0 bg-radial" />
+    <div className="min-h-screen bg-grid bg-radial">
+      <Navbar />
       <div className="relative z-10 mx-auto max-w-4xl px-4 py-24">
         <h1 className="mb-8 text-4xl font-bold md:text-5xl">
           About <span className="text-gradient">HoloCard</span>
@@ -40,6 +42,7 @@ export default function AboutPage() {
           </p>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

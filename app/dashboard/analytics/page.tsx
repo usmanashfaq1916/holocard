@@ -40,7 +40,14 @@ interface AnalyticsData {
   deviceBreakdown: { name: string; value: number }[];
 }
 
-const COLORS = ["#2563EB", "#22D3EE", "#8B5CF6", "#F59E0B", "#10B981", "#EF4444"];
+const COLORS = [
+  "oklch(0.58 0.2 260)",   // chart-1 (blue)
+  "oklch(0.65 0.15 195)",  // chart-2 (cyan)
+  "oklch(0.6 0.18 310)",   // chart-3 (purple)
+  "oklch(0.7 0.15 60)",    // chart-5 (amber)
+  "oklch(0.55 0.2 150)",   // chart-4 (green)
+  "oklch(0.65 0.2 25)",    // destructive (red)
+];
 
 export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -128,18 +135,18 @@ export default function AnalyticsPage() {
           ) : data?.viewsOverTime?.length ? (
             <ResponsiveContainer width="100%" height={256}>
               <LineChart data={data.viewsOverTime}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#64748B" }} />
-                <YAxis tick={{ fontSize: 12, fill: "#64748B" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.91 0.005 250)" />
+                <XAxis dataKey="date" tick={{ fontSize: 12, fill: "oklch(0.45 0.02 250)" }} />
+                <YAxis tick={{ fontSize: 12, fill: "oklch(0.45 0.02 250)" }} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#0C1525",
-                    border: "1px solid #1E293B",
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
                     borderRadius: "8px",
                   }}
                 />
-                <Line type="monotone" dataKey="views" stroke="#2563EB" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="scans" stroke="#22D3EE" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="views" stroke="oklch(0.58 0.2 260)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="scans" stroke="oklch(0.65 0.15 195)" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           ) : (
@@ -194,17 +201,17 @@ export default function AnalyticsPage() {
           ) : data?.topLinks?.length ? (
             <ResponsiveContainer width="100%" height={256}>
               <BarChart data={data.topLinks} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                <XAxis type="number" tick={{ fontSize: 12, fill: "#64748B" }} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: "#64748B" }} width={100} />
+                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.91 0.005 250)" />
+                <XAxis type="number" tick={{ fontSize: 12, fill: "oklch(0.45 0.02 250)" }} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: "oklch(0.45 0.02 250)" }} width={100} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#0C1525",
-                    border: "1px solid #1E293B",
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
                     borderRadius: "8px",
                   }}
                 />
-                <Bar dataKey="clicks" fill="#2563EB" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="clicks" fill="oklch(0.58 0.2 260)" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (

@@ -175,9 +175,9 @@ export default function CardsPage() {
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     card.status === "ACTIVE"
-                      ? "bg-green-500/20 text-green-400"
+                      ? "bg-success/10 text-success"
                       : card.status === "DRAFT"
-                      ? "bg-yellow-500/20 text-yellow-400"
+                      ? "bg-warning/10 text-warning"
                       : "bg-muted text-muted-foreground"
                   }`}
                 >

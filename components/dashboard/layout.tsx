@@ -15,6 +15,9 @@ import {
   Bell,
   Search,
   Check,
+  Users,
+  Image,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +27,9 @@ const sidebarLinks = [
   { href: "/dashboard/cards/new", label: "Create Card", icon: Plus },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/ar-assets", label: "AR Assets", icon: Box },
+  { href: "/dashboard/contacts", label: "Contacts", icon: Users },
+  { href: "/dashboard/media", label: "Media", icon: Image },
+  { href: "/dashboard/ai-generator", label: "AI Generator", icon: Sparkles },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 

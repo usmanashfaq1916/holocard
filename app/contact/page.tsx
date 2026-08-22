@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -7,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-grid">
-      <div className="absolute inset-0 bg-radial" />
+    <div className="min-h-screen bg-grid bg-radial">
+      <Navbar />
       <div className="relative z-10 mx-auto max-w-2xl px-4 py-24">
         <h1 className="mb-8 text-4xl font-bold md:text-5xl">
           Get in <span className="text-gradient">Touch</span>
@@ -52,6 +54,7 @@ export default function ContactPage() {
           </form>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

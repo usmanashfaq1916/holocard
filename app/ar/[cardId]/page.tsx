@@ -162,7 +162,7 @@ export default function ARExperiencePage() {
                 }
               >
                 <ARModelViewer
-                  cardColor="#2563EB"
+                  cardColor="oklch(0.58 0.2 260)"
                   autoRotate={true}
                   className="h-96 md:h-[500px]"
                 />

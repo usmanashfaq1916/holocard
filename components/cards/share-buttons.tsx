@@ -29,7 +29,7 @@ export function ShareButtons({ slug, name }: ShareButtonsProps) {
         onClick={copyLink}
         className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
       >
-        {copied ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
+        {copied ? <Check className="h-3 w-3 text-success" /> : <Copy className="h-3 w-3" />}
         {copied ? "Copied!" : "Copy Link"}
       </button>
       <a

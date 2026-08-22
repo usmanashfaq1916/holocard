@@ -36,10 +36,10 @@ const typeColors: Record<string, string> = {
   glb: "text-primary",
   gltf: "text-primary",
   "image-target": "text-cyan",
-  png: "text-green-400",
-  jpg: "text-green-400",
-  jpeg: "text-green-400",
-  mp4: "text-yellow-400",
+  png: "text-success",
+  jpg: "text-success",
+  jpeg: "text-success",
+  mp4: "text-warning",
 };
 
 function formatFileSize(bytes: number | null) {

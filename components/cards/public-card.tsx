@@ -32,6 +32,15 @@ interface SocialLink {
   label: string | null;
 }
 
+interface CardButton {
+  id: string;
+  label: string;
+  icon: string | null;
+  url: string;
+  order: number;
+  isActive: boolean;
+}
+
 interface Card {
   id: string;
   name: string;
@@ -49,6 +58,7 @@ interface Card {
   twitter: string | null;
   location: string | null;
   socialLinks: SocialLink[];
+  buttons?: CardButton[];
 }
 
 export function PublicCard({ card }: { card: Card }) {
@@ -180,6 +190,26 @@ export function PublicCard({ card }: { card: Card }) {
                   <SocialIcon platform="instagram" />
                 </a>
               )}
+            </div>
+          )}
+
+          {card.buttons && card.buttons.filter(b => b.isActive).length > 0 && (
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              {card.buttons
+                .filter(b => b.isActive)
+                .sort((a, b) => a.order - b.order)
+                .map((button) => (
+                  <a
+                    key={button.id}
+                    href={button.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-11 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-all hover:glow-sm"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    {button.label}
+                  </a>
+                ))}
             </div>
           )}
 

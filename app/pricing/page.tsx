@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -60,8 +62,8 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-grid">
-      <div className="absolute inset-0 bg-radial" />
+    <div className="min-h-screen bg-grid bg-radial">
+      <Navbar />
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-24">
         <div className="mb-16 text-center">
           <h1 className="mb-4 text-4xl font-bold md:text-5xl">
@@ -114,6 +116,7 @@ export default function PricingPage() {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

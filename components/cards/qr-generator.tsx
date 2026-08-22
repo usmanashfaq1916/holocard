@@ -6,19 +6,29 @@ import QRCodeLib from "qrcode";
 interface QRGeneratorProps {
   slug: string;
   size?: number;
+  darkColor?: string;
+  lightColor?: string;
 }
 
-export function QRGenerator({ slug, size = 200 }: QRGeneratorProps) {
+export function QRGenerator({ slug, size = 200, darkColor, lightColor }: QRGeneratorProps) {
   const [dataUrl, setDataUrl] = useState<string | null>(null);
+  const [isDark, setIsDark] = useState(false);
   const url = `${typeof window !== "undefined" ? window.location.origin : ""}/card/${slug}`;
 
   useEffect(() => {
+    const dark = document.documentElement.classList.contains("dark");
+    setIsDark(dark);
+  }, []);
+
+  useEffect(() => {
+    const dark = darkColor || (isDark ? "#ffffff" : "#0F172A");
+    const light = lightColor || (isDark ? "#050A14" : "#ffffff");
     QRCodeLib.toDataURL(url, {
       width: size,
       margin: 2,
-      color: { dark: "#ffffff", light: "#050A14" },
-    }).then(setDataUrl);
-  }, [url, size]);
+      color: { dark, light },
+    }).then(setDataUrl).catch(() => {});
+  }, [url, size, isDark, darkColor, lightColor]);
 
   if (!dataUrl) {
     return (

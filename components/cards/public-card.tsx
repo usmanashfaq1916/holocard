@@ -11,9 +11,12 @@ import {
   MapPin,
   Download,
   ExternalLink,
+  Share2,
+  Check,
 } from "lucide-react";
 import { QRGenerator } from "./qr-generator";
 import { ShareButtons } from "./share-buttons";
+import { shareCard, copyToClipboard, downloadVCard } from "@/lib/sharing";
 
 function SocialIcon({ platform }: { platform: string }) {
   const p = platform.toLowerCase();
@@ -63,6 +66,30 @@ interface Card {
 
 export function PublicCard({ card }: { card: Card }) {
   const [showQR, setShowQR] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const shared = await shareCard(card);
+    if (!shared) {
+      const url = `${window.location.origin}/card/${card.slug}`;
+      const success = await copyToClipboard(url);
+      if (success) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    }
+  };
+
+  const handleSaveContact = () => {
+    downloadVCard({
+      name: card.name,
+      designation: card.designation,
+      company: card.company,
+      phone: card.phone,
+      email: card.email,
+      website: card.website,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-grid">
@@ -83,14 +110,22 @@ export function PublicCard({ card }: { card: Card }) {
           </div>
 
           <div className="mt-6 flex justify-center gap-3">
-            <a
-              href={`/api/contact/${card.slug}`}
-              download
+            <button
+              onClick={handleSaveContact}
               className="flex h-11 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-all hover:glow-sm"
             >
               <UserPlus className="h-4 w-4" />
               Save Contact
-            </a>
+            </button>
+            <div className="relative">
+              <button
+                onClick={handleShare}
+                className="flex h-11 items-center gap-2 rounded-lg border border-border bg-background px-4 text-sm font-medium transition-colors hover:bg-accent"
+              >
+                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Share2 className="h-4 w-4" />}
+                {copied ? "Copied!" : "Share"}
+              </button>
+            </div>
             <a
               href={`/ar/${card.id}`}
               className="flex h-11 items-center gap-2 rounded-lg border border-border bg-background px-4 text-sm font-medium transition-colors hover:bg-accent"

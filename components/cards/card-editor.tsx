@@ -23,6 +23,7 @@ import {
   Save,
   ChevronLeft,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -229,13 +230,18 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
       });
       if (!res.ok) {
         const err = await res.json();
-        alert(err.error || "Failed to save card");
+        toast.error(err.error || "Failed to save card");
         return;
       }
       if (!cardId) {
         const created = await res.json();
+        toast.success("Card created");
         window.location.href = `/dashboard/cards/${created.id}/edit`;
+      } else {
+        toast.success("Card saved successfully");
       }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -245,7 +251,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
 
   const handleUpload = async (file: File, purpose: "profile" | "company" | "background") => {
     if (!cardId) {
-      alert("Save the card first before uploading images");
+      toast.error("Save the card before uploading images");
       return;
     }
     const formData = new FormData();
@@ -258,6 +264,9 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
       if (purpose === "profile") setValue("profileImage", data.url);
       else if (purpose === "company") setValue("companyLogo", data.url);
       else setValue("bgImage", data.url);
+      toast.success("Image uploaded");
+    } else {
+      toast.error("Failed to upload image");
     }
   };
 

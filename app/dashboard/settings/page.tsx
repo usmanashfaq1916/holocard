@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, X, Crown, Zap, Building2 } from "lucide-react";
+import { Check, X, Crown, Zap, Building2, HardDrive, Image, Video, FileText } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,9 @@ export default function SettingsPage() {
   const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
+  const [storageUsage, setStorageUsage] = useState({ images: 0, videos: 0, documents: 0 });
+  const [storageLoading, setStorageLoading] = useState(true);
+
   useEffect(() => {
     fetch("/api/dashboard/stats")
       .then((r) => r.json())
@@ -88,6 +91,28 @@ export default function SettingsPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/media")
+      .then((r) => r.json())
+      .then((data) => {
+        const files = data.files || data.media || [];
+        let images = 0, videos = 0, documents = 0;
+        for (const file of files) {
+          const type = (file.type || file.mimeType || "").toLowerCase();
+          if (type.startsWith("image/")) images++;
+          else if (type.startsWith("video/")) videos++;
+          else documents++;
+        }
+        setStorageUsage({
+          images: images * 500,
+          videos: videos * 5000,
+          documents: documents * 200,
+        });
+        setStorageLoading(false);
+      })
+      .catch(() => setStorageLoading(false));
   }, []);
 
   const currentPlan = user?.plan || "FREE";
@@ -131,6 +156,7 @@ export default function SettingsPage() {
           <TabsTrigger value="privacy">Privacy</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="subscription">Subscription</TabsTrigger>
+          <TabsTrigger value="storage">Storage</TabsTrigger>
           <TabsTrigger value="delete">Delete Account</TabsTrigger>
         </TabsList>
 
@@ -480,6 +506,95 @@ export default function SettingsPage() {
                 )}
               </div>
             </div>
+          </div>
+        </TabsContent>
+
+        {/* Storage */}
+        <TabsContent value="storage">
+          <div className="glass rounded-xl p-6 space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold">Storage Usage</h2>
+              <p className="text-sm text-muted-foreground">
+                Monitor your storage consumption across different file types.
+              </p>
+            </div>
+
+            {storageLoading ? (
+              <div className="space-y-4">
+                <div className="h-4 w-full animate-pulse rounded-full bg-muted" />
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-20 animate-pulse rounded-lg bg-muted" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {(() => {
+                  const totalMB = storageUsage.images + storageUsage.videos + storageUsage.documents;
+                  const maxMB = 1024;
+                  const percentage = Math.min((totalMB / maxMB) * 100, 100);
+                  const formatSize = (mb: number) =>
+                    mb >= 1000 ? `${(mb / 1000).toFixed(1)} GB` : `${mb} MB`;
+
+                  return (
+                    <>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium">{formatSize(totalMB)} of {formatSize(maxMB)}</span>
+                          <span className="text-muted-foreground">{percentage.toFixed(1)}%</span>
+                        </div>
+                        <div className="h-3 overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full rounded-full bg-primary transition-all duration-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 sm:grid-cols-3">
+                        <div className="rounded-xl border border-border p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Image className="h-5 w-5 text-blue-500" />
+                            <span className="text-sm font-medium">Images</span>
+                          </div>
+                          <p className="text-2xl font-bold">{formatSize(storageUsage.images)}</p>
+                          <p className="text-xs text-muted-foreground mt-1">~{Math.round(storageUsage.images / 500)} files</p>
+                        </div>
+
+                        <div className="rounded-xl border border-border p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Video className="h-5 w-5 text-purple-500" />
+                            <span className="text-sm font-medium">Videos</span>
+                          </div>
+                          <p className="text-2xl font-bold">{formatSize(storageUsage.videos)}</p>
+                          <p className="text-xs text-muted-foreground mt-1">~{Math.round(storageUsage.videos / 5000)} files</p>
+                        </div>
+
+                        <div className="rounded-xl border border-border p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <FileText className="h-5 w-5 text-green-500" />
+                            <span className="text-sm font-medium">Documents</span>
+                          </div>
+                          <p className="text-2xl font-bold">{formatSize(storageUsage.documents)}</p>
+                          <p className="text-xs text-muted-foreground mt-1">~{Math.round(storageUsage.documents / 200)} files</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <Button variant="outline">
+                          <HardDrive className="mr-2 h-4 w-4" />
+                          Manage Storage
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                          Upgrade to PRO for 10 GB storage
+                        </p>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
           </div>
         </TabsContent>
 

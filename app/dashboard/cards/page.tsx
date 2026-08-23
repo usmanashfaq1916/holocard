@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Plus, Eye, QrCode, Copy, Trash2, ExternalLink, GripVertical, CopyPlus } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { toast } from "sonner";
 import { QRGenerator } from "@/components/cards/qr-generator";
 import { ShareButtons } from "@/components/cards/share-buttons";
 
@@ -39,19 +40,31 @@ export default function CardsPage() {
 
   const deleteCard = async (id: string) => {
     if (!confirm("Delete this card? This cannot be undone.")) return;
-    await fetch(`/api/cards/${id}`, { method: "DELETE" });
-    setCards(cards.filter((c) => c.id !== id));
+    try {
+      await fetch(`/api/cards/${id}`, { method: "DELETE" });
+      setCards(cards.filter((c) => c.id !== id));
+      toast.success("Card deleted");
+    } catch {
+      toast.error("Could not delete card");
+    }
   };
 
   const duplicateCard = async (id: string) => {
-    const res = await fetch(`/api/cards/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "duplicate" }),
-    });
-    if (res.ok) {
-      const duplicated = await res.json();
-      setCards([...cards, duplicated].sort((a, b) => a.order - b.order));
+    try {
+      const res = await fetch(`/api/cards/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "duplicate" }),
+      });
+      if (res.ok) {
+        const duplicated = await res.json();
+        setCards([...cards, duplicated].sort((a, b) => a.order - b.order));
+        toast.success("Card duplicated");
+      } else {
+        toast.error("Duplicate failed");
+      }
+    } catch {
+      toast.error("Duplicate failed");
     }
   };
 
@@ -105,9 +118,10 @@ export default function CardsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cardIds: newCards.map((c) => c.id) }),
       });
+      toast.success("Cards reordered");
     } catch {
-      // Revert on error
       setCards(cards);
+      toast.error("Reorder failed");
     }
   };
 

@@ -50,6 +50,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { Toaster } from "sonner";
+
 export default function RootLayout({
   children,
 }: {
@@ -59,6 +61,7 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="min-h-screen bg-background text-foreground antialiased">
         {children}
+        <Toaster richColors position="bottom-right" />
       </body>
     </html>
   );

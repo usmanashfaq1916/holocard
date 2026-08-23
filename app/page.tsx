@@ -1,8 +1,8 @@
 ﻿"use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   QrCode,
   Smartphone,
@@ -18,14 +18,6 @@ import {
   Layers,
   ChevronDown,
   ArrowRight,
-  CreditCard,
-  Rotate3d,
-  Download,
-  LinkIcon,
-  Mail,
-  Phone,
-  MessageSquare,
-  Star,
   Check,
   X,
 } from "lucide-react";
@@ -237,7 +229,7 @@ export default function HomePage() {
               See It In <span className="text-gradient">Action</span>
             </h2>
             <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
-              Experience a live preview of what your HoloCard looks like.
+              Try the interactive 3D HoloCard. Drag to rotate, click to flip.
             </p>
           </motion.div>
           <motion.div
@@ -247,53 +239,23 @@ export default function HomePage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mx-auto max-w-lg"
           >
-            <div className="glass rounded-3xl p-6 glow-md">
-              <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-cyan/10 p-8">
-                <div className="flex flex-col items-center text-center">
-                  <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary to-cyan text-3xl font-bold text-white glow-sm">
-                    JD
-                  </div>
-                  <h3 className="mb-1 text-xl font-bold">Jane Doe</h3>
-                  <p className="mb-4 text-sm text-muted-foreground">Product Designer at Acme Inc</p>
-                  <p className="mb-6 text-sm text-muted-foreground">
-                    Passionate about creating beautiful user experiences and building products that make a difference.
-                  </p>
-                  <div className="mb-6 flex flex-wrap justify-center gap-2">
-                    <span className="rounded-full bg-primary/20 px-3 py-1 text-xs text-primary">UI/UX</span>
-                    <span className="rounded-full bg-cyan/20 px-3 py-1 text-xs text-cyan">Figma</span>
-                    <span className="rounded-full bg-primary/20 px-3 py-1 text-xs text-primary">React</span>
-                    <span className="rounded-full bg-cyan/20 px-3 py-1 text-xs text-cyan">Design Systems</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
-                      <Mail className="h-5 w-5" />
-                    </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan/20 text-cyan transition-colors hover:bg-cyan hover:text-white">
-                      <Globe className="h-5 w-5" />
-                    </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
-                      <LinkIcon className="h-5 w-5" />
-                    </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan/20 text-cyan transition-colors hover:bg-cyan hover:text-white">
-                      <Phone className="h-5 w-5" />
-                    </div>
-                  </div>
-                  <div className="mt-6 flex w-full gap-3">
-                    <button className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-                      <Download className="h-4 w-4" />
-                      Save Contact
-                    </button>
-                    <button className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium transition-colors hover:bg-accent">
-                      <Rotate3d className="h-4 w-4" />
-                      View in AR
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                <Eye className="h-3 w-3" />
-                <span>Interactive preview &mdash; hover and click to explore</span>
-              </div>
+            <div className="glass rounded-3xl p-2 glow-md">
+              <HeroHoloCard />
+            </div>
+            <div className="mt-4 flex justify-center gap-3">
+              <Link
+                href="/register"
+                className={buttonVariants({ variant: "default", size: "sm" })}
+              >
+                Create Your HoloCard
+              </Link>
+              <Link
+                href="/ar/usman-ashfaq"
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                <Eye className="mr-2 h-3 w-3" />
+                Experience AR
+              </Link>
             </div>
           </motion.div>
         </div>

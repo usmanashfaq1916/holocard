@@ -1,17 +1,22 @@
 import type { StorageProvider } from "./types";
-import { MinIOProvider } from "./minio";
-import { SupabaseProvider } from "./supabase";
 
 let _provider: StorageProvider | null = null;
 
-export function getStorage(): StorageProvider {
+export async function getStorage(): Promise<StorageProvider> {
   if (_provider) return _provider;
 
   const driver = process.env.STORAGE_DRIVER || "supabase";
 
-  _provider = driver === "minio"
-    ? new MinIOProvider()
-    : new SupabaseProvider();
+  if (driver === "cloudinary") {
+    const { CloudinaryProvider } = await import("./cloudinary");
+    _provider = new CloudinaryProvider();
+  } else if (driver === "minio") {
+    const { MinIOProvider } = await import("./minio");
+    _provider = new MinIOProvider();
+  } else {
+    const { SupabaseProvider } = await import("./supabase");
+    _provider = new SupabaseProvider();
+  }
 
   return _provider;
 }

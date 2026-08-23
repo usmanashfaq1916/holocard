@@ -34,6 +34,14 @@ export function shareViaEmail(card: { name: string; slug: string }) {
   window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_blank");
 }
 
+export function shareViaLinkedIn(card: { name: string; slug: string }) {
+  const url = `${window.location.origin}/card/${card.slug}`;
+  window.open(
+    `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    "_blank"
+  );
+}
+
 export function downloadVCard(card: {
   name: string;
   designation?: string | null;

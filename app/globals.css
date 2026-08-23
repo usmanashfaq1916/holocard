@@ -223,6 +223,29 @@ html {
   .animate-pulse-slow {
     animation: pulse-slow 4s ease-in-out infinite;
   }
+  .holo-gradient {
+    background: linear-gradient(
+      135deg,
+      oklch(0.65 0.15 195),
+      oklch(0.58 0.2 260),
+      oklch(0.7 0.12 320),
+      oklch(0.65 0.15 195)
+    );
+    background-size: 300% 300%;
+    animation: holo-shift 8s ease infinite;
+  }
+  .holo-border {
+    border-image: linear-gradient(
+      135deg,
+      oklch(0.65 0.15 195 / 40%),
+      oklch(0.58 0.2 260 / 40%),
+      oklch(0.7 0.12 320 / 40%),
+      oklch(0.65 0.15 195 / 40%)
+    ) 1;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 @keyframes float {
@@ -233,6 +256,12 @@ html {
 @keyframes pulse-slow {
   0%, 100% { opacity: 0.6; }
   50% { opacity: 1; }
+}
+
+@keyframes holo-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

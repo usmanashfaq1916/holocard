@@ -164,7 +164,7 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
   }
 
   const media = await prisma.media.findMany({ where: { cardId: id } });
-  const storage = getStorage();
+  const storage = await getStorage();
 
   for (const item of media) {
     try {

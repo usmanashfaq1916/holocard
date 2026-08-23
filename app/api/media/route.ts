@@ -36,7 +36,7 @@ export async function DELETE(req: Request) {
   }
 
   try {
-    const storage = getStorage();
+    const storage = await getStorage();
     const url = media.url;
     const bucketPrefix = process.env.STORAGE_DRIVER === "minio"
       ? `${process.env.MINIO_BUCKET || "holocard"}/`

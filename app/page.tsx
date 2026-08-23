@@ -32,6 +32,7 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { HeroHoloCard } from "@/components/home/hero-holo-card";
 
 const features = [
   { icon: Eye, title: "Augmented Reality", desc: "Bring your card to life with immersive AR experiences." },
@@ -127,17 +128,19 @@ export default function HomePage() {
             >
               <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
                 Your Business Card.{" "}
-                <span className="text-gradient">Reimagined in AR.</span>
+                <span className="text-gradient">Reimagined in 3D.</span>
               </h1>
               <p className="mb-8 text-lg text-muted-foreground">
-                Create an interactive digital business card that comes alive through Augmented Reality. Stand out. Make an impression.
+                Create an interactive digital identity with a 3D HoloCard, AR experience, and real-time analytics. Stand out. Make an impression.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row">
                 <Link href="/register" className={buttonVariants({ variant: "default", size: "lg" })}>
-                  Create Your AR Card
+                  Create My HoloCard
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
-                <Link href="/how-it-works" className={buttonVariants({ variant: "outline", size: "lg" })}>
-                  See AR Demo
+                <Link href="/ar/usman-ashfaq" className={buttonVariants({ variant: "outline", size: "lg" })}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Experience AR
                 </Link>
               </div>
             </motion.div>
@@ -148,33 +151,7 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="relative"
             >
-              <div className="glass animate-float rounded-2xl p-8 glow-md">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-cyan text-xl font-bold text-white">
-                    UA
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Usman Ashfaq</h3>
-                    <p className="text-sm text-muted-foreground">Data Analyst</p>
-                  </div>
-                </div>
-                <div className="mt-4 flex gap-2">
-                  <span className="rounded-full bg-primary/20 px-3 py-1 text-xs text-primary">Python</span>
-                  <span className="rounded-full bg-cyan/20 px-3 py-1 text-xs text-cyan">SQL</span>
-                  <span className="rounded-full bg-primary/20 px-3 py-1 text-xs text-primary">Power BI</span>
-                </div>
-                <div className="mt-6 flex gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
-                    <QrCode className="h-5 w-5" />
-                  </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan/20 text-cyan">
-                    <Eye className="h-5 w-5" />
-                  </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
-                    <Share2 className="h-5 w-5" />
-                  </div>
-                </div>
-              </div>
+              <HeroHoloCard />
             </motion.div>
           </div>
         </div>

@@ -80,7 +80,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const storage = getStorage();
+  const storage = await getStorage();
 
   try {
     const result = await storage.upload(key, buffer, file.type);

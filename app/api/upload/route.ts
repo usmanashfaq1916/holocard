@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
-import { getSupabase, BUCKET_NAME, validateUpload } from "@/lib/supabase";
+import { getStorage } from "@/lib/storage";
 import { prisma } from "@/lib/db";
+
+const ALLOWED_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "model/gltf-binary",
+  "model/gltf+json",
+  "video/mp4",
+]);
+
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -24,54 +36,59 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
-  const validation = validateUpload(file);
-  if (!validation.valid) {
-    return NextResponse.json({ error: validation.error }, { status: 400 });
+  if (!ALLOWED_MIME_TYPES.has(file.type)) {
+    return NextResponse.json(
+      { error: `File type ${file.type} is not allowed. Allowed: JPEG, PNG, GIF, WebP, GLB, GLTF, MP4.` },
+      { status: 400 }
+    );
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    return NextResponse.json(
+      { error: `File size ${(file.size / 1024 / 1024).toFixed(1)}MB exceeds 50MB limit.` },
+      { status: 400 }
+    );
   }
 
   const ext = file.name.split(".").pop() || "bin";
   const timestamp = Date.now();
-  const path = `${session.user.id}/${purpose}/${timestamp}.${ext}`;
+  const key = `${session.user.id}/${purpose}/${timestamp}.${ext}`;
 
   const buffer = Buffer.from(await file.arrayBuffer());
+  const storage = getStorage();
 
-  const supabase = getSupabase();
+  try {
+    const result = await storage.upload(key, buffer, file.type);
 
-  const { error: uploadError } = await supabase.storage
-    .from(BUCKET_NAME)
-    .upload(path, buffer, {
-      contentType: file.type,
-      upsert: false,
+    const mediaType = purpose === "model" ? "MODEL_3D" : purpose === "ar-target" ? "AR_TARGET" : "IMAGE";
+
+    const media = await prisma.media.create({
+      data: {
+        userId: session.user.id,
+        cardId: cardId || null,
+        type: mediaType,
+        filename: file.name,
+        url: result.url,
+        size: file.size,
+        mimeType: file.type,
+      },
     });
 
-  if (uploadError) {
     return NextResponse.json(
-      { error: `Upload failed: ${uploadError.message}` },
+      {
+        id: media.id,
+        url: result.url,
+        key: result.key,
+        filename: file.name,
+        mimeType: file.type,
+        size: file.size,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { error: `Upload failed: ${error instanceof Error ? error.message : "Unknown error"}` },
       { status: 500 }
     );
   }
-
-  const { data: urlData } = supabase.storage
-    .from(BUCKET_NAME)
-    .getPublicUrl(path);
-
-  const media = await prisma.media.create({
-    data: {
-      userId: session.user.id,
-      cardId: cardId || null,
-      type: purpose === "model" ? "MODEL_3D" : purpose === "ar-target" ? "AR_TARGET" : "IMAGE",
-      filename: file.name,
-      url: urlData.publicUrl,
-      size: file.size,
-      mimeType: file.type,
-    },
-  });
-
-  return NextResponse.json({
-    id: media.id,
-    url: urlData.publicUrl,
-    filename: file.name,
-    mimeType: file.type,
-    size: file.size,
-  }, { status: 201 });
 }

@@ -82,8 +82,15 @@ export default function MediaPage() {
   const storagePercent = Math.min((totalSize / (1024 * 1024 * 1024)) * 100, 100);
 
   const deleteMedia = async (id: string) => {
-    if (!confirm("Delete this media file?")) return;
-    setMedia(media.filter((m) => m.id !== id));
+    if (!confirm("Delete this media file? This cannot be undone.")) return;
+    try {
+      const res = await fetch(`/api/media?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setMedia(media.filter((m) => m.id !== id));
+      }
+    } catch {
+      // Silently fail - file may already be deleted
+    }
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

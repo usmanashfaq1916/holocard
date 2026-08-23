@@ -7,5 +7,9 @@ export async function GET() {
     orderBy: { order: "asc" },
   });
 
-  return NextResponse.json(templates);
+  return NextResponse.json(templates, {
+    headers: {
+      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+    },
+  });
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth/config";
 import { cardSchema } from "@/lib/validation";
+import { getStorage } from "@/lib/storage";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -160,6 +161,23 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
 
   if (!card || card.userId !== session.user.id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const media = await prisma.media.findMany({ where: { cardId: id } });
+  const storage = getStorage();
+
+  for (const item of media) {
+    try {
+      const bucketPrefix = process.env.STORAGE_DRIVER === "minio"
+        ? `${process.env.MINIO_BUCKET || "holocard"}/`
+        : "holocard-uploads/";
+      const keyMatch = item.url.split(bucketPrefix);
+      if (keyMatch.length > 1) {
+        await storage.delete(keyMatch[1]);
+      }
+    } catch {
+      // Continue even if storage delete fails
+    }
   }
 
   await prisma.card.delete({ where: { id } });

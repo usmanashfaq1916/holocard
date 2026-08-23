@@ -19,7 +19,10 @@ export async function GET(_req: Request, { params }: RouteParams) {
       color: { dark: "#ffffff", light: "#050A14" },
     });
     return new NextResponse(svg, {
-      headers: { "Content-Type": "image/svg+xml" },
+      headers: {
+        "Content-Type": "image/svg+xml",
+        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800",
+      },
     });
   }
 
@@ -30,6 +33,9 @@ export async function GET(_req: Request, { params }: RouteParams) {
   });
 
   return new NextResponse(new Uint8Array(buffer), {
-    headers: { "Content-Type": "image/png" },
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800",
+    },
   });
 }

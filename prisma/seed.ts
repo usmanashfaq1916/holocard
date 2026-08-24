@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
+// NOTE: The demo account (usman@demo.com) is a standard USER role account.
+// It cannot access admin routes (/api/admin/*) and can only modify its own data.
+// Credentials are NOT in the public README — use the live demo URL instead.
+
 async function main() {
   console.log("Seeding database...");
 

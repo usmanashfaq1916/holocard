@@ -18,6 +18,8 @@ import {
   Users,
   Image,
   Sparkles,
+  Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -33,15 +35,21 @@ const sidebarLinks = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="glass sticky top-0 flex h-screen w-64 flex-col border-r border-border">
-      <div className="flex h-16 items-center border-b border-border px-6">
+    <aside className="glass flex h-screen w-64 flex-col border-r border-border">
+      <div className="flex h-16 items-center justify-between border-b border-border px-6">
         <Link href="/" className="text-xl font-bold">
           <span className="text-gradient">Holo</span>Card
         </Link>
+        <button
+          onClick={onClose}
+          className="rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground md:hidden"
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">
@@ -81,7 +89,7 @@ export function DashboardSidebar() {
   );
 }
 
-export function DashboardTopbar({ user }: { user?: { name?: string | null; email?: string | null } }) {
+export function DashboardTopbar({ user, onMenuClick }: { user?: { name?: string | null; email?: string | null }; onMenuClick?: () => void }) {
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : user?.email?.[0]?.toUpperCase() || "U";
@@ -121,14 +129,22 @@ export function DashboardTopbar({ user }: { user?: { name?: string | null; email
   };
 
   return (
-    <header className="glass sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border px-6">
-      <div className="relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder="Search cards, templates..."
-          className="w-full rounded-lg border border-border bg-background py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-        />
+    <header className="glass sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border px-4 md:px-6">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onMenuClick}
+          className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground md:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search cards, templates..."
+            className="w-full rounded-lg border border-border bg-background py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+          />
+        </div>
       </div>
       <div className="flex items-center gap-4">
         <div className="relative" ref={notifRef}>

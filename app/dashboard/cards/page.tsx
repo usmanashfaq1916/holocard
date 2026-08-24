@@ -2,11 +2,12 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { Plus, Eye, QrCode, Copy, Trash2, ExternalLink, GripVertical, CopyPlus } from "lucide-react";
+import { Plus, Eye, QrCode, Copy, Trash2, ExternalLink, GripVertical, CopyPlus, Pencil, BarChart3, Archive, Upload } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { toast } from "sonner";
 import { QRGenerator } from "@/components/cards/qr-generator";
 import { ShareButtons } from "@/components/cards/share-buttons";
+import { PublishModal } from "@/components/cards/publish-modal";
 
 interface Card {
   id: string;
@@ -24,6 +25,7 @@ export default function CardsPage() {
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState<string | null>(null);
   const [showShare, setShowShare] = useState<string | null>(null);
+  const [publishCard, setPublishCard] = useState<Card | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragCounter = useRef(0);
@@ -65,6 +67,43 @@ export default function CardsPage() {
       }
     } catch {
       toast.error("Duplicate failed");
+    }
+  };
+
+  const toggleStatus = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === "ACTIVE" ? "DRAFT" : "ACTIVE";
+    try {
+      const res = await fetch(`/api/cards/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setCards(cards.map((c) => c.id === id ? { ...c, status: newStatus } : c));
+        toast.success(`Card ${newStatus === "ACTIVE" ? "published" : "unpublished"}`);
+      } else {
+        toast.error("Failed to update status");
+      }
+    } catch {
+      toast.error("Failed to update status");
+    }
+  };
+
+  const archiveCard = async (id: string) => {
+    try {
+      const res = await fetch(`/api/cards/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "ARCHIVED" }),
+      });
+      if (res.ok) {
+        setCards(cards.map((c) => c.id === id ? { ...c, status: "ARCHIVED" } : c));
+        toast.success("Card archived");
+      } else {
+        toast.error("Failed to archive card");
+      }
+    } catch {
+      toast.error("Failed to archive card");
     }
   };
 
@@ -217,7 +256,39 @@ export default function CardsPage() {
                 /card/{card.slug}
               </div>
 
-              <div className="mt-4 flex gap-2">
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  href={`/dashboard/cards/${card.id}/edit`}
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                >
+                  <Pencil className="mr-1 h-3 w-3" /> Edit
+                </Link>
+                <Link
+                  href={`/dashboard/analytics?card=${card.id}`}
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                >
+                  <BarChart3 className="mr-1 h-3 w-3" /> Analytics
+                </Link>
+                <button
+                  onClick={() => {
+                    if (card.status === "ACTIVE") {
+                      toggleStatus(card.id, card.status);
+                    } else {
+                      setPublishCard(card);
+                    }
+                  }}
+                  className={buttonVariants({ variant: card.status === "ACTIVE" ? "outline" : "default", size: "sm" })}
+                >
+                  <Upload className="mr-1 h-3 w-3" /> {card.status === "ACTIVE" ? "Unpublish" : "Publish"}
+                </button>
+                {card.status !== "ARCHIVED" && (
+                  <button
+                    onClick={() => archiveCard(card.id)}
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                  >
+                    <Archive className="mr-1 h-3 w-3" /> Archive
+                  </button>
+                )}
                 <Link
                   href={`/card/${card.slug}`}
                   target="_blank"
@@ -246,6 +317,7 @@ export default function CardsPage() {
                 <button
                   onClick={() => deleteCard(card.id)}
                   className={buttonVariants({ variant: "outline", size: "sm" })}
+                  aria-label="Delete card"
                 >
                   <Trash2 className="h-3 w-3" />
                 </button>
@@ -281,6 +353,20 @@ export default function CardsPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {publishCard && (
+        <PublishModal
+          cardId={publishCard.id}
+          cardName={publishCard.name}
+          cardSlug={publishCard.slug}
+          open={true}
+          onClose={() => setPublishCard(null)}
+          onPublished={() => {
+            setCards(cards.map((c) => c.id === publishCard.id ? { ...c, status: "ACTIVE" } : c));
+            setPublishCard(null);
+          }}
+        />
       )}
     </div>
   );

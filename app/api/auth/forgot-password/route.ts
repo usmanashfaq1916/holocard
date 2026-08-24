@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/db";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
+    const rate = checkRateLimit(`forgot-password:${ip}`, 3, 60000);
+    if (!rate.allowed) {
+      return NextResponse.json({ error: "Too many attempts. Please try again later." }, { status: 429 });
+    }
+
     const { email } = await req.json();
 
     if (!email || typeof email !== "string") {
@@ -28,12 +35,6 @@ export async function POST(req: Request) {
           expires,
         },
       });
-
-      const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-      console.log(
-        `Password reset URL: ${baseUrl}/reset-password?token=${token}`
-      );
     }
 
     return NextResponse.json({

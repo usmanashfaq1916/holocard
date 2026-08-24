@@ -20,7 +20,7 @@ export function DemoCTA() {
         </h2>
         <p className="mx-auto mb-10 max-w-xl text-lg text-muted-foreground">
           Join professionals who have transformed their networking with
-          interactive 3D business cards.
+          interactive AR business cards.
         </p>
 
         {/* CTA buttons */}

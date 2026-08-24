@@ -94,6 +94,174 @@ interface Card {
   accentColor: string | null;
   socialLinks: SocialLink[];
   buttons?: CardButton[];
+  about?: string | null;
+  skills?: string | null;
+  experience?: string | null;
+  projects?: string | null;
+  enableContact?: boolean | null;
+}
+
+function SkillsSection({ skills }: { skills: unknown }) {
+  let skillsList: string[] = [];
+  try {
+    const parsed = typeof skills === "string" ? JSON.parse(skills) : skills;
+    skillsList = Array.isArray(parsed) ? parsed : [];
+  } catch { skillsList = []; }
+  if (skillsList.length === 0) return null;
+  return (
+    <section className="mx-auto max-w-2xl px-4 pb-6">
+      <div className="glass rounded-xl p-4">
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Skills</h3>
+        <div className="flex flex-wrap gap-2">
+          {skillsList.map((skill: string, i: number) => (
+            <span key={i} className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+              {skill}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExperienceSection({ experience }: { experience: unknown }) {
+  let expList: { title: string; company: string; period: string; description: string }[] = [];
+  try {
+    const parsed = typeof experience === "string" ? JSON.parse(experience) : experience;
+    expList = Array.isArray(parsed) ? parsed : [];
+  } catch { expList = []; }
+  if (expList.length === 0) return null;
+  return (
+    <section className="mx-auto max-w-2xl px-4 pb-6">
+      <div className="glass rounded-xl p-4">
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Experience</h3>
+        <div className="space-y-4">
+          {expList.map((exp, i: number) => (
+            <div key={i} className="border-l-2 border-primary/30 pl-4">
+              <h4 className="text-sm font-semibold">{exp.title}</h4>
+              <p className="text-xs text-muted-foreground">{exp.company}{exp.period ? ` · ${exp.period}` : ""}</p>
+              {exp.description && <p className="mt-1 text-xs text-muted-foreground">{exp.description}</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProjectsSection({ projects }: { projects: unknown }) {
+  let projList: { name: string; description: string; url?: string }[] = [];
+  try {
+    const parsed = typeof projects === "string" ? JSON.parse(projects) : projects;
+    projList = Array.isArray(parsed) ? parsed : [];
+  } catch { projList = []; }
+  if (projList.length === 0) return null;
+  return (
+    <section className="mx-auto max-w-2xl px-4 pb-6">
+      <div className="glass rounded-xl p-4">
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Projects</h3>
+        <div className="space-y-3">
+          {projList.map((proj, i: number) => (
+            <div key={i} className="rounded-lg border border-border p-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold">{proj.name}</h4>
+                {proj.url && (
+                  <a href={proj.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+              {proj.description && <p className="mt-1 text-xs text-muted-foreground">{proj.description}</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ContactForm({ cardId, cardName }: { cardId: string; cardName: string }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
+    try {
+      const res = await fetch("/api/contacts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cardId, name, email, phone, message, source: "form" }),
+      });
+      if (res.ok) {
+        setSent(true);
+        setName("");
+        setEmail("");
+        setPhone("");
+        setMessage("");
+      }
+    } catch { /* silent */ }
+    setSending(false);
+  };
+
+  if (sent) {
+    return (
+      <div className="glass rounded-xl p-6 text-center">
+        <Check className="mx-auto h-8 w-8 text-green-500" />
+        <p className="mt-2 text-sm font-medium">Message sent to {cardName}!</p>
+        <button onClick={() => setSent(false)} className="mt-2 text-xs text-primary hover:underline">Send another</button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="glass rounded-xl p-4 space-y-3">
+      <h3 className="text-sm font-medium text-muted-foreground">Send a Message</h3>
+      <input type="hidden" value={cardId} />
+      <input
+        type="text"
+        placeholder="Your name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+      />
+      <input
+        type="email"
+        placeholder="Your email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+      />
+      <input
+        type="tel"
+        placeholder="Phone (optional)"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+      />
+      <textarea
+        placeholder="Your message"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        required
+        rows={3}
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary resize-none"
+      />
+      <button
+        type="submit"
+        disabled={sending}
+        className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+      >
+        {sending ? "Sending..." : "Send Message"}
+      </button>
+    </form>
+  );
 }
 
 export function PublicCard({ card }: { card: Card }) {
@@ -120,6 +288,7 @@ export function PublicCard({ card }: { card: Card }) {
       phone: card.phone,
       email: card.email,
       website: card.website,
+      location: card.location,
     });
   };
 
@@ -238,7 +407,7 @@ export function PublicCard({ card }: { card: Card }) {
           )}
           {card.whatsapp && (
             <a
-              href={`https://wa.me/${card.whatsapp.replace(/[^0-9]/g, "")}`}
+              href={`https://wa.me/${(card.whatsapp as string).replace(/[^0-9]/g, "")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="glass flex items-center gap-3 rounded-xl p-4 transition-all hover:glow-sm"
@@ -256,7 +425,7 @@ export function PublicCard({ card }: { card: Card }) {
             >
               <Globe className="h-4 w-4 text-cyan" />
               <span className="truncate text-sm">
-                {card.website.replace(/^https?:\/\//, "")}
+                {(card.website as string).replace(/^https?:\/\//, "")}
               </span>
             </a>
           )}
@@ -334,6 +503,25 @@ export function PublicCard({ card }: { card: Card }) {
         </section>
       )}
 
+      {/* About Section */}
+      {card.about && (
+        <section className="mx-auto max-w-2xl px-4 pb-6">
+          <div className="glass rounded-xl p-4">
+            <h3 className="mb-3 text-sm font-medium text-muted-foreground">About</h3>
+            <p className="text-sm leading-relaxed text-foreground whitespace-pre-line">{card.about}</p>
+          </div>
+        </section>
+      )}
+
+      {/* Skills Section */}
+      {card.skills && <SkillsSection skills={card.skills} />}
+
+      {/* Experience Section */}
+      {card.experience && <ExperienceSection experience={card.experience} />}
+
+      {/* Projects Section */}
+      {card.projects && <ProjectsSection projects={card.projects} />}
+
       {/* Custom Buttons */}
       {card.buttons && card.buttons.filter((b) => b.isActive).length > 0 && (
         <section className="mx-auto max-w-2xl px-4 pb-6">
@@ -395,9 +583,16 @@ export function PublicCard({ card }: { card: Card }) {
           <p className="mb-3 text-center text-xs text-muted-foreground">
             Share this card
           </p>
-          <ShareButtons slug={card.slug} name={card.name} />
+          <ShareButtons slug={card.slug} name={card.name} designation={card.designation || undefined} company={card.company || undefined} phone={card.phone || undefined} email={card.email || undefined} website={card.website || undefined} />
         </div>
       </section>
+
+      {/* Contact Form */}
+      {card.enableContact && (
+        <section className="mx-auto max-w-2xl px-4 pb-6">
+          <ContactForm cardId={card.id} cardName={card.name} />
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="py-8 text-center">
@@ -410,4 +605,22 @@ export function PublicCard({ card }: { card: Card }) {
       </footer>
     </div>
   );
+}
+
+function parseJsonArray(value: unknown): string[] {
+  try {
+    const parsed = typeof value === "string" ? JSON.parse(value) : value;
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function parseJsonObjectArray(value: unknown): Record<string, string>[] {
+  try {
+    const parsed = typeof value === "string" ? JSON.parse(value) : value;
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }

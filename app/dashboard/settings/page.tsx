@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Check, X, Crown, Zap, Building2, HardDrive, Image, Video, FileText } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -79,6 +80,13 @@ export default function SettingsPage() {
   const [storageLoading, setStorageLoading] = useState(true);
 
   useEffect(() => {
+    const saved = localStorage.getItem("holocard-theme") as "light" | "dark" | "system" | null;
+    if (saved) {
+      applyTheme(saved);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     fetch("/api/dashboard/stats")
       .then((r) => r.json())
       .then((data) => {
@@ -120,6 +128,7 @@ export default function SettingsPage() {
 
   function applyTheme(newTheme: "light" | "dark" | "system") {
     setTheme(newTheme);
+    localStorage.setItem("holocard-theme", newTheme);
     if (newTheme === "system") {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       document.documentElement.classList.toggle("dark", prefersDark);
@@ -216,7 +225,18 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <Button>Save Changes</Button>
+                <Button onClick={async () => {
+                  try {
+                    await fetch("/api/settings/profile", {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ name, company, designation }),
+                    });
+                    toast.success("Profile updated");
+                  } catch {
+                    toast.error("Failed to update profile");
+                  }
+                }}>Save Changes</Button>
               </div>
             </div>
           </div>
@@ -275,7 +295,30 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <Button>Update Password</Button>
+                  <Button onClick={async () => {
+                    if (newPassword !== confirmPassword) {
+                      toast.error("Passwords don't match");
+                      return;
+                    }
+                    try {
+                      const res = await fetch("/api/settings/password", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ currentPassword, newPassword }),
+                      });
+                      if (res.ok) {
+                        toast.success("Password updated");
+                        setCurrentPassword("");
+                        setNewPassword("");
+                        setConfirmPassword("");
+                      } else {
+                        const data = await res.json();
+                        toast.error(data.error || "Failed to update password");
+                      }
+                    } catch {
+                      toast.error("Failed to update password");
+                    }
+                  }}>Update Password</Button>
                 </div>
               </div>
             </div>

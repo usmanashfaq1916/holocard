@@ -17,7 +17,7 @@ export function DemoAR() {
           Immersive <span className="text-gradient">AR Experience</span>
         </h2>
         <p className="mx-auto mb-12 max-w-2xl text-lg text-muted-foreground">
-          Your profile comes alive with a 3D card, interactive buttons, social links, and
+          Your profile comes alive with a holographic card, interactive buttons, social links, and
           one-tap contact saving. All from a single QR scan.
         </p>
 
@@ -49,7 +49,7 @@ export function DemoAR() {
               <div className="mx-4 mb-4 h-32 rounded-xl bg-gradient-to-br from-primary/10 to-cyan/10 border border-border flex items-center justify-center">
                 <div className="text-center">
                   <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                  <p className="mt-2 text-[10px] text-muted-foreground">3D HoloCard</p>
+                  <p className="mt-2 text-[10px] text-muted-foreground">AR HoloCard</p>
                 </div>
               </div>
 

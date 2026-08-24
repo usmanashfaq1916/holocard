@@ -13,6 +13,8 @@ import {
   Image as ImageIcon,
   Film,
   Box,
+  Pencil,
+  CreditCard,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -64,6 +66,8 @@ export default function MediaPage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [filter, setFilter] = useState<FilterType>("ALL");
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
 
   useEffect(() => {
     fetch("/api/media")
@@ -91,6 +95,21 @@ export default function MediaPage() {
     } catch {
       // Silently fail - file may already be deleted
     }
+  };
+
+  const renameMedia = async (id: string) => {
+    if (!renameValue.trim()) return;
+    try {
+      const res = await fetch(`/api/media?id=${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: renameValue.trim() }),
+      });
+      if (res.ok) {
+        setMedia(media.map((m) => m.id === id ? { ...m, filename: renameValue.trim() } : m));
+      }
+      setRenamingId(null);
+    } catch {}
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -250,6 +269,7 @@ export default function MediaPage() {
                   <button
                     onClick={() => deleteMedia(item.id)}
                     className="absolute top-2 right-2 rounded-lg bg-background/80 p-1.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive transition-opacity"
+                    aria-label="Delete media"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -257,7 +277,41 @@ export default function MediaPage() {
 
                 {/* Info */}
                 <div className="p-3">
-                  <p className="truncate text-sm font-medium">{item.filename}</p>
+                  {renamingId === item.id ? (
+                    <div className="flex gap-1">
+                      <input
+                        type="text"
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") renameMedia(item.id);
+                          if (e.key === "Escape") setRenamingId(null);
+                        }}
+                        className="flex-1 rounded border border-border bg-background px-2 py-0.5 text-sm outline-none focus:ring-1 focus:ring-primary"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => renameMedia(item.id)}
+                        className="rounded bg-primary px-2 py-0.5 text-xs text-primary-foreground hover:bg-primary/90"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <p className="flex-1 truncate text-sm font-medium">{item.filename}</p>
+                      <button
+                        onClick={() => {
+                          setRenamingId(item.id);
+                          setRenameValue(item.filename);
+                        }}
+                        className="rounded p-0.5 text-muted-foreground hover:text-foreground"
+                        aria-label="Rename"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
                   <div className="mt-1 flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Icon className={`h-3 w-3 ${color}`} />

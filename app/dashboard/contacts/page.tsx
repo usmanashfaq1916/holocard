@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Users, UserPlus, Mail, Phone, CreditCard } from "lucide-react";
+import { Search, Users, UserPlus, Mail, Phone, CreditCard, Download, Eye, Trash2 } from "lucide-react";
 
 interface Contact {
   id: string;
@@ -9,6 +9,7 @@ interface Contact {
   email: string | null;
   phone: string | null;
   message: string | null;
+  source: string | null;
   createdAt: string;
   card: {
     name: string;
@@ -20,6 +21,7 @@ export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [viewContact, setViewContact] = useState<Contact | null>(null);
 
   useEffect(() => {
     fetch("/api/contacts")
@@ -40,6 +42,34 @@ export default function ContactsPage() {
     );
   });
 
+  const deleteContact = async (id: string) => {
+    if (!confirm("Delete this contact?")) return;
+    try {
+      await fetch(`/api/contacts/${id}`, { method: "DELETE" });
+      setContacts(contacts.filter((c) => c.id !== id));
+    } catch {}
+  };
+
+  const exportCSV = () => {
+    const headers = ["Name", "Email", "Phone", "Source", "Card", "Date"];
+    const rows = filtered.map((c) => [
+      c.name || "Anonymous",
+      c.email || "",
+      c.phone || "",
+      c.source || "direct",
+      c.card.name,
+      new Date(c.createdAt).toLocaleDateString(),
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "contacts.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -54,6 +84,15 @@ export default function ContactsPage() {
           <span className="text-sm font-medium">{contacts.length}</span>
           <span className="text-xs text-muted-foreground">total</span>
         </div>
+        {contacts.length > 0 && (
+          <button
+            onClick={exportCSV}
+            className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent"
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </button>
+        )}
       </div>
 
       <div className="glass rounded-xl p-4">
@@ -108,8 +147,10 @@ export default function ContactsPage() {
                   <th className="px-4 py-3 font-medium">Name</th>
                   <th className="px-4 py-3 font-medium">Email</th>
                   <th className="px-4 py-3 font-medium">Phone</th>
+                  <th className="px-4 py-3 font-medium">Source</th>
                   <th className="px-4 py-3 font-medium">Card</th>
                   <th className="px-4 py-3 font-medium">Date</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -154,6 +195,11 @@ export default function ContactsPage() {
                       )}
                     </td>
                     <td className="px-4 py-3">
+                      <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                        {contact.source || "direct"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <CreditCard className="h-3 w-3" />
                         {contact.card.name}
@@ -162,10 +208,85 @@ export default function ContactsPage() {
                     <td className="px-4 py-3 text-xs text-muted-foreground">
                       {new Date(contact.createdAt).toLocaleDateString()}
                     </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setViewContact(contact)}
+                          className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                          aria-label="View contact"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteContact(contact.id)}
+                          className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          aria-label="Delete contact"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {viewContact && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onClick={() => setViewContact(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-background p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-cyan text-sm font-bold text-white">
+                {viewContact.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?"}
+              </div>
+              <div>
+                <h3 className="text-lg font-bold">{viewContact.name || "Anonymous"}</h3>
+                <p className="text-xs text-muted-foreground">
+                  via {viewContact.card.name}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {viewContact.email && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <a href={`mailto:${viewContact.email}`} className="text-primary hover:underline">{viewContact.email}</a>
+                </div>
+              )}
+              {viewContact.phone && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <a href={`tel:${viewContact.phone}`} className="text-primary hover:underline">{viewContact.phone}</a>
+                </div>
+              )}
+              <div className="flex items-center gap-2 text-sm">
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+                <span>Source: <span className="font-medium">{viewContact.source || "direct"}</span></span>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Submitted on {new Date(viewContact.createdAt).toLocaleString()}
+              </div>
+              {viewContact.message && (
+                <div className="rounded-lg border border-border p-3 text-sm">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Message:</p>
+                  {viewContact.message}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setViewContact(null)}
+              className="mt-4 w-full rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

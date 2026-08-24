@@ -54,5 +54,6 @@ export default async function PublicCardPage({ params }: CardPageProps) {
     notFound();
   }
 
-  return <PublicCard card={card} />;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return <PublicCard card={card as any} />;
 }

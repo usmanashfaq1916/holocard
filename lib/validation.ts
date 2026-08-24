@@ -47,6 +47,12 @@ export const cardSchema = z.object({
   bgImage: z.string().optional(),
   fontFamily: z.string().optional(),
   cardStyle: z.string().optional(),
+  borderColor: z.string().optional(),
+  shadowStyle: z.string().optional(),
+  buttonStyle: z.string().optional(),
+  layoutStyle: z.string().optional(),
+  imageShape: z.string().optional(),
+  socialIconStyle: z.string().optional(),
   metaTitle: z.string().max(60).optional(),
   metaDescription: z.string().max(160).optional(),
   ogImage: z.string().optional(),
@@ -55,6 +61,11 @@ export const cardSchema = z.object({
   companyLogo: z.string().optional(),
   templateId: z.string().optional(),
   visibility: z.enum(["PUBLIC", "UNLISTED", "PRIVATE"]).optional(),
+  status: z.enum(["ACTIVE", "DRAFT", "ARCHIVED", "DISABLED"]).optional(),
+  cardType: z.enum(["PERSONAL", "PROFESSIONAL", "BUSINESS", "PORTFOLIO", "EVENT"]).optional(),
+  about: z.string().optional(),
+  skills: z.string().optional(),
+  enableContact: z.boolean().optional(),
 });
 
 export type CardInput = z.infer<typeof cardSchema>;

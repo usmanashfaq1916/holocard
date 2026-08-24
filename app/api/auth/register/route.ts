@@ -3,9 +3,16 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { registerSchema } from "@/lib/validation";
 import { createNotification } from "@/lib/notify";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
+    const rate = checkRateLimit(`register:${ip}`, 5, 60000);
+    if (!rate.allowed) {
+      return NextResponse.json({ error: "Too many attempts. Please try again later." }, { status: 429 });
+    }
+
     const body = await req.json();
     const result = registerSchema.safeParse(body);
 

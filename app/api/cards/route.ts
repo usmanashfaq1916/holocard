@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth/config";
 import { cardSchema } from "@/lib/validation";
 import { canCreateCard, type PlanTier } from "@/lib/plans";
+import { isReservedSlug } from "@/lib/reserved-slugs";
 
 export async function GET() {
   const session = await auth();
@@ -41,6 +42,13 @@ export async function POST(req: Request) {
   if (existing) {
     return NextResponse.json(
       { error: "This slug is already taken" },
+      { status: 409 }
+    );
+  }
+
+  if (isReservedSlug(result.data.slug)) {
+    return NextResponse.json(
+      { error: "This slug is reserved" },
       { status: 409 }
     );
   }

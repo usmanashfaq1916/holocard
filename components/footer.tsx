@@ -40,9 +40,9 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Documentation
-                </a>
+                <Link href="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Demo
+                </Link>
               </li>
             </ul>
           </div>
@@ -61,16 +61,6 @@ export function Footer() {
                   Contact
                 </Link>
               </li>
-              <li>
-                <span className="text-sm text-muted-foreground/50 cursor-not-allowed">
-                  Careers
-                </span>
-              </li>
-              <li>
-                <span className="text-sm text-muted-foreground/50 cursor-not-allowed">
-                  Blog
-                </span>
-              </li>
             </ul>
           </div>
 
@@ -79,14 +69,14 @@ export function Footer() {
             <h4 className="mb-4 text-sm font-semibold text-foreground">Legal</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -97,22 +87,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                    <rect width="4" height="12" x="2" y="9" />
-                    <circle cx="4" cy="4" r="2" />
-                  </svg>
-                  LinkedIn
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com"
+                  href="https://github.com/usmanashfaq1916/holocard"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -122,20 +97,6 @@ export function Footer() {
                     <path d="M9 18c-4.51 2-5-2-7-2" />
                   </svg>
                   GitHub
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://x.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                    <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
-                    <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
-                  </svg>
-                  Twitter / X
                 </a>
               </li>
               <li>

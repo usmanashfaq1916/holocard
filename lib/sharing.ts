@@ -49,6 +49,7 @@ export function downloadVCard(card: {
   phone?: string | null;
   email?: string | null;
   website?: string | null;
+  location?: string | null;
 }) {
   const [firstName, ...rest] = card.name.split(" ");
   const lastName = rest.join(" ");
@@ -63,6 +64,7 @@ export function downloadVCard(card: {
     card.phone ? `TEL:${card.phone}` : null,
     card.email ? `EMAIL:${card.email}` : null,
     card.website ? `URL:${card.website}` : null,
+    card.location ? `ADR:;;${card.location};;;;` : null,
     "END:VCARD",
   ]
     .filter(Boolean)

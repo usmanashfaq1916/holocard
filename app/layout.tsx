@@ -57,10 +57,39 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "HoloCard",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    description: "Create interactive digital business cards with Augmented Reality experiences.",
+    url: process.env.NEXT_PUBLIC_BASE_URL || "https://holocard.app",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  };
+
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        {children}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg"
+        >
+          Skip to main content
+        </a>
+        <div id="main-content">
+          {children}
+        </div>
         <Toaster richColors position="bottom-right" />
       </body>
     </html>

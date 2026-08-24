@@ -12,7 +12,7 @@ import { DemoTemplates } from "./demo-templates";
 import { DemoCTA } from "./demo-cta";
 
 const steps = [
-  { num: "01", title: "3D HoloCard", component: Demo3DCard },
+  { num: "01", title: "AR HoloCard", component: Demo3DCard },
   { num: "02", title: "AR Experience", component: DemoAR },
   { num: "03", title: "QR Generator", component: DemoQR },
   { num: "04", title: "Card Builder", component: DemoBuilder },

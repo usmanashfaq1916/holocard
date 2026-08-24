@@ -16,7 +16,7 @@ export function Demo3DCard() {
         </div>
 
         <h2 className="mb-4 text-4xl font-bold md:text-5xl">
-          Interactive <span className="text-gradient">3D HoloCard</span>
+          Interactive <span className="text-gradient">AR HoloCard</span>
         </h2>
         <p className="mx-auto mb-12 max-w-2xl text-lg text-muted-foreground">
           A premium holographic business card with glass effects, dynamic lighting, and real-time

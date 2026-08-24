@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { TemplateGrid } from "@/components/templates/template-grid";
 
 export const metadata: Metadata = {
   title: "Templates",
@@ -8,20 +9,110 @@ export const metadata: Metadata = {
     "Choose from professionally designed templates for your AR business card.",
 };
 
-export default function TemplatesPage() {
-  const templates = [
-    { name: "Corporate", style: "Professional blue tones", premium: false },
-    { name: "Executive", style: "Elegant dark theme", premium: true },
-    { name: "Developer", style: "Monospace accents", premium: false },
-    { name: "Data Analyst", style: "Clean & modern", premium: false },
-    { name: "Designer", style: "Creative & colorful", premium: true },
-    { name: "Freelancer", style: "Bold & versatile", premium: false },
-    { name: "Startup Founder", style: "Innovative & sleek", premium: true },
-    { name: "Real Estate", style: "Trust & authority", premium: false },
-    { name: "Sales", style: "Dynamic & engaging", premium: false },
-    { name: "Minimal", style: "Simple & refined", premium: false },
-  ];
+const templates = [
+  {
+    id: "corporate",
+    name: "Corporate",
+    style: "Professional blue tones",
+    premium: false,
+    gradient: "from-blue-600 to-blue-800",
+    accent: "#2563EB",
+    layout: "centered" as const,
+    description: "Clean, trustworthy design ideal for consultants and executives.",
+  },
+  {
+    id: "executive",
+    name: "Executive",
+    style: "Elegant dark theme",
+    premium: true,
+    gradient: "from-gray-800 to-gray-950",
+    accent: "#D4AF37",
+    layout: "centered" as const,
+    description: "Sophisticated dark theme for C-suite professionals.",
+  },
+  {
+    id: "developer",
+    name: "Developer",
+    style: "Monospace accents",
+    premium: false,
+    gradient: "from-green-600 to-emerald-700",
+    accent: "#10B981",
+    layout: "left" as const,
+    description: "Code-inspired layout with monospace typography.",
+  },
+  {
+    id: "data-analyst",
+    name: "Data Analyst",
+    style: "Clean & modern",
+    premium: false,
+    gradient: "from-indigo-500 to-purple-600",
+    accent: "#6366F1",
+    layout: "centered" as const,
+    description: "Data-driven aesthetic with structured information layout.",
+  },
+  {
+    id: "designer",
+    name: "Designer",
+    style: "Creative & colorful",
+    premium: true,
+    gradient: "from-pink-500 to-orange-400",
+    accent: "#EC4899",
+    layout: "left" as const,
+    description: "Bold, artistic design showcasing creative flair.",
+  },
+  {
+    id: "freelancer",
+    name: "Freelancer",
+    style: "Bold & versatile",
+    premium: false,
+    gradient: "from-amber-500 to-orange-600",
+    accent: "#F59E0B",
+    layout: "centered" as const,
+    description: "Versatile template for independent professionals.",
+  },
+  {
+    id: "startup-founder",
+    name: "Startup Founder",
+    style: "Innovative & sleek",
+    premium: true,
+    gradient: "from-cyan-500 to-blue-600",
+    accent: "#06B6D4",
+    layout: "centered" as const,
+    description: "Modern, forward-thinking design for entrepreneurs.",
+  },
+  {
+    id: "real-estate",
+    name: "Real Estate",
+    style: "Trust & authority",
+    premium: false,
+    gradient: "from-emerald-600 to-teal-700",
+    accent: "#059669",
+    layout: "left" as const,
+    description: "Professional template built for property professionals.",
+  },
+  {
+    id: "sales",
+    name: "Sales",
+    style: "Dynamic & engaging",
+    premium: false,
+    gradient: "from-red-500 to-rose-600",
+    accent: "#EF4444",
+    layout: "centered" as const,
+    description: "High-energy design for sales and business development.",
+  },
+  {
+    id: "minimal",
+    name: "Minimal",
+    style: "Simple & refined",
+    premium: false,
+    gradient: "from-gray-400 to-gray-600",
+    accent: "#6B7280",
+    layout: "centered" as const,
+    description: "Less is more. Clean, distraction-free professional card.",
+  },
+];
 
+export default function TemplatesPage() {
   return (
     <div className="min-h-screen bg-grid bg-radial">
       <Navbar />
@@ -32,36 +123,10 @@ export default function TemplatesPage() {
           </h1>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
             Choose a professionally designed template and customize it to match
-            your brand.
+            your brand. Each template features a unique layout and style.
           </p>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {templates.map((template) => (
-            <div
-              key={template.name}
-              className="glass group cursor-pointer overflow-hidden rounded-xl transition-all hover:glow-sm"
-            >
-              <div className="flex h-48 items-center justify-center bg-gradient-to-br from-primary/20 to-cyan/10">
-                <span className="text-4xl font-bold text-gradient">
-                  {template.name.slice(0, 2)}
-                </span>
-              </div>
-              <div className="p-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">{template.name}</h3>
-                  {template.premium && (
-                    <span className="rounded-full bg-primary/20 px-2 py-0.5 text-xs text-primary">
-                      Pro
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {template.style}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <TemplateGrid templates={templates} />
       </div>
       <Footer />
     </div>

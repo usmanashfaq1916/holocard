@@ -27,7 +27,7 @@ const navLinks: NavLink[] = [
     children: [
       { label: "About", href: "/about" },
       { label: "Contact", href: "/contact" },
-      { label: "Documentation", href: "#" },
+      { label: "Documentation", href: "/demo" },
     ],
   },
   { label: "Features", href: "/features" },
@@ -56,7 +56,7 @@ export function Navbar() {
           <span className="text-gray-900">Card</span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
           {navLinks.map((link) => {
             if (link.children) {
               const active = isDropdownActive(link.children);
@@ -143,7 +143,7 @@ export function Navbar() {
 
       {mobileOpen && (
         <div className="border-t border-gray-200 bg-white px-4 py-4 md:hidden">
-          <nav className="flex flex-col gap-1">
+          <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
             {navLinks.map((link) => {
               if (link.children) {
                 return (

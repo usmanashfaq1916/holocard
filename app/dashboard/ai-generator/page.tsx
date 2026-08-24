@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   Sparkles,
   Copy,
@@ -70,6 +71,33 @@ export default function AIGeneratorPage() {
     navigator.clipboard.writeText(text);
     setCopied(field);
     setTimeout(() => setCopied(null), 2000);
+  };
+
+  const handleTransform = async (action: "improve" | "shorten" | "professional") => {
+    if (!result) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/ai/generate-bio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          profession,
+          skills: skills.split(",").map((s) => s.trim()).filter(Boolean),
+          experience,
+          industry,
+          tone,
+          action,
+          existing: result,
+        }),
+      });
+      const data = await res.json();
+      setResult(data);
+    } catch {
+      toast.error("Transform failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const outputSections = result
@@ -197,14 +225,24 @@ export default function AIGeneratorPage() {
               <div className="glass rounded-xl p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-medium">Generated Content</h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleGenerate}
-                  >
-                    <RefreshCw className="h-3.5 w-3.5" />
-                    Regenerate
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => handleTransform("improve")} disabled={loading}>
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Improve
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleTransform("shorten")} disabled={loading}>
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      Shorten
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleTransform("professional")} disabled={loading}>
+                      <Briefcase className="h-3.5 w-3.5" />
+                      Professional
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={handleGenerate} disabled={loading}>
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      Regenerate
+                    </Button>
+                  </div>
                 </div>
 
                 {outputSections.map((section) => (

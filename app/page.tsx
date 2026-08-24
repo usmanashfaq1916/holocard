@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -16,15 +15,18 @@ import {
   Shield,
   Users,
   Layers,
-  ChevronDown,
   ArrowRight,
   Check,
   X,
+  Lock,
+  EyeOff,
+  Server,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { HeroHoloCard } from "@/components/home/hero-holo-card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const features = [
   { icon: Eye, title: "Augmented Reality", desc: "Bring your card to life with immersive AR experiences." },
@@ -59,31 +61,31 @@ const templates = [
 const pricingPlans = [
   {
     name: "Free",
-    price: "",
+    price: "$0",
     period: "forever",
     desc: "Perfect for getting started",
     features: ["1 digital card", "Basic AR experience", "QR code generation", "Public URL", "Basic analytics"],
-    excluded: ["Custom themes", "Priority support", "API access"],
+    excluded: ["Custom themes", "Priority support"],
     cta: "Get Started",
     variant: "outline" as const,
   },
   {
     name: "Pro",
-    price: "",
+    price: "$9",
     period: "/month",
     desc: "For professionals who stand out",
     features: ["Unlimited cards", "Advanced AR effects", "Custom themes", "Detailed analytics", "Priority support", "Remove branding"],
-    excluded: ["API access", "Team features"],
+    excluded: ["Team features"],
     cta: "Go Pro",
     variant: "default" as const,
     popular: true,
   },
   {
     name: "Business",
-    price: "",
+    price: "$29",
     period: "/month",
     desc: "For teams and enterprises",
-    features: ["Everything in Pro", "Team management", "API access", "White-label options", "Dedicated support", "Custom integrations"],
+    features: ["Everything in Pro", "Team management", "White-label options", "Dedicated support", "Custom integrations"],
     excluded: [],
     cta: "Contact Sales",
     variant: "outline" as const,
@@ -97,11 +99,14 @@ const faqs = [
   { q: "Can I create multiple cards?", a: "Yes! Free users get 1 card, while Pro and Business users can create unlimited cards. This is perfect for having separate cards for different professional contexts like networking, sales, or personal branding." },
   { q: "Is my data secure?", a: "Absolutely. We use enterprise-grade encryption and security practices. Your data is stored securely, and you have full control over what information is displayed publicly. We never sell your data to third parties." },
   { q: "Can I track who viewed my card?", a: "Yes, our analytics dashboard provides insights into views, QR scans, contact saves, and engagement metrics. Pro and Business users get detailed analytics including geographic data and referral sources." },
+  { q: "How much does it cost?", a: "HoloCard offers a generous free tier with 1 card and core features. Pro plans start at $9/month with unlimited cards, premium templates, and advanced analytics. Business plans include team management and priority support." },
+  { q: "What devices are supported?", a: "HoloCard works on all modern browsers across iOS, Android, Windows, macOS, and Linux. The AR experience is optimized for mobile devices with ARCore (Android) or ARKit (iOS) support." },
+  { q: "How do I edit my card after creation?", a: "Simply log in to your dashboard, go to My Cards, and click the Edit button on any card. Changes are saved instantly and your public card updates in real-time." },
+  { q: "Can I use my own custom domain?", a: "Yes! Business plan users can map their own custom domain to their HoloCard profile. For example, card.yourdomain.com instead of holocard.com/card/your-slug." },
+  { q: "How do I delete my account?", a: "Go to Settings > Delete Account in your dashboard. You will be asked to confirm by typing DELETE. All your data including cards, analytics, and contacts will be permanently removed." },
 ];
 
 export default function HomePage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -120,10 +125,10 @@ export default function HomePage() {
             >
               <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
                 Your Business Card.{" "}
-                <span className="text-gradient">Reimagined in 3D.</span>
+                <span className="text-gradient">Reimagined in AR.</span>
               </h1>
               <p className="mb-8 text-lg text-muted-foreground">
-                Create an interactive digital identity with a 3D HoloCard, AR experience, and real-time analytics. Stand out. Make an impression.
+                Create an interactive digital identity with an AR HoloCard, real-time analytics, and stunning 3D visuals. Stand out. Make an impression.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row">
                 <Link href="/register" className={buttonVariants({ variant: "default", size: "lg" })}>
@@ -229,7 +234,7 @@ export default function HomePage() {
               See It In <span className="text-gradient">Action</span>
             </h2>
             <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
-              Try the interactive 3D HoloCard. Drag to rotate, click to flip.
+              Try the interactive AR HoloCard. Drag to rotate, click to flip.
             </p>
           </motion.div>
           <motion.div
@@ -370,6 +375,66 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Trust & Credibility */}
+      <section className="border-t border-border py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
+              Built for <span className="text-gradient">Trust & Security</span>
+            </h2>
+            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
+              Your professional identity deserves a platform that takes security seriously.
+            </p>
+          </motion.div>
+          <div className="grid gap-6 md:grid-cols-3">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0 }}
+              className="glass rounded-xl p-6"
+            >
+              <Lock className="mb-3 h-6 w-6 text-primary" />
+              <h3 className="mb-2 font-semibold">End-to-End Encryption</h3>
+              <p className="text-sm text-muted-foreground">
+                All data is encrypted in transit and at rest. Your personal information is never exposed to unauthorized parties.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="glass rounded-xl p-6"
+            >
+              <EyeOff className="mb-3 h-6 w-6 text-primary" />
+              <h3 className="mb-2 font-semibold">Privacy First</h3>
+              <p className="text-sm text-muted-foreground">
+                You control exactly what information is public, unlisted, or private. We never sell your data to third parties.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="glass rounded-xl p-6"
+            >
+              <Server className="mb-3 h-6 w-6 text-primary" />
+              <h3 className="mb-2 font-semibold">Secure Infrastructure</h3>
+              <p className="text-sm text-muted-foreground">
+                Hosted on enterprise-grade infrastructure with automatic backups, DDoS protection, and 99.9% uptime.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section className="border-t border-border py-24">
         <div className="mx-auto max-w-3xl px-4">
@@ -386,7 +451,7 @@ export default function HomePage() {
               Everything you need to know about HoloCard.
             </p>
           </motion.div>
-          <div className="space-y-3">
+          <Accordion type="single" collapsible className="space-y-3">
             {faqs.map((faq, i) => (
               <motion.div
                 key={i}
@@ -394,25 +459,18 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
-                className="glass overflow-hidden rounded-xl"
               >
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="flex w-full items-center justify-between p-5 text-left"
-                >
-                  <span className="font-medium">{faq.q}</span>
-                  <ChevronDown
-                    className="h-5 w-5 text-muted-foreground transition-transform"
-                  />
-                </button>
-                {openFaq === i && (
-                  <div className="px-5 pb-5 text-sm text-muted-foreground">
+                <AccordionItem value={`faq-${i}`} className="glass overflow-hidden rounded-xl border-0">
+                  <AccordionTrigger className="px-5 py-5 text-left hover:no-underline [&>svg]:h-5 [&>svg]:w-5">
+                    <span className="font-medium">{faq.q}</span>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-5 pb-5 text-sm text-muted-foreground">
                     {faq.a}
-                  </div>
-                )}
+                  </AccordionContent>
+                </AccordionItem>
               </motion.div>
             ))}
-          </div>
+          </Accordion>
         </div>
       </section>
 
@@ -429,7 +487,7 @@ export default function HomePage() {
               Ready to <span className="text-gradient">Stand Out</span>?
             </h2>
             <p className="mb-8 text-lg text-muted-foreground">
-              Join thousands of professionals who have transformed their networking with HoloCard.
+              Join professionals who have transformed their networking with HoloCard.
             </p>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/register" className={buttonVariants({ variant: "default", size: "lg" })}>

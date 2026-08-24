@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef, useState, useCallback, useMemo } from "react";
+import { Suspense, useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Environment,
@@ -12,6 +12,7 @@ import {
 } from "@react-three/drei";
 import { Loader2, Eye } from "lucide-react";
 import * as THREE from "three";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 /* ──────────── Tilt tracking ──────────── */
 
@@ -448,24 +449,57 @@ export function ARModelViewer({
   slug,
   className = "",
 }: HoloCardProps) {
+  const [webglSupported, setWebglSupported] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const canvas = document.createElement("canvas");
+      const gl = canvas.getContext("webgl") || canvas.getContext("webgl2");
+      if (!gl) setWebglSupported(false);
+    } catch {
+      setWebglSupported(false);
+    }
+
+    // Fallback: dismiss loading spinner after 15s if onCreated never fires
+    const timeout = setTimeout(() => setLoading(false), 15000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (!webglSupported) {
+    return <ARModelViewerFallback />;
+  }
+
   return (
     <div className={`relative overflow-hidden rounded-2xl ${className}`}>
-      <Canvas
-        camera={{ position: [0, 0, 5.2], fov: 42 }}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-        style={{ background: "transparent" }}
-        dpr={[1, 2]}
-      >
-        <HoloCardScene
-          name={name}
-          designation={designation || undefined}
-          company={company || undefined}
-          profileImage={profileImage || undefined}
-          socialLinks={socialLinks}
-          slug={slug}
-          cardColor={cardColor}
-        />
-      </Canvas>
+      <ErrorBoundary fallback={<ARModelViewerFallback />}>
+        <Canvas
+          camera={{ position: [0, 0, 5.2], fov: 42 }}
+          gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+          style={{ background: "transparent" }}
+          dpr={[1, 2]}
+          onCreated={() => setLoading(false)}
+        >
+          <HoloCardScene
+            name={name}
+            designation={designation || undefined}
+            company={company || undefined}
+            profileImage={profileImage || undefined}
+            socialLinks={socialLinks}
+            slug={slug}
+            cardColor={cardColor}
+          />
+        </Canvas>
+      </ErrorBoundary>
+
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <span className="text-xs text-muted-foreground">Loading 3D experience...</span>
+          </div>
+        </div>
+      )}
 
       {/* Interaction hint overlay */}
       <div className="pointer-events-none absolute bottom-4 left-0 right-0 flex justify-center">

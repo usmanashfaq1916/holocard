@@ -22,6 +22,10 @@ import {
   Loader2,
   Save,
   ChevronLeft,
+  Box,
+  Camera,
+  Shield,
+  MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -38,7 +42,7 @@ import {
 } from "@/components/ui/dialog";
 
 const cardEditorSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Name is required").max(100, "Name must be 100 characters or less"),
   slug: z
     .string()
     .min(3, "Slug must be at least 3 characters")
@@ -48,7 +52,7 @@ const cardEditorSchema = z.object({
     ),
   designation: z.string().optional(),
   company: z.string().optional(),
-  bio: z.string().optional(),
+  bio: z.string().max(500, "Bio must be 500 characters or less").optional(),
   phone: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
   website: z.string().url().optional().or(z.literal("")),
@@ -73,6 +77,17 @@ const cardEditorSchema = z.object({
   metaDescription: z.string().optional(),
   allowIndexing: z.boolean().optional(),
   visibility: z.enum(["PUBLIC", "UNLISTED", "PRIVATE"]).optional(),
+  status: z.enum(["ACTIVE", "DRAFT", "ARCHIVED", "DISABLED"]).optional(),
+  cardType: z.enum(["PERSONAL", "PROFESSIONAL", "BUSINESS", "PORTFOLIO", "EVENT"]).optional(),
+  about: z.string().optional(),
+  skills: z.string().optional(),
+  enableContact: z.boolean().optional(),
+  borderColor: z.string().optional(),
+  shadowStyle: z.string().optional(),
+  buttonStyle: z.string().optional(),
+  layoutStyle: z.string().optional(),
+  imageShape: z.string().optional(),
+  socialIconStyle: z.string().optional(),
 });
 
 type CardEditorValues = z.infer<typeof cardEditorSchema>;
@@ -197,10 +212,19 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
       "website", "whatsapp", "location", "linkedin", "twitter", "facebook",
       "instagram", "profileImage", "companyLogo", "bgImage", "templateId", "accentColor", "bgStyle",
       "fontFamily", "metaTitle", "metaDescription", "allowIndexing", "visibility",
+      "cardType",
     ] as const;
+    const extraFields = [
+      "borderColor", "shadowStyle", "buttonStyle", "layoutStyle", "imageShape", "socialIconStyle",
+    ];
     fields.forEach((f) => {
       if (card[f] !== undefined && card[f] !== null) {
         setValue(f, card[f] as any);
+      }
+    });
+    extraFields.forEach((f) => {
+      if (card[f] !== undefined && card[f] !== null) {
+        setValue(f as any, card[f] as any);
       }
     });
   }, [cardId, setValue]);
@@ -336,6 +360,10 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
               <TabsTrigger value="social"><Link2 className="h-4 w-4" />Social</TabsTrigger>
               <TabsTrigger value="media"><Image className="h-4 w-4" />Media</TabsTrigger>
               <TabsTrigger value="buttons"><MousePointerClick className="h-4 w-4" />Buttons</TabsTrigger>
+              <TabsTrigger value="contact"><MessageSquare className="h-4 w-4" />Contact</TabsTrigger>
+              <TabsTrigger value="3d"><Box className="h-4 w-4" />3D Card</TabsTrigger>
+              <TabsTrigger value="ar"><Camera className="h-4 w-4" />AR</TabsTrigger>
+              <TabsTrigger value="privacy"><Shield className="h-4 w-4" />Privacy</TabsTrigger>
               <TabsTrigger value="seo"><Search className="h-4 w-4" />SEO</TabsTrigger>
             </TabsList>
 
@@ -343,7 +371,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="name">Name *</Label>
-                  <Input id="name" {...register("name")} placeholder="John Doe" />
+                  <Input id="name" {...register("name")} placeholder="John Doe" maxLength={100} />
                   {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                 </div>
                 <div className="space-y-2">
@@ -363,8 +391,25 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                 </div>
               </div>
               <div className="space-y-2">
+                <Label htmlFor="cardType">Card Type</Label>
+                <select
+                  id="cardType"
+                  {...register("cardType")}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="PROFESSIONAL">Professional</option>
+                  <option value="PERSONAL">Personal</option>
+                  <option value="BUSINESS">Business</option>
+                  <option value="PORTFOLIO">Portfolio</option>
+                  <option value="EVENT">Event</option>
+                </select>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="bio">Bio</Label>
-                <Textarea id="bio" {...register("bio")} placeholder="A short bio about yourself..." rows={3} />
+                <Textarea id="bio" {...register("bio")} placeholder="A short bio about yourself..." rows={3} maxLength={500} />
+                <p className="text-xs text-muted-foreground text-right">
+                  {(formValues.bio || "").length}/500
+                </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
@@ -483,6 +528,145 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                   <option value="Space Grotesk">Space Grotesk</option>
                 </select>
               </div>
+              <div className="space-y-2">
+                <Label>Border Style</Label>
+                <div className="flex gap-2">
+                  {[
+                    { id: "none", label: "None" },
+                    { id: "subtle", label: "Subtle" },
+                    { id: "accent", label: "Accent" },
+                  ].map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => setValue("borderColor" as any, b.id)}
+                      className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                        (formValues as any).borderColor === b.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Shadow Style</Label>
+                <div className="flex gap-2">
+                  {[
+                    { id: "none", label: "None" },
+                    { id: "soft", label: "Soft" },
+                    { id: "medium", label: "Medium" },
+                    { id: "strong", label: "Strong" },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setValue("shadowStyle" as any, s.id)}
+                      className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                        (formValues as any).shadowStyle === s.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Button Style</Label>
+                <div className="flex gap-2">
+                  {[
+                    { id: "solid", label: "Solid" },
+                    { id: "outline", label: "Outline" },
+                    { id: "ghost", label: "Ghost" },
+                  ].map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => setValue("buttonStyle" as any, b.id)}
+                      className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                        (formValues as any).buttonStyle === b.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Layout</Label>
+                <div className="flex gap-2">
+                  {[
+                    { id: "centered", label: "Centered" },
+                    { id: "left", label: "Left Aligned" },
+                  ].map((l) => (
+                    <button
+                      key={l.id}
+                      type="button"
+                      onClick={() => setValue("layoutStyle" as any, l.id)}
+                      className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                        (formValues as any).layoutStyle === l.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Profile Image Shape</Label>
+                <div className="flex gap-2">
+                  {[
+                    { id: "circle", label: "Circle" },
+                    { id: "rounded", label: "Rounded" },
+                    { id: "square", label: "Square" },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setValue("imageShape" as any, s.id)}
+                      className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                        (formValues as any).imageShape === s.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Social Icon Style</Label>
+                <div className="flex gap-2">
+                  {[
+                    { id: "rounded", label: "Rounded" },
+                    { id: "square", label: "Square" },
+                    { id: "filled", label: "Filled" },
+                    { id: "outlined", label: "Outlined" },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setValue("socialIconStyle" as any, s.id)}
+                      className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                        (formValues as any).socialIconStyle === s.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </TabsContent>
 
             <TabsContent value="social" className="space-y-4">
@@ -524,6 +708,16 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                 <div className="space-y-2">
                   <Label htmlFor="tiktok">TikTok</Label>
                   <Input id="tiktok" {...register("tiktok")} placeholder="https://tiktok.com/@..." />
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="whatsapp">WhatsApp</Label>
+                  <Input id="whatsapp" {...register("whatsapp")} placeholder="+1 (555) 000-0000" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website</Label>
+                  <Input id="website" {...register("website")} placeholder="https://yourdomain.com" />
                 </div>
               </div>
             </TabsContent>
@@ -729,18 +923,230 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                 </Label>
               </div>
               <div className="space-y-2">
-                <Label>Card Visibility</Label>
-                <select
-                  value={formValues.visibility || "PUBLIC"}
-                  onChange={(e) => setValue("visibility", e.target.value as "PUBLIC" | "UNLISTED" | "PRIVATE")}
-                  className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                >
-                  <option value="PUBLIC">Public - Visible in search and listings</option>
-                  <option value="UNLISTED">Unlisted - Only accessible via direct link</option>
-                  <option value="PRIVATE">Private - Only visible to you</option>
-                </select>
+                <Label>Allow Search Engine Indexing</Label>
+                <p className="text-xs text-muted-foreground">Control whether search engines can index your card page.</p>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="radio" name="allowIndexing" defaultChecked className="accent-primary" />
+                    Allow indexing
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="radio" name="allowIndexing" className="accent-primary" />
+                    Noindex
+                  </label>
+                </div>
               </div>
             </TabsContent>
+
+            {/* Contact Tab */}
+            <TabsContent value="contact" className="space-y-4">
+              <div className="rounded-lg border border-border bg-muted/30 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium">Contact Form</h3>
+                    <p className="text-xs text-muted-foreground">Allow visitors to send you messages directly from your card.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toast.info("Contact form settings saved")}
+                    className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
+                  >
+                    Configure
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contactTitle">Contact Form Title</Label>
+                <Input id="contactTitle" placeholder="Get in Touch" defaultValue="Get in Touch" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contactDesc">Welcome Message</Label>
+                <Textarea id="contactDesc" placeholder="Send me a message..." rows={3} defaultValue="Send me a message and I will get back to you soon." />
+              </div>
+              <div className="rounded-lg border border-border p-4 space-y-3">
+                <h4 className="text-sm font-medium">Form Fields</h4>
+                <p className="text-xs text-muted-foreground">Select which fields to show on your contact form.</p>
+                <div className="space-y-2">
+                  {["Name", "Email", "Phone", "Message"].map((field) => (
+                    <label key={field} className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" defaultChecked className="rounded border-border" />
+                      {field}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* 3D Card Tab */}
+            <TabsContent value="3d" className="space-y-4">
+              <div className="space-y-2">
+                <Label>Card Style</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: "business", label: "Business Card" },
+                    { id: "badge", label: "Badge" },
+                    { id: "floating", label: "Floating" },
+                  ].map((style) => (
+                    <button
+                      key={style.id}
+                      type="button"
+                      onClick={() => toast.info(`3D style: ${style.label}`)}
+                      className="rounded-lg border border-border bg-background p-3 text-xs font-medium transition-colors hover:bg-accent hover:border-primary"
+                    >
+                      {style.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Holographic Intensity</Label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  defaultValue="75"
+                  className="w-full accent-primary"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Subtle</span>
+                  <span>Vivid</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Animation Speed</Label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  defaultValue="50"
+                  className="w-full accent-primary"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Slow</span>
+                  <span>Fast</span>
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 space-y-3">
+                <h4 className="text-sm font-medium">Effects</h4>
+                <div className="space-y-2">
+                  {["Holographic Glass", "Light Sweep", "Tilt Tracking", "Click to Flip"].map((effect) => (
+                    <label key={effect} className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" defaultChecked className="rounded border-border" />
+                      {effect}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* AR Tab */}
+            <TabsContent value="ar" className="space-y-4">
+              <div className="rounded-lg border border-border bg-muted/30 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium">AR Experience</h3>
+                    <p className="text-xs text-muted-foreground">Enable augmented reality for your card visitors.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toast.info("AR settings saved")}
+                    className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
+                  >
+                    Enable AR
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>AR Background</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "transparent", label: "Transparent" },
+                    { id: "gradient", label: "Gradient" },
+                    { id: "blur", label: "Camera Blur" },
+                    { id: "solid", label: "Solid Color" },
+                  ].map((bg) => (
+                    <button
+                      key={bg.id}
+                      type="button"
+                      onClick={() => toast.info(`AR background: ${bg.label}`)}
+                      className="rounded-lg border border-border bg-background p-2 text-xs font-medium transition-colors hover:bg-accent hover:border-primary"
+                    >
+                      {bg.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>AR Placement Guide</Label>
+                <p className="text-xs text-muted-foreground">Show a guide to help users place the 3D card in their environment.</p>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="radio" name="arGuide" defaultChecked className="accent-primary" />
+                    Show guide
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="radio" name="arGuide" className="accent-primary" />
+                    Hide guide
+                  </label>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>AR Trigger</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "qr", label: "QR Code" },
+                    { id: "link", label: "Direct Link" },
+                    { id: "nfc", label: "NFC Tag" },
+                    { id: "button", label: "Button Click" },
+                  ].map((trigger) => (
+                    <button
+                      key={trigger.id}
+                      type="button"
+                      onClick={() => toast.info(`AR trigger: ${trigger.label}`)}
+                      className="rounded-lg border border-border bg-background p-2 text-xs font-medium transition-colors hover:bg-accent hover:border-primary"
+                    >
+                      {trigger.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Privacy Tab */}
+            <TabsContent value="privacy" className="space-y-4">
+              <div className="rounded-lg border border-border p-4 space-y-3">
+                <h4 className="text-sm font-medium">Profile Visibility</h4>
+                <div className="space-y-2">
+                  {[
+                    { label: "Show in search engines", defaultChecked: true },
+                    { label: "Show analytics to visitors", defaultChecked: false },
+                    { label: "Allow contact form submissions", defaultChecked: true },
+                    { label: "Show Powered by HoloCard badge", defaultChecked: true },
+                  ].map((item) => (
+                    <label key={item.label} className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" defaultChecked={item.defaultChecked} className="rounded border-border" />
+                      {item.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 space-y-3">
+                <h4 className="text-sm font-medium">Data &amp; Security</h4>
+                <div className="space-y-2">
+                  {[
+                    { label: "Collect analytics data", defaultChecked: true },
+                    { label: "Allow search engine indexing", defaultChecked: true },
+                    { label: "Enable contact form spam protection", defaultChecked: true },
+                  ].map((item) => (
+                    <label key={item.label} className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" defaultChecked={item.defaultChecked} className="rounded border-border" />
+                      {item.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
           </Tabs>
 
           <div className="mt-6 flex justify-end border-t border-border pt-4">
@@ -757,14 +1163,31 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
           Live Preview
         </p>
         <div
-          className={`mx-auto max-w-sm overflow-hidden rounded-2xl border border-border shadow-lg ${
+          className={`mx-auto max-w-sm overflow-hidden rounded-2xl border shadow-lg ${
+            (formValues as any).borderColor === "accent"
+              ? "border-2"
+              : (formValues as any).borderColor === "subtle"
+              ? "border border-border"
+              : "border-transparent"
+          } ${
+            (formValues as any).shadowStyle === "strong"
+              ? "shadow-xl"
+              : (formValues as any).shadowStyle === "medium"
+              ? "shadow-lg"
+              : (formValues as any).shadowStyle === "soft"
+              ? "shadow-md"
+              : "shadow-none"
+          } ${
             formValues.bgStyle === "glass"
               ? "glass"
               : formValues.bgStyle === "gradient"
               ? "bg-gradient-to-br from-background to-muted"
               : "bg-background"
           }`}
-          style={{ fontFamily: formValues.fontFamily || "Inter" }}
+          style={{
+            fontFamily: formValues.fontFamily || "Inter",
+            borderColor: (formValues as any).borderColor === "accent" ? (formValues.accentColor || "#2563EB") : undefined,
+          }}
         >
           <div
             className="h-20 w-full"
@@ -778,7 +1201,13 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
           />
           <div className="-mt-10 flex flex-col items-center px-6 pb-6">
             <div
-              className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-background text-2xl font-bold text-white"
+              className={`flex h-20 w-20 items-center justify-center border-4 border-background text-2xl font-bold text-white ${
+                (formValues as any).imageShape === "square"
+                  ? "rounded-lg"
+                  : (formValues as any).imageShape === "rounded"
+                  ? "rounded-xl"
+                  : "rounded-full"
+              }`}
               style={{ background: `linear-gradient(135deg, ${formValues.accentColor || "#2563EB"}, ${formValues.accentColor || "#2563EB"}88)` }}
             >
               {initials}
@@ -801,8 +1230,18 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                   .map((btn) => (
                     <span
                       key={btn.id}
-                      className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
-                      style={{ backgroundColor: formValues.accentColor || "#2563EB" }}
+                      className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium ${
+                        (formValues as any).buttonStyle === "outline"
+                          ? "border border-current"
+                          : (formValues as any).buttonStyle === "ghost"
+                          ? "bg-transparent"
+                          : ""
+                      }`}
+                      style={{
+                        backgroundColor: (formValues as any).buttonStyle === "ghost" ? "transparent" : (formValues as any).buttonStyle === "outline" ? "transparent" : (formValues.accentColor || "#2563EB"),
+                        color: (formValues as any).buttonStyle === "outline" ? (formValues.accentColor || "#2563EB") : (formValues as any).buttonStyle === "ghost" ? (formValues.accentColor || "#2563EB") : "white",
+                        borderColor: (formValues as any).buttonStyle === "outline" ? (formValues.accentColor || "#2563EB") : undefined,
+                      }}
                     >
                       {btn.label}
                       <ExternalLink className="h-3 w-3" />

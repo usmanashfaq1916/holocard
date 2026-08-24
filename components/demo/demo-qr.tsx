@@ -8,6 +8,15 @@ export function DemoQR() {
   const [size, setSize] = useState(200);
   const [slug, setSlug] = useState("sarah-chen");
 
+  const downloadQR = (format: "png" | "svg") => {
+    if (!slug) return;
+    const url = `/api/qr/${slug}?format=${format}`;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `qr-${slug}.${format}`;
+    a.click();
+  };
+
   return (
     <section className="flex min-h-screen flex-col items-center justify-center px-4 pt-20 pb-24">
       <div className="mx-auto max-w-6xl text-center">
@@ -31,11 +40,19 @@ export function DemoQR() {
             <div className="glass rounded-3xl p-8 glow-md">
               <QRGenerator slug={slug} size={size} />
               <div className="mt-4 flex justify-center gap-2">
-                <button className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent">
+                <button
+                  onClick={() => downloadQR("png")}
+                  disabled={!slug}
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent disabled:opacity-50"
+                >
                   <Download className="h-3 w-3" />
                   PNG
                 </button>
-                <button className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent">
+                <button
+                  onClick={() => downloadQR("svg")}
+                  disabled={!slug}
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent disabled:opacity-50"
+                >
                   <Download className="h-3 w-3" />
                   SVG
                 </button>

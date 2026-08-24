@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const OLLAMA_URL = process.env.OLLAMA_BASE_URL;
 
@@ -16,6 +17,11 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const rate = checkRateLimit(`ai:${session.user.id}`, 10, 60000);
+  if (!rate.allowed) {
+    return NextResponse.json({ error: "Too many requests. Please wait a moment." }, { status: 429 });
   }
 
   const body = await req.json();

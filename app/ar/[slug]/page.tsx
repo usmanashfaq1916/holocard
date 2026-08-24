@@ -44,6 +44,7 @@ interface CardData {
   arExperience?: {
     id: string;
     status: string;
+    templateType?: string;
     target?: {
       mindFileUrl?: string;
       status: string;
@@ -152,6 +153,7 @@ export default function ARPage() {
         website={card.website}
         linkedin={card.linkedin}
         profileImage={card.profileImage}
+        templateType={card.arExperience?.templateType}
       />
     </Suspense>
   );

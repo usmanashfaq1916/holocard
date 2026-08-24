@@ -13,11 +13,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Check,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { QRGenerator } from "@/components/cards/qr-generator";
+import { toast } from "sonner";
 
 const TOTAL_STEPS = 7;
 
@@ -65,6 +67,7 @@ interface OnboardingData {
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [publishing, setPublishing] = useState(false);
   const [data, setData] = useState<OnboardingData>({
     name: "",
     email: "",
@@ -82,6 +85,45 @@ export default function OnboardingPage() {
 
   const skipOnboarding = () => {
     router.push("/dashboard");
+  };
+
+  const handlePublish = async () => {
+    if (!data.name.trim()) {
+      toast.error("Please enter your name");
+      setStep(1);
+      return;
+    }
+    setPublishing(true);
+    try {
+      const res = await fetch("/api/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          company: data.company,
+          designation: data.designation,
+          card: {
+            name: data.name,
+            designation: data.designation,
+            company: data.company,
+            phone: data.phone,
+            email: data.contactEmail || data.email,
+            website: data.website,
+            linkedin: data.linkedin,
+            twitter: data.twitter,
+            status: "ACTIVE",
+          },
+          publish: true,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to publish");
+      toast.success("Card published!");
+      router.push("/dashboard");
+    } catch {
+      toast.error("Failed to publish card. Please try again.");
+    } finally {
+      setPublishing(false);
+    }
   };
 
   const update = (field: keyof OnboardingData, value: string) => {
@@ -326,9 +368,13 @@ export default function OnboardingPage() {
                 </div>
               </div>
             </div>
-            <Button onClick={skipOnboarding} className="w-full">
-              <Rocket className="h-4 w-4" />
-              Publish Card
+            <Button onClick={handlePublish} className="w-full" disabled={publishing}>
+              {publishing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Rocket className="h-4 w-4" />
+              )}
+              {publishing ? "Publishing..." : "Publish Card"}
             </Button>
           </div>
         );
@@ -407,9 +453,13 @@ export default function OnboardingPage() {
               <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={skipOnboarding}>
-              <Check className="h-4 w-4" />
-              Finish
+            <Button onClick={handlePublish} disabled={publishing}>
+              {publishing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
+              {publishing ? "Publishing..." : "Finish"}
             </Button>
           )}
         </div>

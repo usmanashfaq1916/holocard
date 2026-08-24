@@ -6,6 +6,26 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-XSS-Protection", value: "1; mode=block" },
   { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
+  // CSP Report-Only: monitor violations before enforcing.
+  // Exceptions documented:
+  //   - 'unsafe-eval': Required by MindAR image target compiler (uses new Function())
+  //   - 'unsafe-inline' for style-src only: Required by Framer Motion inline animation styles
+  //   - worker-src blob: Required by Three.js WebGL worker threads
+  {
+    key: "Content-Security-Policy-Report-Only",
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https://*.supabase.co",
+      "font-src 'self' https://fonts.gstatic.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+      "media-src 'self' blob:",
+      "worker-src 'self' blob:",
+      "frame-ancestors 'none'",
+      "report-uri /api/csp-report",
+    ].join("; "),
+  },
 ];
 
 const nextConfig: NextConfig = {

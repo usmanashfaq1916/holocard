@@ -299,6 +299,59 @@ export const AR_TEMPLATES: Record<ARTemplateType, ARTemplate> = {
       },
     ],
   },
+  DATA_ANALYST: {
+    type: "DATA_ANALYST",
+    name: "Data Analyst",
+    description: "Animated 3D bar chart + data visualization + social links",
+    thumbnail: "/templates/data-analyst.svg",
+    scenes: [
+      {
+        name: "Data Visualization",
+        duration: 8,
+        transition: "FADE",
+        elements: [
+          {
+            type: "TEXT",
+            label: "Data Analytics Portfolio",
+            position: { x: 0, y: 0.6, z: 0.3 },
+            scale: { x: 1, y: 1, z: 1 },
+            animation: { type: "rise", duration: 0.8, delay: 0.3 },
+          },
+          {
+            type: "3D",
+            label: "Bar Chart",
+            position: { x: 0, y: 0, z: 0.2 },
+            scale: { x: 0.8, y: 0.8, z: 0.8 },
+            animation: { type: "rise", duration: 1.2, delay: 0.5 },
+          },
+          {
+            type: "BUTTON",
+            label: "LinkedIn",
+            position: { x: -0.5, y: -0.7, z: 0.2 },
+            scale: { x: 1, y: 1, z: 1 },
+            animation: { type: "fade", duration: 0.3, delay: 1.8 },
+            actions: [{ type: "OPEN_LINKEDIN", label: "LinkedIn" }],
+          },
+          {
+            type: "BUTTON",
+            label: "Portfolio",
+            position: { x: 0, y: -0.7, z: 0.2 },
+            scale: { x: 1, y: 1, z: 1 },
+            animation: { type: "fade", duration: 0.3, delay: 2.0 },
+            actions: [{ type: "OPEN_URL", label: "Portfolio" }],
+          },
+          {
+            type: "BUTTON",
+            label: "GitHub",
+            position: { x: 0.5, y: -0.7, z: 0.2 },
+            scale: { x: 1, y: 1, z: 1 },
+            animation: { type: "fade", duration: 0.3, delay: 2.2 },
+            actions: [{ type: "OPEN_URL", label: "GitHub" }],
+          },
+        ],
+      },
+    ],
+  },
 };
 
 export function getARTemplate(type: ARTemplateType): ARTemplate {

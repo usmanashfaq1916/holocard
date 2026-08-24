@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight, Eye } from "lucide-react";
 import { LazyARModelViewer } from "@/lib/lazy-imports";
+import { buttonVariants } from "@/components/ui/button";
 
 export function HeroHoloCard() {
   return (
@@ -22,6 +23,18 @@ export function HeroHoloCard() {
           slug="usman-ashfaq"
           className="h-[300px] w-full md:h-[350px]"
         />
+      </div>
+
+      {/* Try AR button */}
+      <div className="mt-4 flex justify-center">
+        <Link
+          href="/ar/usman-ashfaq"
+          className={buttonVariants({ variant: "default", size: "sm" })}
+        >
+          <Eye className="mr-2 h-3 w-3" />
+          Try AR Experience
+          <ArrowRight className="ml-2 h-3 w-3" />
+        </Link>
       </div>
 
       {/* Floating badges */}

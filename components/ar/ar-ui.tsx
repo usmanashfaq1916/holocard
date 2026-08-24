@@ -141,23 +141,34 @@ export function ARErrorScreen({ error, onRetry, onView3D }: ARErrorScreenProps) 
 interface ARStatusOverlayProps {
   isTracking: boolean;
   targetFound: boolean;
+  animPhase?: number;
 }
 
-export function ARStatusOverlay({ isTracking, targetFound }: ARStatusOverlayProps) {
+export function ARStatusOverlay({ isTracking, targetFound, animPhase = 0 }: ARStatusOverlayProps) {
   if (!isTracking) return null;
+
+  let statusText = "Point camera at the HoloCard...";
+  let statusColor = "bg-black/50 text-white";
+
+  if (targetFound) {
+    statusColor = "bg-green-500/90 text-white";
+    if (animPhase < 1) {
+      statusText = "Card detected!";
+    } else if (animPhase < 2) {
+      statusText = "Loading profile...";
+    } else if (animPhase < 3) {
+      statusText = "Loading 3D content...";
+    } else {
+      statusText = "Ready!";
+    }
+  }
 
   return (
     <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50">
       <div
-        className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md transition-all ${
-          targetFound
-            ? "bg-green-500/90 text-white"
-            : "bg-black/50 text-white"
-        }`}
+        className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md transition-all ${statusColor}`}
       >
-        {targetFound
-          ? "Card detected!"
-          : "Point camera at the HoloCard..."}
+        {statusText}
       </div>
     </div>
   );

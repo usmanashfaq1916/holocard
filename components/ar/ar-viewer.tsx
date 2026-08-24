@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useRef, useCallback, Suspense } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { ARView, ARAnchor } from "r3f-mind-ar";
 import type { ARViewHandle } from "r3f-mind-ar";
-import { Canvas } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import { Text, RoundedBox } from "@react-three/drei";
 import { useAR } from "r3f-mind-ar";
+import * as THREE from "three";
 import {
   ARInstructions,
   ARLoading,
@@ -14,6 +15,8 @@ import {
 } from "./ar-ui";
 import { detectARSupport, AR_ERRORS } from "@/lib/ar/ar-types";
 import { trackAREvent, useARSession } from "@/lib/ar/analytics";
+import { DataAnalystScene } from "./scenes/data-analyst-scene";
+import { sanitize } from "@/lib/sanitize";
 
 interface ARViewerProps {
   cardSlug: string;
@@ -39,6 +42,59 @@ type ViewerState =
   | "fallback-3d"
   | "digital";
 
+function AnimatedGroup({
+  visible,
+  delay,
+  children,
+  liftY = 0.08,
+}: {
+  visible: boolean;
+  delay: number;
+  children: React.ReactNode;
+  liftY?: number;
+}) {
+  const ref = useRef<THREE.Group>(null);
+  const startTime = useRef(-1);
+  const matRef = useRef<THREE.MeshPhysicalMaterial | null>(null);
+
+  useFrame(() => {
+    if (!ref.current) return;
+    const now = performance.now() / 1000;
+    if (startTime.current < 0) startTime.current = now;
+    const elapsed = now - startTime.current;
+    const t = visible ? Math.min(Math.max((elapsed - delay) / 0.5, 0), 1) : 0;
+    const ease = t * t * (3 - 2 * t);
+    ref.current.visible = t > 0.001;
+    ref.current.position.y = THREE.MathUtils.lerp(-liftY, 0, ease);
+    if (matRef.current) {
+      matRef.current.opacity = ease;
+    }
+  });
+
+  return (
+    <group ref={ref}>
+      {children}
+    </group>
+  );
+}
+
+interface ARViewerProps {
+  cardSlug: string;
+  cardName: string;
+  cardDesignation?: string;
+  cardCompany?: string;
+  mindFileUrl: string;
+  socialLinks?: { platform: string; url: string }[];
+  buttons?: { label: string; url: string }[];
+  phone?: string;
+  email?: string;
+  whatsapp?: string;
+  website?: string;
+  linkedin?: string;
+  profileImage?: string;
+  templateType?: string;
+}
+
 function ARSceneContent({
   name,
   designation,
@@ -50,6 +106,8 @@ function ARSceneContent({
   whatsapp,
   website,
   linkedin,
+  targetFound,
+  templateType,
   onInteraction,
 }: {
   name: string;
@@ -62,8 +120,14 @@ function ARSceneContent({
   whatsapp?: string;
   website?: string;
   linkedin?: string;
+  targetFound: boolean;
+  templateType?: string;
   onInteraction: (type: string, url?: string) => void;
 }) {
+  if (templateType === "DATA_ANALYST") {
+    return <DataAnalystScene onInteraction={onInteraction} />;
+  }
+
   const { isTracking } = useAR();
 
   return (
@@ -73,168 +137,176 @@ function ARSceneContent({
       onAnchorFound={() => {}}
       onAnchorLost={() => {}}
     >
-      {/* Floating card base */}
-      <RoundedBox args={[2.5, 1.4, 0.04]} position={[0, 0, 0]} radius={0.06}>
-        <meshPhysicalMaterial
-          color="#ffffff"
-          metalness={0.1}
-          roughness={0.3}
-          clearcoat={0.8}
-          clearcoatRoughness={0.2}
-          opacity={0.95}
-          transparent
-        />
-      </RoundedBox>
+      {/* Floating card base — rises from below at 1.2s */}
+      <AnimatedGroup visible={targetFound} delay={1.2} liftY={0.2}>
+        <RoundedBox args={[2.5, 1.4, 0.04]} position={[0, 0, 0]} radius={0.06}>
+          <meshPhysicalMaterial
+            color="#ffffff"
+            metalness={0.1}
+            roughness={0.3}
+            clearcoat={0.8}
+            clearcoatRoughness={0.2}
+            opacity={0.95}
+            transparent
+          />
+        </RoundedBox>
+      </AnimatedGroup>
 
-      {/* Name */}
-      <Text
-        position={[0, 0.4, 0.03]}
-        fontSize={0.18}
-        color="#1a1a1a"
-        anchorX="center"
-        anchorY="middle"
-        maxWidth={2}
-        font="/fonts/Inter-Bold.ttf"
-      >
-        {name}
-      </Text>
-
-      {/* Designation */}
-      {designation && (
+      {/* Name — fades in at 0.3s */}
+      <AnimatedGroup visible={targetFound} delay={0.3}>
         <Text
-          position={[0, 0.15, 0.03]}
-          fontSize={0.09}
-          color="#666666"
+          position={[0, 0.4, 0.03]}
+          fontSize={0.18}
+          color="#1a1a1a"
           anchorX="center"
           anchorY="middle"
           maxWidth={2}
+          font="/fonts/Inter-Bold.ttf"
         >
-          {designation}
-          {company ? ` at ${company}` : ""}
+          {sanitize(name)}
         </Text>
-      )}
+      </AnimatedGroup>
 
-      {/* Divider */}
-      <mesh position={[0, -0.02, 0.03]}>
-        <planeGeometry args={[1.5, 0.002]} />
-        <meshBasicMaterial color="#e2e8f0" />
-      </mesh>
-
-      {/* Floating action buttons */}
-      <group position={[0, -0.35, 0.05]}>
-        {linkedin && (
-          <group
-            position={[-0.7, 0, 0]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onInteraction("linkedin", linkedin);
-            }}
+      {/* Designation — slides up at 0.8s */}
+      <AnimatedGroup visible={targetFound} delay={0.8}>
+        {designation && (
+          <Text
+            position={[0, 0.15, 0.03]}
+            fontSize={0.09}
+            color="#666666"
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={2}
           >
-            <RoundedBox args={[0.35, 0.18, 0.02]} radius={0.04}>
-              <meshPhysicalMaterial color="#0A66C2" metalness={0.2} roughness={0.4} />
-            </RoundedBox>
-            <Text position={[0, 0, 0.02]} fontSize={0.05} color="white" anchorX="center">
-              LinkedIn
-            </Text>
-          </group>
-        )}
-
-        {website && (
-          <group
-            position={[0, 0, 0]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onInteraction("website", website);
-            }}
-          >
-            <RoundedBox args={[0.35, 0.18, 0.02]} radius={0.04}>
-              <meshPhysicalMaterial color="#2563EB" metalness={0.2} roughness={0.4} />
-            </RoundedBox>
-            <Text position={[0, 0, 0.02]} fontSize={0.05} color="white" anchorX="center">
-              Website
-            </Text>
-          </group>
-        )}
-
-        {email && (
-          <group
-            position={[0.7, 0, 0]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onInteraction("email", `mailto:${email}`);
-            }}
-          >
-            <RoundedBox args={[0.35, 0.18, 0.02]} radius={0.04}>
-              <meshPhysicalMaterial color="#059669" metalness={0.2} roughness={0.4} />
-            </RoundedBox>
-            <Text position={[0, 0, 0.02]} fontSize={0.05} color="white" anchorX="center">
-              Email
-            </Text>
-          </group>
-        )}
-      </group>
-
-      {/* Contact buttons row */}
-      <group position={[0, -0.6, 0.05]}>
-        {phone && (
-          <group
-            position={[-0.5, 0, 0]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onInteraction("phone", `tel:${phone}`);
-            }}
-          >
-            <RoundedBox args={[0.28, 0.14, 0.02]} radius={0.03}>
-              <meshPhysicalMaterial color="#16A34A" metalness={0.2} roughness={0.4} />
-            </RoundedBox>
-            <Text position={[0, 0, 0.02]} fontSize={0.04} color="white" anchorX="center">
-              Call
-            </Text>
-          </group>
-        )}
-
-        {whatsapp && (
-          <group
-            position={[0, 0, 0]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onInteraction("whatsapp", `https://wa.me/${whatsapp.replace(/\D/g, "")}`);
-            }}
-          >
-            <RoundedBox args={[0.28, 0.14, 0.02]} radius={0.03}>
-              <meshPhysicalMaterial color="#25D366" metalness={0.2} roughness={0.4} />
-            </RoundedBox>
-            <Text position={[0, 0, 0.02]} fontSize={0.04} color="white" anchorX="center">
-              WhatsApp
-            </Text>
-          </group>
-        )}
-
-        <group
-          position={[0.5, 0, 0]}
-          onClick={(e) => {
-            e.stopPropagation();
-            onInteraction("save-contact");
-          }}
-        >
-          <RoundedBox args={[0.28, 0.14, 0.02]} radius={0.03}>
-            <meshPhysicalMaterial color="#7C3AED" metalness={0.2} roughness={0.4} />
-          </RoundedBox>
-          <Text position={[0, 0, 0.02]} fontSize={0.04} color="white" anchorX="center">
-            Save
+            {sanitize(designation)}
+            {company ? ` at ${sanitize(company)}` : ""}
           </Text>
-        </group>
-      </group>
+        )}
 
-      {/* HoloCard branding */}
-      <Text
-        position={[0, -0.85, 0.03]}
-        fontSize={0.04}
-        color="#94A3B8"
-        anchorX="center"
-      >
-        Powered by HoloCard
-      </Text>
+        {/* Divider */}
+        <mesh position={[0, -0.02, 0.03]}>
+          <planeGeometry args={[1.5, 0.002]} />
+          <meshBasicMaterial color="#e2e8f0" />
+        </mesh>
+      </AnimatedGroup>
+
+      {/* Floating action buttons — fade in at 1.8s */}
+      <AnimatedGroup visible={targetFound} delay={1.8}>
+        <group position={[0, -0.35, 0.05]}>
+          {linkedin && (
+            <group
+              position={[-0.7, 0, 0]}
+              onClick={(e) => {
+                e.stopPropagation();
+                onInteraction("linkedin", linkedin);
+              }}
+            >
+              <RoundedBox args={[0.35, 0.18, 0.02]} radius={0.04}>
+                <meshPhysicalMaterial color="#0A66C2" metalness={0.2} roughness={0.4} />
+              </RoundedBox>
+              <Text position={[0, 0, 0.02]} fontSize={0.05} color="white" anchorX="center">
+                LinkedIn
+              </Text>
+            </group>
+          )}
+
+          {website && (
+            <group
+              position={[0, 0, 0]}
+              onClick={(e) => {
+                e.stopPropagation();
+                onInteraction("website", website);
+              }}
+            >
+              <RoundedBox args={[0.35, 0.18, 0.02]} radius={0.04}>
+                <meshPhysicalMaterial color="#2563EB" metalness={0.2} roughness={0.4} />
+              </RoundedBox>
+              <Text position={[0, 0, 0.02]} fontSize={0.05} color="white" anchorX="center">
+                Website
+              </Text>
+            </group>
+          )}
+
+          {email && (
+            <group
+              position={[0.7, 0, 0]}
+              onClick={(e) => {
+                e.stopPropagation();
+                onInteraction("email", `mailto:${email}`);
+              }}
+            >
+              <RoundedBox args={[0.35, 0.18, 0.02]} radius={0.04}>
+                <meshPhysicalMaterial color="#059669" metalness={0.2} roughness={0.4} />
+              </RoundedBox>
+              <Text position={[0, 0, 0.02]} fontSize={0.05} color="white" anchorX="center">
+                Email
+              </Text>
+            </group>
+          )}
+        </group>
+
+        {/* Contact buttons row */}
+        <group position={[0, -0.6, 0.05]}>
+          {phone && (
+            <group
+              position={[-0.5, 0, 0]}
+              onClick={(e) => {
+                e.stopPropagation();
+                onInteraction("phone", `tel:${phone}`);
+              }}
+            >
+              <RoundedBox args={[0.28, 0.14, 0.02]} radius={0.03}>
+                <meshPhysicalMaterial color="#16A34A" metalness={0.2} roughness={0.4} />
+              </RoundedBox>
+              <Text position={[0, 0, 0.02]} fontSize={0.04} color="white" anchorX="center">
+                Call
+              </Text>
+            </group>
+          )}
+
+          {whatsapp && (
+            <group
+              position={[0, 0, 0]}
+              onClick={(e) => {
+                e.stopPropagation();
+                onInteraction("whatsapp", `https://wa.me/${whatsapp.replace(/\D/g, "")}`);
+              }}
+            >
+              <RoundedBox args={[0.28, 0.14, 0.02]} radius={0.03}>
+                <meshPhysicalMaterial color="#25D366" metalness={0.2} roughness={0.4} />
+              </RoundedBox>
+              <Text position={[0, 0, 0.02]} fontSize={0.04} color="white" anchorX="center">
+                WhatsApp
+              </Text>
+            </group>
+          )}
+
+          <group
+            position={[0.5, 0, 0]}
+            onClick={(e) => {
+              e.stopPropagation();
+              onInteraction("save-contact");
+            }}
+          >
+            <RoundedBox args={[0.28, 0.14, 0.02]} radius={0.03}>
+              <meshPhysicalMaterial color="#7C3AED" metalness={0.2} roughness={0.4} />
+            </RoundedBox>
+            <Text position={[0, 0, 0.02]} fontSize={0.04} color="white" anchorX="center">
+              Save
+            </Text>
+          </group>
+        </group>
+
+        {/* HoloCard branding */}
+        <Text
+          position={[0, -0.85, 0.03]}
+          fontSize={0.04}
+          color="#94A3B8"
+          anchorX="center"
+        >
+          Powered by HoloCard
+        </Text>
+      </AnimatedGroup>
     </ARAnchor>
   );
 }
@@ -271,6 +343,7 @@ export default function ARViewer(props: ARViewerProps) {
   const [state, setState] = useState<ViewerState>("instructions");
   const [arError, setArError] = useState<typeof AR_ERRORS.CAMERA_DENIED | null>(null);
   const [targetFound, setTargetFound] = useState(false);
+  const [animPhase, setAnimPhase] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState("Checking AR support...");
   const arRef = useRef<ARViewHandle>(null);
   const { trackEvent } = useARSession(props.cardSlug);
@@ -295,7 +368,11 @@ export default function ARViewer(props: ARViewerProps) {
 
   const handleAnchorFound = useCallback(() => {
     setTargetFound(true);
+    setAnimPhase(0);
     trackEvent("TARGET_DETECTED");
+    setTimeout(() => setAnimPhase(1), 300);
+    setTimeout(() => setAnimPhase(2), 800);
+    setTimeout(() => setAnimPhase(3), 1800);
     setTimeout(() => {
       trackEvent("AR_EXPERIENCE_STARTED");
     }, 2000);
@@ -392,11 +469,13 @@ export default function ARViewer(props: ARViewerProps) {
             whatsapp={props.whatsapp}
             website={props.website}
             linkedin={props.linkedin}
+            targetFound={targetFound}
+            templateType={props.templateType}
             onInteraction={handleInteraction}
           />
         </ARView>
 
-        <ARStatusOverlay isTracking={true} targetFound={targetFound} />
+        <ARStatusOverlay isTracking={true} targetFound={targetFound} animPhase={animPhase} />
 
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-50">

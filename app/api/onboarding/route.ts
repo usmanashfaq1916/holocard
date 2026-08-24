@@ -2,6 +2,26 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth/config";
 
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+async function uniqueSlug(base: string): Promise<string> {
+  let slug = base || "my-card";
+  for (let i = 0; i < 10; i++) {
+    const existing = await prisma.card.findUnique({ where: { slug } });
+    if (!existing) return slug;
+    slug = `${base}-${i + 2}`;
+  }
+  return `${base}-${Date.now()}`;
+}
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -9,7 +29,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  
+
   try {
     if (body.name || body.company || body.designation) {
       await prisma.user.update({
@@ -25,7 +45,8 @@ export async function POST(req: Request) {
     if (body.card) {
       const existingCards = await prisma.card.count({ where: { userId: session.user.id } });
       if (existingCards === 0) {
-        const slug = body.card.slug || session.user.id;
+        const baseSlug = body.card.slug || generateSlug(body.card.name || session.user.name || "my-card");
+        const slug = await uniqueSlug(baseSlug);
         await prisma.card.create({
           data: {
             userId: session.user.id,

@@ -121,6 +121,7 @@ enum ARTemplateType {
   REAL_ESTATE
   PRODUCT_SHOWCASE
   PERSONAL_BRAND
+  DATA_ANALYST
 }
 
 enum MediaType {

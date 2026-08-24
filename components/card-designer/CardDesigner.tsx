@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -11,9 +12,13 @@ import {
   Type,
   Square,
   Minus,
-  Image as ImageIcon,
   Trash2,
   FlipHorizontal,
+  Upload,
+  Check,
+  RefreshCw,
+  Loader2,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { FabricCanvasHandle } from "./FabricCanvas";
@@ -34,6 +39,8 @@ interface CardDesignerProps {
   onSave?: (frontJson: string, backJson: string) => void;
 }
 
+type ARTargetState = "idle" | "creating" | "uploading" | "compiling" | "ready" | "error";
+
 export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerProps) {
   const frontCanvasRef = useRef<FabricCanvasHandle>(null);
   const backCanvasRef = useRef<FabricCanvasHandle>(null);
@@ -41,6 +48,9 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
   const [selectedTemplate, setSelectedTemplate] = useState("centered");
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [arState, setArState] = useState<ARTargetState>("idle");
+  const [arExperienceId, setArExperienceId] = useState<string | null>(null);
+  const [arQuality, setArQuality] = useState<string | null>(null);
 
   const handleAddText = useCallback(() => {
     const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
@@ -98,6 +108,69 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
     onSave?.(frontJson, backJson);
     toast.success("Card design saved");
   }, [onSave]);
+
+  const handleExportAsARTarget = useCallback(async () => {
+    try {
+      setArState("creating");
+
+      let experienceId = arExperienceId;
+      if (!experienceId) {
+        const listRes = await fetch(`/api/ar/experiences?cardId=${cardId}`);
+        const experiences = await listRes.json();
+
+        if (Array.isArray(experiences) && experiences.length > 0) {
+          experienceId = experiences[0].id;
+        } else {
+          const createRes = await fetch("/api/ar/experiences", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              cardId,
+              name: `${cardData?.name || "My Card"} AR Experience`,
+            }),
+          });
+          if (!createRes.ok) throw new Error("Failed to create experience");
+          const exp = await createRes.json();
+          experienceId = exp.id;
+        }
+        setArExperienceId(experienceId);
+      }
+
+      setArState("uploading");
+      const dataUrl = frontCanvasRef.current?.exportPNG(3);
+      if (!dataUrl) throw new Error("Failed to export canvas");
+
+      const blob = await fetch(dataUrl).then((r) => r.blob());
+      const file = new File([blob], "ar-target.png", { type: "image/png" });
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("experienceId", experienceId!);
+
+      const uploadRes = await fetch("/api/ar/targets/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!uploadRes.ok) throw new Error("Upload failed");
+      const { id: targetId } = await uploadRes.json();
+
+      setArState("compiling");
+      const compileRes = await fetch("/api/ar/targets/compile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetId }),
+      });
+      if (!compileRes.ok) throw new Error("Compilation failed");
+      const { quality } = await compileRes.json();
+
+      setArQuality(quality.rating);
+      setArState("ready");
+      toast.success(`AR Target ready! Quality: ${quality.rating}`);
+    } catch {
+      setArState("error");
+      toast.error("Failed to create AR target");
+    }
+  }, [cardId, cardData?.name, arExperienceId]);
 
   const handleTemplateChange = useCallback(
     async (style: string) => {
@@ -255,6 +328,47 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
             <Download className="w-4 h-4 mr-1" />
             Export PNG
           </Button>
+
+          {arState === "idle" && (
+            <Button onClick={handleExportAsARTarget} variant="outline" className="w-full">
+              <Upload className="w-4 h-4 mr-1" />
+              Export as AR Target
+            </Button>
+          )}
+          {(arState === "creating" || arState === "uploading" || arState === "compiling") && (
+            <Button disabled className="w-full">
+              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+              {arState === "creating" && "Creating experience..."}
+              {arState === "uploading" && "Uploading target..."}
+              {arState === "compiling" && "Compiling..."}
+            </Button>
+          )}
+          {arState === "ready" && (
+            <>
+              <Button variant="outline" className="w-full border-green-500 text-green-600" disabled>
+                <Check className="w-4 h-4 mr-1" />
+                AR Target Ready ✓
+              </Button>
+              <Link
+                href={`/dashboard/cards/${cardId}/ar`}
+                className="flex items-center justify-center gap-1 text-sm text-primary hover:underline"
+              >
+                Continue to AR Scene Builder
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+              {arQuality && (
+                <p className="text-xs text-center text-muted-foreground">
+                  Quality: {arQuality}
+                </p>
+              )}
+            </>
+          )}
+          {arState === "error" && (
+            <Button onClick={handleExportAsARTarget} variant="outline" className="w-full">
+              <RefreshCw className="w-4 h-4 mr-1" />
+              Retry
+            </Button>
+          )}
         </div>
       </div>
     </div>

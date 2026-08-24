@@ -2,11 +2,39 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { prisma } from "@/lib/db";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const cardIdFilter = url.searchParams.get("cardId");
+
+    if (cardIdFilter) {
+      const card = await prisma.card.findFirst({
+        where: { id: cardIdFilter, userId: session.user.id },
+      });
+      if (!card) {
+        return NextResponse.json({ error: "Card not found" }, { status: 404 });
+      }
+
+      const experience = await prisma.aRExperience.findUnique({
+        where: { cardId: cardIdFilter },
+        include: {
+          card: { select: { id: true, slug: true, name: true } },
+          target: true,
+          scenes: {
+            include: {
+              elements: { include: { actions: true }, orderBy: { order: "asc" } },
+            },
+            orderBy: { order: "asc" },
+          },
+        },
+      });
+
+      return NextResponse.json(experience ? [experience] : []);
     }
 
     const experiences = await prisma.aRExperience.findMany({

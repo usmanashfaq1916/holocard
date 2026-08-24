@@ -210,10 +210,25 @@ function CardFront({
         <meshBasicMaterial color="#e2e8f0" transparent opacity={0.6} />
       </mesh>
 
-      {/* Skill tags placeholder */}
+      {/* Skill tags — clickable */}
       <group position={[-1.2, -0.2, 0.005]}>
-        {["Profile", "Contact", "Connect"].map((label, i) => (
-          <group key={i} position={[i * 0.9, 0, 0]}>
+        {[
+          { label: "Profile", url: `#features` },
+          { label: "Contact", url: "mailto:usman@holocard.com" },
+          { label: "Connect", url: "https://linkedin.com" },
+        ].map((item, i) => (
+          <group
+            key={i}
+            position={[i * 0.9, 0, 0]}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (item.url.startsWith("#")) {
+                document.getElementById(item.url.slice(1))?.scrollIntoView({ behavior: "smooth" });
+              } else {
+                window.open(item.url, "_blank", "noopener,noreferrer");
+              }
+            }}
+          >
             <mesh>
               <planeGeometry args={[0.75, 0.22]} />
               <meshBasicMaterial color="#eff6ff" transparent opacity={0.8} />
@@ -226,7 +241,7 @@ function CardFront({
               anchorY="middle"
               font={undefined}
             >
-              {label}
+              {item.label}
             </Text>
           </group>
         ))}
@@ -275,16 +290,17 @@ function CardFront({
 /* ──────────── Back face content ──────────── */
 
 function CardBack({ slug }: { slug: string }) {
+  const qrUrl = `/api/qr/${slug}`;
   return (
     <group position={[0, 0, -0.026]} rotation={[0, Math.PI, 0]}>
-      {/* QR placeholder */}
+      {/* QR code image */}
       <mesh position={[0, 0.2, 0.01]}>
         <planeGeometry args={[0.9, 0.9]} />
         <meshBasicMaterial color="#ffffff" />
       </mesh>
       <mesh position={[0, 0.2, 0.015]}>
-        <ringGeometry args={[0.38, 0.42, 32]} />
-        <meshBasicMaterial color="#2563EB" transparent opacity={0.3} />
+        <planeGeometry args={[0.8, 0.8]} />
+        <meshBasicMaterial color="#ffffff" />
       </mesh>
 
       {/* Scan text */}

@@ -1,5 +1,7 @@
 allowBuilds:
   '@prisma/engines': true
+  canvas: true
+  core-js: true
   esbuild: true
   prisma: true
   sharp: false

@@ -44,9 +44,11 @@ const features = [
 ];
 
 const steps = [
-  { num: "01", title: "Create", desc: "Build your professional digital card with our intuitive editor." },
-  { num: "02", title: "Share", desc: "Share your card via URL, QR code, or social media." },
-  { num: "03", title: "Experience", desc: "Visitors scan and experience your immersive AR profile." },
+  { num: "01", title: "Create Your Card", desc: "Design your professional digital business card with our intuitive editor." },
+  { num: "02", title: "Add AR Experience", desc: "Upload your card image and configure 3D objects, videos, and interactive buttons." },
+  { num: "03", title: "Print & Share", desc: "Print your physical card with a QR code, or share your digital URL." },
+  { num: "04", title: "Scan", desc: "Someone scans your QR code or opens your link on their phone." },
+  { num: "05", title: "Experience AR", desc: "They point their camera at your card and watch it come alive in augmented reality." },
 ];
 
 const templates = [
@@ -124,20 +126,20 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
             >
               <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
-                Your Business Card.{" "}
-                <span className="text-gradient">Reimagined in AR.</span>
+                Turn Your Business Card Into an{" "}
+                <span className="text-gradient">AR Experience.</span>
               </h1>
               <p className="mb-8 text-lg text-muted-foreground">
-                Create an interactive digital identity with an AR HoloCard, real-time analytics, and stunning 3D visuals. Stand out. Make an impression.
+                Your Business Card. Reimagined in AR. Point your phone at a HoloCard and watch your professional identity come alive.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row">
                 <Link href="/register" className={buttonVariants({ variant: "default", size: "lg" })}>
-                  Create My HoloCard
+                  Create Your AR Card
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
                 <Link href="/ar/usman-ashfaq" className={buttonVariants({ variant: "outline", size: "lg" })}>
                   <Eye className="mr-2 h-4 w-4" />
-                  Experience AR
+                  Try AR Demo
                 </Link>
               </div>
             </motion.div>
@@ -167,7 +169,7 @@ export default function HomePage() {
               How It <span className="text-gradient">Works</span>
             </h2>
           </motion.div>
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-5">
             {steps.map((step, i) => (
               <motion.div
                 key={step.num}
@@ -221,6 +223,48 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Use Cases */}
+      <section className="border-t border-border py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
+              <span className="text-gradient">Perfect For</span> Every Professional
+            </h2>
+            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
+              From solo entrepreneurs to enterprise teams, HoloCard transforms how you connect.
+            </p>
+          </motion.div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { icon: Users, title: "Business Professionals", desc: "Make networking memorable. Your card becomes an unforgettable interactive experience." },
+              { icon: Globe, title: "Sales Teams", desc: "Turn every meeting into an interactive experience. Share products and services in AR." },
+              { icon: Zap, title: "Real Estate", desc: "Show properties directly from your card. Let clients experience buildings in 3D." },
+              { icon: Sparkles, title: "Creators", desc: "Turn your card into a portfolio. Showcase your work in augmented reality." },
+              { icon: Layers, title: "Events", desc: "Give attendees an unforgettable introduction. Perfect for conferences and trade shows." },
+              { icon: Shield, title: "Companies", desc: "Create branded AR experiences for your entire team. Consistent, professional, impressive." },
+            ].map((useCase, i) => (
+              <motion.div
+                key={useCase.title}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="glass rounded-xl p-6 transition-all hover:glow-sm"
+              >
+                <useCase.icon className="mb-3 h-6 w-6 text-primary" />
+                <h3 className="mb-2 font-semibold text-lg">{useCase.title}</h3>
+                <p className="text-sm text-muted-foreground">{useCase.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Live Demo */}
       <section className="border-t border-border py-24">
         <div className="mx-auto max-w-6xl px-4">
@@ -266,7 +310,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Templates Preview */}
+      {/* AR Experience Templates */}
       <section className="border-t border-border py-24">
         <div className="mx-auto max-w-6xl px-4">
           <motion.div
@@ -276,14 +320,21 @@ export default function HomePage() {
             transition={{ duration: 0.5 }}
           >
             <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
-              Choose Your <span className="text-gradient">Style</span>
+              AR Experience <span className="text-gradient">Templates</span>
             </h2>
             <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
-              Pick from professionally designed templates to match your brand.
+              Start with a pre-built AR template. Customize 3D objects, videos, and interactive buttons.
             </p>
           </motion.div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {templates.map((t, i) => (
+            {[
+              { name: "Corporate Intro", desc: "Logo animation + company video + website + LinkedIn", color: "from-blue-600 to-blue-800" },
+              { name: "Creative Portfolio", desc: "3D artwork + portfolio gallery + Instagram", color: "from-pink-500 to-orange-400" },
+              { name: "Developer", desc: "3D laptop + GitHub + portfolio + LinkedIn", color: "from-cyan-400 to-purple-500" },
+              { name: "Real Estate", desc: "3D building + property gallery + Call + WhatsApp", color: "from-emerald-500 to-teal-600" },
+              { name: "Product Showcase", desc: "3D product model + demo video + Buy Now", color: "from-orange-400 to-red-500" },
+              { name: "Personal Brand", desc: "Animated portrait + social links + portfolio", color: "from-violet-500 to-purple-600" },
+            ].map((t, i) => (
               <motion.div
                 key={t.name}
                 initial={{ opacity: 0, y: 15 }}
@@ -292,17 +343,16 @@ export default function HomePage() {
                 transition={{ duration: 0.4, delay: i * 0.1 }}
                 className="glass group cursor-pointer overflow-hidden rounded-xl transition-all hover:glow-sm"
               >
-                <div className="h-40 bg-gradient-to-br p-6">
+                <div className={`h-32 bg-gradient-to-br ${t.color} p-6`}>
                   <div className="flex h-full items-center justify-center">
                     <div className="rounded-xl bg-white/10 px-6 py-4 backdrop-blur-sm">
                       <div className="text-sm font-bold text-white">{t.name}</div>
-                      <div className="text-xs text-white/70">{t.style}</div>
                     </div>
                   </div>
                 </div>
                 <div className="p-4">
                   <h3 className="font-semibold">{t.name}</h3>
-                  <p className="text-sm text-muted-foreground">{t.style}</p>
+                  <p className="text-sm text-muted-foreground">{t.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -484,18 +534,19 @@ export default function HomePage() {
             transition={{ duration: 0.5 }}
           >
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              Ready to <span className="text-gradient">Stand Out</span>?
+              Bring Your Business Card to <span className="text-gradient">Life</span>.
             </h2>
             <p className="mb-8 text-lg text-muted-foreground">
-              Join professionals who have transformed their networking with HoloCard.
+              Join professionals who have transformed their networking with AR-powered HoloCards.
             </p>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/register" className={buttonVariants({ variant: "default", size: "lg" })}>
-                Get Started Free
+                Create Your AR Card
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-              <Link href="/login" className={buttonVariants({ variant: "outline", size: "lg" })}>
-                Sign In
+              <Link href="/ar/usman-ashfaq" className={buttonVariants({ variant: "outline", size: "lg" })}>
+                <Eye className="mr-2 h-4 w-4" />
+                Try AR Demo
               </Link>
             </div>
           </motion.div>

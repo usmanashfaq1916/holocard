@@ -53,6 +53,74 @@ enum EventType {
   CTA_CLICK
   SHARE
   VIDEO_PLAY
+  CAMERA_STARTED
+  TARGET_DETECTED
+  AR_EXPERIENCE_STARTED
+  AR_INTERACTION
+}
+
+enum ARExperienceStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ARTargetStatus {
+  PENDING
+  COMPILING
+  READY
+  FAILED
+}
+
+enum ARElementType {
+  THREE_D
+  VIDEO
+  IMAGE
+  TEXT
+  BUTTON
+  AUDIO
+  HTML_UI
+}
+
+enum ARActionType {
+  OPEN_URL
+  OPEN_LINKEDIN
+  OPEN_GITHUB
+  OPEN_INSTAGRAM
+  OPEN_FACEBOOK
+  OPEN_TWITTER
+  OPEN_EMAIL
+  OPEN_PHONE
+  OPEN_WHATSAPP
+  OPEN_YOUTUBE
+  OPEN_TIKTOK
+  SAVE_CONTACT
+  OPEN_PROFILE
+  OPEN_CONTENT
+  PLAY_VIDEO
+  PLAY_AUDIO
+  TOGGLE_ELEMENT
+}
+
+enum ARSceneTransition {
+  NONE
+  FADE
+  SLIDE
+  SCALE
+}
+
+enum CardDesignSide {
+  FRONT
+  BACK
+}
+
+enum ARTemplateType {
+  CORPORATE_INTRO
+  CREATIVE_PORTFOLIO
+  DEVELOPER
+  REAL_ESTATE
+  PRODUCT_SHOWCASE
+  PERSONAL_BRAND
 }
 
 enum MediaType {
@@ -98,6 +166,7 @@ model User {
   subscriptions    Subscription[]
   passwordResets   PasswordResetToken[]
   notifications    Notification[]
+  workspaces       Workspace[]
 
   @@index([email])
 }
@@ -157,6 +226,8 @@ model PasswordResetToken {
 model Card {
   id          String     @id @default(cuid())
   userId      String
+  workspaceId String?
+  projectId   String?
   slug        String     @unique
   name        String
   designation String?
@@ -204,16 +275,22 @@ model Card {
   updatedAt   DateTime   @updatedAt
 
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace      Workspace?      @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  project        Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
   socialLinks    SocialLink[]
   analyticsEvents AnalyticsEvent[]
   media          Media[]
   arAssets       ARAsset[]
   buttons        CardButton[]
   contacts       Contact[]
+  arExperience   ARExperience?
+  cardDesigns    CardDesign[]
 
   @@index([userId])
   @@index([slug])
   @@index([status])
+  @@index([workspaceId])
+  @@index([projectId])
 }
 
 model CardButton {
@@ -369,4 +446,140 @@ model Notification {
 
   @@index([userId])
   @@index([userId, read])
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects Project[]
+  cards    Card[]
+
+  @@index([userId])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  cards     Card[]
+
+  @@index([workspaceId])
+}
+
+model ARExperience {
+  id           String             @id @default(cuid())
+  cardId       String             @unique
+  name         String
+  status       ARExperienceStatus @default(DRAFT)
+  templateType ARTemplateType?
+  sceneConfig  Json?
+  publishedAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  card     Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  target   ARTarget?
+  scenes   ARScene[]
+
+  @@index([cardId])
+  @@index([status])
+}
+
+model ARTarget {
+  id            String         @id @default(cuid())
+  experienceId  String         @unique
+  imageUrl      String
+  mindFileUrl   String?
+  quality       String?
+  featureCount  Int?
+  dimensions    Json?
+  status        ARTargetStatus @default(PENDING)
+  metadata      Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  experience ARExperience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+
+  @@index([experienceId])
+  @@index([status])
+}
+
+model ARScene {
+  id             String           @id @default(cuid())
+  experienceId   String
+  name           String
+  order          Int              @default(0)
+  duration       Float            @default(5)
+  transitionType ARSceneTransition @default(NONE)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  experience ARExperience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  elements   ARElement[]
+
+  @@index([experienceId])
+}
+
+model ARElement {
+  id          String       @id @default(cuid())
+  sceneId     String
+  type        ARElementType
+  assetUrl    String?
+  position    Json         @default("{\"x\":0,\"y\":0,\"z\":0}")
+  rotation    Json         @default("{\"x\":0,\"y\":0,\"z\":0}")
+  scale       Json         @default("{\"x\":1,\"y\":1,\"z\":1}")
+  visible     Boolean      @default(true)
+  animation   Json?
+  interaction Json?
+  metadata    Json?
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  scene   ARScene    @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+  actions ARAction[]
+
+  @@index([sceneId])
+}
+
+model ARAction {
+  id        String     @id @default(cuid())
+  elementId String
+  type      ARActionType
+  payload   Json?
+  label     String?
+  icon      String?
+  order     Int        @default(0)
+  createdAt DateTime   @default(now())
+
+  element ARElement @relation(fields: [elementId], references: [id], onDelete: Cascade)
+
+  @@index([elementId])
+}
+
+model CardDesign {
+  id             String         @id @default(cuid())
+  cardId         String
+  side           CardDesignSide
+  width          Int            @default(1050)
+  height         Int            @default(600)
+  canvasJson     Json
+  exportedImageUrl String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId])
 }

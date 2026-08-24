@@ -24,11 +24,37 @@ async function main() {
 
   console.log("Created demo user:", user.email);
 
+  const workspace = await prisma.workspace.upsert({
+    where: { id: `ws-${user.id}` },
+    update: {},
+    create: {
+      id: `ws-${user.id}`,
+      userId: user.id,
+      name: "My Workspace",
+      isDefault: true,
+    },
+  });
+
+  const project = await prisma.project.upsert({
+    where: { id: `proj-${user.id}` },
+    update: {},
+    create: {
+      id: `proj-${user.id}`,
+      workspaceId: workspace.id,
+      name: "Default Project",
+      isDefault: true,
+    },
+  });
+
+  console.log("Created workspace + project for demo user");
+
   const card = await prisma.card.upsert({
     where: { slug: "usman-ashfaq" },
     update: {},
     create: {
       userId: user.id,
+      workspaceId: workspace.id,
+      projectId: project.id,
       slug: "usman-ashfaq",
       name: "Usman Ashfaq",
       designation: "Data Analyst",

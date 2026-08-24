@@ -2,14 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { prisma } from "@/lib/db";
 import { validateTargetFile, validateTargetImage } from "@/lib/ar/target-compiler";
-import { createClient } from "@supabase/supabase-js";
-
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
+import { getStorage } from "@/lib/storage";
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,18 +32,8 @@ export async function POST(request: NextRequest) {
     const fileName = `targets/${session.user.id}/${Date.now()}-${file.name}`;
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const supabase = getSupabase();
-    const { error: uploadError } = await supabase.storage
-      .from("holocard")
-      .upload(fileName, buffer, { contentType: file.type });
-
-    if (uploadError) {
-      return NextResponse.json({ error: "Upload failed" }, { status: 500 });
-    }
-
-    const { data: urlData } = supabase.storage
-      .from("holocard")
-      .getPublicUrl(fileName);
+    const storage = await getStorage();
+    const result = await storage.upload(fileName, buffer, file.type);
 
     const experience = experienceId
       ? await prisma.aRExperience.findFirst({
@@ -61,7 +44,7 @@ export async function POST(request: NextRequest) {
     const target = await prisma.aRTarget.create({
       data: {
         experienceId: experience?.id || "",
-        imageUrl: urlData.publicUrl,
+        imageUrl: result.url,
         status: "PENDING",
         dimensions: {
           width: imageValidation.width,
@@ -79,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       id: target.id,
-      imageUrl: urlData.publicUrl,
+      imageUrl: result.url,
       dimensions: {
         width: imageValidation.width,
         height: imageValidation.height,
@@ -87,6 +70,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Target upload error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: `Upload failed: ${error instanceof Error ? error.message : "Internal server error"}` },
+      { status: 500 }
+    );
   }
 }

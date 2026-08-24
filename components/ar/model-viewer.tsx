@@ -74,9 +74,9 @@ function TiltGroup({
 function LightSweep() {
   const lightRef = useRef<THREE.SpotLight>(null);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (!lightRef.current) return;
-    const t = state.clock.elapsedTime * 0.4;
+    const t = performance.now() / 1000 * 0.4;
     lightRef.current.position.x = Math.sin(t) * 4;
     lightRef.current.position.y = Math.cos(t * 0.7) * 2 + 2;
     lightRef.current.position.z = 3;
@@ -100,9 +100,9 @@ function LightSweep() {
 function HolographicMaterial({ baseColor = "#2563EB" }: { baseColor?: string }) {
   const materialRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (!materialRef.current) return;
-    const t = state.clock.elapsedTime;
+    const t = performance.now() / 1000;
     materialRef.current.iridescence = 0.3 + Math.sin(t * 0.5) * 0.1;
     materialRef.current.iridescenceIOR = 1.3 + Math.sin(t * 0.3) * 0.2;
   });
@@ -451,6 +451,9 @@ export function ARModelViewer({
 }: HoloCardProps) {
   const [webglSupported, setWebglSupported] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [contextLost, setContextLost] = useState(false);
+  const [contextFailed, setContextFailed] = useState(false);
+  const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     try {
@@ -461,12 +464,55 @@ export function ARModelViewer({
       setWebglSupported(false);
     }
 
-    // Fallback: dismiss loading spinner after 15s if onCreated never fires
     const timeout = setTimeout(() => setLoading(false), 15000);
     return () => clearTimeout(timeout);
   }, []);
 
-  if (!webglSupported) {
+  useEffect(() => {
+    return () => {
+      if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+    };
+  }, []);
+
+  const handleCreated = useCallback(({ gl }: { gl: THREE.WebGLRenderer }) => {
+    setLoading(false);
+
+    const canvas = gl.domElement;
+
+    const onContextLost = (e: Event) => {
+      e.preventDefault();
+      setContextLost(true);
+
+      fallbackTimerRef.current = setTimeout(() => {
+        setContextFailed(true);
+      }, 10000);
+    };
+
+    const onContextRestored = () => {
+      if (fallbackTimerRef.current) {
+        clearTimeout(fallbackTimerRef.current);
+        fallbackTimerRef.current = null;
+      }
+      setContextLost(false);
+      setContextFailed(false);
+    };
+
+    const onContextCreationError = () => {
+      setContextFailed(true);
+    };
+
+    canvas.addEventListener("webglcontextlost", onContextLost);
+    canvas.addEventListener("webglcontextrestored", onContextRestored);
+    canvas.addEventListener("webglcontextcreationerror", onContextCreationError);
+
+    (canvas as unknown as { _cleanupGL?: () => void })._cleanupGL = () => {
+      canvas.removeEventListener("webglcontextlost", onContextLost);
+      canvas.removeEventListener("webglcontextrestored", onContextRestored);
+      canvas.removeEventListener("webglcontextcreationerror", onContextCreationError);
+    };
+  }, []);
+
+  if (!webglSupported || contextFailed) {
     return <ARModelViewerFallback />;
   }
 
@@ -475,10 +521,10 @@ export function ARModelViewer({
       <ErrorBoundary fallback={<ARModelViewerFallback />}>
         <Canvas
           camera={{ position: [0, 0, 5.2], fov: 42 }}
-          gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+          gl={{ antialias: true, alpha: true, powerPreference: "default" }}
           style={{ background: "transparent" }}
           dpr={[1, 2]}
-          onCreated={() => setLoading(false)}
+          onCreated={handleCreated}
         >
           <HoloCardScene
             name={name}
@@ -501,7 +547,24 @@ export function ARModelViewer({
         </div>
       )}
 
-      {/* Interaction hint overlay */}
+      {contextLost && !contextFailed && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm z-10">
+          <div className="flex flex-col items-center gap-3 text-center px-6">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <p className="text-sm font-medium">3D rendering paused — restoring...</p>
+            <p className="text-xs text-muted-foreground">
+              Your device may be low on graphics memory.
+            </p>
+            <button
+              onClick={() => setContextFailed(true)}
+              className="mt-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+            >
+              View 2D Card
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="pointer-events-none absolute bottom-4 left-0 right-0 flex justify-center">
         <span className="rounded-full bg-background/70 px-3 py-1 text-xs text-muted-foreground backdrop-blur-sm">
           Drag to rotate &bull; Click to flip

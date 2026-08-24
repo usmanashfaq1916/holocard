@@ -8,8 +8,15 @@ export class SupabaseProvider implements StorageProvider {
   private bucket: string;
 
   constructor() {
-    const supabaseUrl = process.env.SUPABASE_URL || "";
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error(
+        "Storage not configured: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. " +
+        "Create a free project at https://app.supabase.com → Settings → API."
+      );
+    }
 
     this.client = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { persistSession: false },

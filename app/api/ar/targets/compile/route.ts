@@ -2,14 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { prisma } from "@/lib/db";
 import { compileTarget } from "@/lib/ar/target-compiler";
-import { createClient } from "@supabase/supabase-js";
-
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
+import { getStorage } from "@/lib/storage";
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,31 +40,14 @@ export async function POST(request: NextRequest) {
 
     const result = await compileTarget(file);
 
-    const supabase = getSupabase();
+    const storage = await getStorage();
     const mindFileName = `targets/${session.user.id}/${targetId}.mind`;
-    const { error: uploadError } = await supabase.storage
-      .from("holocard")
-      .upload(mindFileName, result.buffer, {
-        contentType: "application/octet-stream",
-        upsert: true,
-      });
-
-    if (uploadError) {
-      await prisma.aRTarget.update({
-        where: { id: targetId },
-        data: { status: "FAILED" },
-      });
-      return NextResponse.json({ error: "Failed to store compiled target" }, { status: 500 });
-    }
-
-    const { data: mindUrlData } = supabase.storage
-      .from("holocard")
-      .getPublicUrl(mindFileName);
+    const uploadResult = await storage.upload(mindFileName, Buffer.from(result.buffer), "application/octet-stream");
 
     await prisma.aRTarget.update({
       where: { id: targetId },
       data: {
-        mindFileUrl: mindUrlData.publicUrl,
+        mindFileUrl: uploadResult.url,
         quality: result.quality.rating,
         featureCount: result.quality.featureCount,
         status: "READY",
@@ -87,7 +63,7 @@ export async function POST(request: NextRequest) {
       id: targetId,
       status: "READY",
       quality: result.quality,
-      mindFileUrl: mindUrlData.publicUrl,
+      mindFileUrl: uploadResult.url,
     });
   } catch (error) {
     console.error("Target compile error:", error);

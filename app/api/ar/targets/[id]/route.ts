@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { prisma } from "@/lib/db";
-import { createClient } from "@supabase/supabase-js";
-
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
+import { getStorage } from "@/lib/storage";
 
 export async function GET(
   _request: NextRequest,
@@ -56,18 +49,19 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const supabase = getSupabase();
+    const storage = await getStorage();
+
     if (target.mindFileUrl) {
-      const mindPath = target.mindFileUrl.split("/holocard/")[1];
-      if (mindPath) {
-        await supabase.storage.from("holocard").remove([mindPath]);
+      const mindKey = target.mindFileUrl.split("/holocard-uploads/")[1];
+      if (mindKey) {
+        try { await storage.delete(mindKey); } catch { /* continue */ }
       }
     }
 
     if (target.imageUrl) {
-      const imgPath = target.imageUrl.split("/holocard/")[1];
-      if (imgPath) {
-        await supabase.storage.from("holocard").remove([imgPath]);
+      const imgKey = target.imageUrl.split("/holocard-uploads/")[1];
+      if (imgKey) {
+        try { await storage.delete(imgKey); } catch { /* continue */ }
       }
     }
 

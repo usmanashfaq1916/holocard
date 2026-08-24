@@ -1,4 +1,3 @@
 {
-  "framework": "nextjs",
-  "installCommand": "pnpm install --ignore-scripts && pnpm rebuild esbuild && npx prisma generate"
+  "framework": "nextjs"
 }

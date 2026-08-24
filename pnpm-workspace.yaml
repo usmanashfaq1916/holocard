@@ -1,0 +1,8 @@
+allowBuilds:
+  esbuild: true
+  core-js: true
+  "@prisma/client": true
+  "@prisma/engines": true
+  prisma: true
+  canvas: false
+  bcryptjs: true

@@ -41,9 +41,16 @@ export async function POST(request: NextRequest) {
         })
       : null;
 
+    if (!experience) {
+      return NextResponse.json(
+        { error: "Missing or invalid experienceId" },
+        { status: 400 }
+      );
+    }
+
     const target = await prisma.aRTarget.create({
       data: {
-        experienceId: experience?.id || "",
+        experienceId: experience.id,
         imageUrl: result.url,
         status: "PENDING",
         dimensions: {
@@ -52,13 +59,6 @@ export async function POST(request: NextRequest) {
         },
       },
     });
-
-    if (experience) {
-      await prisma.aRTarget.update({
-        where: { id: target.id },
-        data: { experienceId: experience.id },
-      });
-    }
 
     return NextResponse.json({
       id: target.id,

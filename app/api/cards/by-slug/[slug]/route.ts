@@ -13,6 +13,12 @@ export async function GET(_req: Request, { params }: RouteParams) {
     include: {
       socialLinks: { orderBy: { order: "asc" } },
       buttons: { where: { isActive: true }, orderBy: { order: "asc" } },
+      arExperience: {
+        include: {
+          target: true,
+          scenes: true,
+        },
+      },
     },
   });
 

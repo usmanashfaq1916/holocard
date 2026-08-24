@@ -26,12 +26,13 @@ export async function generateMetadata({ params }: CardPageProps): Promise<Metad
       title,
       description,
       type: "profile",
-      images: [`/api/og/${card.slug}`],
+      images: [`/api/og/card/${card.slug}`],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [`/api/og/card/${card.slug}`],
     },
   };
 }

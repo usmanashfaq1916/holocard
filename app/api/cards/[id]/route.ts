@@ -9,14 +9,19 @@ interface RouteParams {
 }
 
 export async function GET(_req: Request, { params }: RouteParams) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { id } = await params;
   const card = await prisma.card.findUnique({
     where: { id },
     include: { socialLinks: { orderBy: { order: "asc" } } },
   });
 
-  if (!card) {
-    return NextResponse.json({ error: "Card not found" }, { status: 404 });
+  if (!card || card.userId !== session.user.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   return NextResponse.json(card);

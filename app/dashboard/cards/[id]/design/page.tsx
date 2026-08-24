@@ -1,51 +1,57 @@
-"use client";
-
-import { use } from "react";
-import { useRouter } from "next/navigation";
-import CardDesigner from "@/components/card-designer/CardDesigner";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { notFound } from "next/navigation";
 import Link from "next/link";
+import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth/config";
+import CardDesignerWrapper from "./CardDesignerWrapper";
 
-export default function CardDesignPage({
-  params,
-}: {
+interface CardDesignPageProps {
   params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
-  const router = useRouter();
+}
+
+export default async function CardDesignPage({ params }: CardDesignPageProps) {
+  const { id } = await params;
+
+  const session = await auth();
+  if (!session?.user?.id) {
+    notFound();
+  }
+
+  const card = await prisma.card.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      designation: true,
+      company: true,
+      phone: true,
+      email: true,
+      website: true,
+      userId: true,
+    },
+  });
+
+  if (!card || card.userId !== session.user.id) {
+    notFound();
+  }
 
   const cardData = {
-    name: "Usman Ashfaq",
-    designation: "Data Analyst",
-    company: "HoloCard",
-    phone: "+1 234 567 890",
-    email: "usman@holocard.com",
-    website: "https://holocard.com",
-  };
-
-  const handleSave = async (frontJson: string, backJson: string) => {
-    try {
-      await fetch(`/api/cards/${id}/design`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ front: frontJson, back: backJson }),
-      });
-      router.push(`/dashboard/cards/${id}`);
-    } catch (error) {
-      console.error("Save failed:", error);
-    }
+    name: card.name || "",
+    designation: card.designation || "",
+    company: card.company || "",
+    phone: card.phone || "",
+    email: card.email || "",
+    website: card.website || "",
   };
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-6 flex items-center gap-4">
-          <Link href={`/dashboard/cards/${id}`}>
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Back to Card
-            </Button>
+          <Link
+            href={`/dashboard/cards/${id}`}
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            ← Back to Card
           </Link>
           <div>
             <h1 className="text-2xl font-bold">Card Designer</h1>
@@ -55,7 +61,7 @@ export default function CardDesignPage({
           </div>
         </div>
 
-        <CardDesigner cardId={id} cardData={cardData} onSave={handleSave} />
+        <CardDesignerWrapper cardId={id} cardData={cardData} />
       </div>
     </div>
   );

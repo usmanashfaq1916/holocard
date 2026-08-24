@@ -69,7 +69,7 @@ export default function ExperiencesPage() {
 
   const handleCopyQR = async (slug: string) => {
     try {
-      const res = await fetch(`/api/qr?data=${encodeURIComponent(`${window.location.origin}/ar/${slug}`)}&size=300`);
+      const res = await fetch(`/api/qr/${slug}?format=png`);
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");

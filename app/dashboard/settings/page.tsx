@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
 import { toast } from "sonner";
 import { Check, X, Crown, Zap, Building2, HardDrive, Image, Video, FileText } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -75,6 +76,7 @@ export default function SettingsPage() {
 
   const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const [storageUsage, setStorageUsage] = useState({ images: 0, videos: 0, documents: 0 });
   const [storageLoading, setStorageLoading] = useState(true);
@@ -105,18 +107,19 @@ export default function SettingsPage() {
     fetch("/api/media")
       .then((r) => r.json())
       .then((data) => {
-        const files = data.files || data.media || [];
+        const files = data.files || data.media || data || [];
         let images = 0, videos = 0, documents = 0;
         for (const file of files) {
+          const size = file.size || 0;
           const type = (file.type || file.mimeType || "").toLowerCase();
-          if (type.startsWith("image/")) images++;
-          else if (type.startsWith("video/")) videos++;
-          else documents++;
+          if (type.startsWith("image/")) images += size;
+          else if (type.startsWith("video/")) videos += size;
+          else documents += size;
         }
         setStorageUsage({
-          images: images * 500,
-          videos: videos * 5000,
-          documents: documents * 200,
+          images: Math.round(images / 1024 / 1024),
+          videos: Math.round(videos / 1024 / 1024),
+          documents: Math.round(documents / 1024 / 1024),
         });
         setStorageLoading(false);
       })
@@ -676,9 +679,31 @@ export default function SettingsPage() {
               <div>
                 <Button
                   variant="destructive"
-                  disabled={deleteConfirmation !== "DELETE"}
+                  disabled={deleteConfirmation !== "DELETE" || deleteLoading}
+                  onClick={async () => {
+                    if (deleteConfirmation !== "DELETE") return;
+                    setDeleteLoading(true);
+                    try {
+                      const res = await fetch("/api/settings/delete", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ confirmation: "DELETE" }),
+                      });
+                      if (res.ok) {
+                        toast.success("Account deleted. Redirecting...");
+                        await signOut({ callbackUrl: "/" });
+                      } else {
+                        const data = await res.json();
+                        toast.error(data.error || "Failed to delete account");
+                        setDeleteLoading(false);
+                      }
+                    } catch {
+                      toast.error("Failed to delete account. Please try again.");
+                      setDeleteLoading(false);
+                    }
+                  }}
                 >
-                  Delete Account
+                  {deleteLoading ? "Deleting..." : "Delete Account"}
                 </Button>
               </div>
             </div>

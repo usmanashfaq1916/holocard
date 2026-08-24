@@ -8,13 +8,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
     const target = await prisma.aRTarget.findUnique({
       where: { id },
-      include: { experience: { include: { card: { select: { slug: true, name: true } } } } },
+      include: { experience: { include: { card: { select: { slug: true, name: true, userId: true } } } } },
     });
 
-    if (!target) {
+    if (!target || target.experience.card.userId !== session.user.id) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 

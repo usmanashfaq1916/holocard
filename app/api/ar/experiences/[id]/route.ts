@@ -7,6 +7,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
     const experience = await prisma.aRExperience.findUnique({
       where: { id },
@@ -14,6 +19,7 @@ export async function GET(
         card: {
           select: {
             id: true,
+            userId: true,
             slug: true,
             name: true,
             designation: true,
@@ -40,7 +46,7 @@ export async function GET(
       },
     });
 
-    if (!experience) {
+    if (!experience || experience.card.userId !== session.user.id) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 

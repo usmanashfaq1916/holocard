@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { ARView, ARAnchor } from "r3f-mind-ar";
 import type { ARViewHandle } from "r3f-mind-ar";
 import { useFrame } from "@react-three/fiber";
@@ -14,9 +15,18 @@ import {
   ARStatusOverlay,
 } from "./ar-ui";
 import { detectARSupport, AR_ERRORS } from "@/lib/ar/ar-types";
-import { trackAREvent, useARSession } from "@/lib/ar/analytics";
+import { useARSession } from "@/lib/ar/analytics";
 import { DataAnalystScene } from "./scenes/data-analyst-scene";
 import { sanitize } from "@/lib/sanitize";
+
+const Fallback3DViewer = dynamic(() => import("./fallback-viewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+    </div>
+  ),
+});
 
 interface ARViewerProps {
   cardSlug: string;
@@ -32,6 +42,7 @@ interface ARViewerProps {
   website?: string;
   linkedin?: string;
   profileImage?: string;
+  templateType?: string;
 }
 
 type ViewerState =
@@ -55,7 +66,6 @@ function AnimatedGroup({
 }) {
   const ref = useRef<THREE.Group>(null);
   const startTime = useRef(-1);
-  const matRef = useRef<THREE.MeshPhysicalMaterial | null>(null);
 
   useFrame(() => {
     if (!ref.current) return;
@@ -66,9 +76,15 @@ function AnimatedGroup({
     const ease = t * t * (3 - 2 * t);
     ref.current.visible = t > 0.001;
     ref.current.position.y = THREE.MathUtils.lerp(-liftY, 0, ease);
-    if (matRef.current) {
-      matRef.current.opacity = ease;
-    }
+    ref.current.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        const mat = child.material as THREE.MeshPhysicalMaterial | THREE.MeshBasicMaterial;
+        if ("opacity" in mat) {
+          mat.transparent = true;
+          mat.opacity = ease;
+        }
+      }
+    });
   });
 
   return (
@@ -76,23 +92,6 @@ function AnimatedGroup({
       {children}
     </group>
   );
-}
-
-interface ARViewerProps {
-  cardSlug: string;
-  cardName: string;
-  cardDesignation?: string;
-  cardCompany?: string;
-  mindFileUrl: string;
-  socialLinks?: { platform: string; url: string }[];
-  buttons?: { label: string; url: string }[];
-  phone?: string;
-  email?: string;
-  whatsapp?: string;
-  website?: string;
-  linkedin?: string;
-  profileImage?: string;
-  templateType?: string;
 }
 
 function ARSceneContent({
@@ -128,7 +127,7 @@ function ARSceneContent({
     return <DataAnalystScene onInteraction={onInteraction} />;
   }
 
-  const { isTracking } = useAR();
+  useAR();
 
   return (
     <ARAnchor
@@ -343,6 +342,7 @@ export default function ARViewer(props: ARViewerProps) {
   const [state, setState] = useState<ViewerState>("instructions");
   const [arError, setArError] = useState<typeof AR_ERRORS.CAMERA_DENIED | null>(null);
   const [targetFound, setTargetFound] = useState(false);
+  const [isTracking, setIsTracking] = useState(false);
   const [animPhase, setAnimPhase] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState("Checking AR support...");
   const arRef = useRef<ARViewHandle>(null);
@@ -362,6 +362,7 @@ export default function ARViewer(props: ARViewerProps) {
 
     setTimeout(() => {
       setState("ar");
+      setIsTracking(true);
       trackEvent("CAMERA_STARTED");
     }, 500);
   }, [trackEvent]);
@@ -435,6 +436,21 @@ export default function ARViewer(props: ARViewerProps) {
     );
   }
 
+  if (state === "fallback-3d") {
+    return (
+      <Fallback3DViewer
+        name={props.cardName}
+        designation={props.cardDesignation}
+        company={props.cardCompany}
+        phone={props.phone}
+        email={props.email}
+        website={props.website}
+        linkedin={props.linkedin}
+        whatsapp={props.whatsapp}
+      />
+    );
+  }
+
   if (state === "ar") {
     return (
       <div className="relative w-full h-screen">
@@ -475,7 +491,7 @@ export default function ARViewer(props: ARViewerProps) {
           />
         </ARView>
 
-        <ARStatusOverlay isTracking={true} targetFound={targetFound} animPhase={animPhase} />
+        <ARStatusOverlay isTracking={isTracking} targetFound={targetFound} animPhase={animPhase} />
 
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-50">

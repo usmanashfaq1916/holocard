@@ -214,7 +214,7 @@ function CardFront({
       <group position={[-1.2, -0.2, 0.005]}>
         {[
           { label: "Profile", url: `#features` },
-          { label: "Contact", url: "mailto:usman@holocard.com" },
+          { label: "Contact", url: "mailto:hello@holocard.com" },
           { label: "Connect", url: "https://linkedin.com" },
         ].map((item, i) => (
           <group

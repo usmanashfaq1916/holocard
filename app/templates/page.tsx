@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { TemplateGrid } from "@/components/templates/template-grid";
+import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Templates",
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
     "Choose from professionally designed templates for your AR business card.",
 };
 
-const templates = [
+const FALLBACK_TEMPLATES = [
   {
     id: "corporate",
     name: "Corporate",
@@ -112,7 +113,34 @@ const templates = [
   },
 ];
 
-export default function TemplatesPage() {
+export default async function TemplatesPage() {
+  let templates = FALLBACK_TEMPLATES;
+
+  try {
+    const dbTemplates = await prisma.template.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+    });
+
+    if (dbTemplates.length > 0) {
+      templates = dbTemplates.map((t) => {
+        const config = (t.config as Record<string, string>) || {};
+        return {
+          id: t.slug,
+          name: t.name,
+          style: t.style.replace(/_/g, " ").toLowerCase(),
+          premium: t.isPremium,
+          gradient: config.gradient || "from-blue-600 to-blue-800",
+          accent: config.accent || "#2563EB",
+          layout: (config.layout || "centered") as "centered" | "left",
+          description: t.description || "",
+        };
+      });
+    }
+  } catch {
+    // Use fallback templates
+  }
+
   return (
     <div className="min-h-screen bg-grid bg-radial">
       <Navbar />

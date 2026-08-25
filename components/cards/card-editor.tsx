@@ -188,6 +188,44 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
   const [buttonLabel, setButtonLabel] = useState("");
   const [buttonUrl, setButtonUrl] = useState("");
   const [saving, setSaving] = useState(false);
+  const [templates, setTemplates] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/templates")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setTemplates(data.map((t: { slug: string; name: string }) => ({ id: t.slug, name: t.name })));
+        } else {
+          setTemplates([
+            { id: "", name: "Default" },
+            { id: "corporate", name: "Corporate" },
+            { id: "developer", name: "Developer" },
+            { id: "designer", name: "Designer" },
+            { id: "freelancer", name: "Freelancer" },
+            { id: "executive", name: "Executive" },
+            { id: "minimal", name: "Minimal" },
+            { id: "real-estate", name: "Real Estate" },
+            { id: "sales", name: "Sales" },
+            { id: "data-analyst", name: "Data Analyst" },
+          ]);
+        }
+      })
+      .catch(() => {
+        setTemplates([
+          { id: "", name: "Default" },
+          { id: "corporate", name: "Corporate" },
+          { id: "developer", name: "Developer" },
+          { id: "designer", name: "Designer" },
+          { id: "freelancer", name: "Freelancer" },
+          { id: "executive", name: "Executive" },
+          { id: "minimal", name: "Minimal" },
+          { id: "real-estate", name: "Real Estate" },
+          { id: "sales", name: "Sales" },
+          { id: "data-analyst", name: "Data Analyst" },
+        ]);
+      });
+  }, []);
 
   const {
     register,
@@ -444,18 +482,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
               <div className="space-y-2">
                 <Label>Template</Label>
                 <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: "", name: "Default" },
-                    { id: "corporate", name: "Corporate" },
-                    { id: "developer", name: "Developer" },
-                    { id: "designer", name: "Designer" },
-                    { id: "freelancer", name: "Freelancer" },
-                    { id: "executive", name: "Executive" },
-                    { id: "minimal", name: "Minimal" },
-                    { id: "creative", name: "Creative" },
-                    { id: "real-estate", name: "Real Estate" },
-                    { id: "student", name: "Student" },
-                  ].map((t) => (
+                  {templates.map((t) => (
                     <button
                       key={t.id}
                       type="button"

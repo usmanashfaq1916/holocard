@@ -16,7 +16,15 @@ export async function GET(_req: Request, { params }: RouteParams) {
       arExperience: {
         include: {
           target: true,
-          scenes: true,
+          scenes: {
+            include: {
+              elements: {
+                include: { actions: true },
+                orderBy: { order: "asc" },
+              },
+            },
+            orderBy: { order: "asc" },
+          },
         },
       },
     },

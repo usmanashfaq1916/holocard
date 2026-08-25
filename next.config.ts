@@ -31,6 +31,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   transpilePackages: ["three"],
   serverExternalPackages: ["@prisma/client"],
+  experimental: {
+    optimizeCss: true,
+  },
   images: {
     remotePatterns: [
       {
@@ -46,6 +49,7 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
+    formats: ["image/avif", "image/webp"],
   },
   async headers() {
     return [
@@ -63,6 +67,12 @@ const nextConfig: NextConfig = {
         source: "/api/templates",
         headers: [
           { key: "Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" },
+        ],
+      },
+      {
+        source: "/api/cards/:path*",
+        headers: [
+          { key: "Cache-Control", value: "private, s-maxage=60, stale-while-revalidate=300" },
         ],
       },
     ];

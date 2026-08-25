@@ -157,6 +157,7 @@ model User {
   designation   String?
   role          UserRole  @default(USER)
   plan          PlanTier  @default(FREE)
+  preferences   Json?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

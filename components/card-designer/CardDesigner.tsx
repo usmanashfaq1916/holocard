@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
 import {
   Undo2,
   Redo2,
@@ -19,6 +20,8 @@ import {
   RefreshCw,
   Loader2,
   ArrowRight,
+  Image as ImageIcon,
+  Palette,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { FabricCanvasHandle } from "./FabricCanvas";
@@ -51,6 +54,10 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
   const [arState, setArState] = useState<ARTargetState>("idle");
   const [arExperienceId, setArExperienceId] = useState<string | null>(null);
   const [arQuality, setArQuality] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState("#000000");
+  const [selectedFont, setSelectedFont] = useState("Arial");
+  const [selectedFontSize, setSelectedFontSize] = useState(18);
+  const [activeObject, setActiveObject] = useState<string | null>(null);
 
   const handleAddText = useCallback(() => {
     const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
@@ -66,6 +73,64 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
     const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
     ref.current?.addLine();
   }, [activeSide]);
+
+  const handleColorChange = useCallback(
+    (color: string) => {
+      setSelectedColor(color);
+      const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
+      const canvas = ref.current?.getCanvas();
+      if (!canvas) return;
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      obj.set("fill", color);
+      canvas.renderAll();
+    },
+    [activeSide]
+  );
+
+  const handleFontChange = useCallback(
+    (font: string) => {
+      setSelectedFont(font);
+      const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
+      const canvas = ref.current?.getCanvas();
+      if (!canvas) return;
+      const obj = canvas.getActiveObject();
+      if (!obj || obj.type !== "textbox") return;
+      obj.set("fontFamily", font);
+      canvas.renderAll();
+    },
+    [activeSide]
+  );
+
+  const handleFontSizeChange = useCallback(
+    (size: number) => {
+      setSelectedFontSize(size);
+      const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
+      const canvas = ref.current?.getCanvas();
+      if (!canvas) return;
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      obj.set("fontSize", size);
+      canvas.renderAll();
+    },
+    [activeSide]
+  );
+
+  const handleImageUpload = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
+        ref.current?.addImage(ev.target?.result as string);
+        toast.success("Image added");
+      };
+      reader.readAsDataURL(file);
+      e.target.value = "";
+    },
+    [activeSide]
+  );
 
   const handleDelete = useCallback(() => {
     const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
@@ -105,9 +170,28 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
   const handleSave = useCallback(async () => {
     const frontJson = frontCanvasRef.current?.exportJSON() ?? "";
     const backJson = backCanvasRef.current?.exportJSON() ?? "";
-    onSave?.(frontJson, backJson);
-    toast.success("Card design saved");
-  }, [onSave]);
+
+    try {
+      await Promise.all([
+        fetch(`/api/cards/${cardId}/design`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ side: "FRONT", canvasJson: frontJson }),
+        }),
+        backJson
+          ? fetch(`/api/cards/${cardId}/design`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ side: "BACK", canvasJson: backJson }),
+            })
+          : Promise.resolve(),
+      ]);
+      onSave?.(frontJson, backJson);
+      toast.success("Card design saved");
+    } catch {
+      toast.error("Failed to save design");
+    }
+  }, [cardId, onSave]);
 
   const handleExportAsARTarget = useCallback(async () => {
     try {
@@ -227,6 +311,18 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
     [activeSide, cardData]
   );
 
+  useEffect(() => {
+    if (!cardId) return;
+    fetch(`/api/cards/${cardId}/design`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.canvasJson && frontCanvasRef.current) {
+          frontCanvasRef.current.loadFromJSON(data.canvasJson);
+        }
+      })
+      .catch(() => {});
+  }, [cardId]);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -269,6 +365,49 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
             <Minus className="w-4 h-4 mr-1" />
             Line
           </Button>
+          <label>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+            <span className="inline-flex items-center justify-center gap-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer">
+              <ImageIcon className="w-4 h-4 mr-1" />
+              Image
+            </span>
+          </label>
+          <Separator orientation="vertical" className="h-6 mx-1" />
+          <div className="flex items-center gap-1">
+            <input
+              type="color"
+              value={selectedColor}
+              onChange={(e) => handleColorChange(e.target.value)}
+              className="h-7 w-7 cursor-pointer rounded border border-border"
+              title="Fill Color"
+            />
+          </div>
+          <select
+            value={selectedFont}
+            onChange={(e) => handleFontChange(e.target.value)}
+            className="h-7 rounded border border-border bg-background px-1 text-xs"
+          >
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times</option>
+            <option value="Courier New">Courier</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Helvetica">Helvetica</option>
+          </select>
+          <input
+            type="number"
+            value={selectedFontSize}
+            onChange={(e) => handleFontSizeChange(parseInt(e.target.value) || 18)}
+            className="h-7 w-14 rounded border border-border bg-background px-1 text-xs"
+            min={8}
+            max={72}
+            title="Font Size"
+          />
           <Separator orientation="vertical" className="h-6 mx-1" />
           <Button variant="outline" size="sm" onClick={handleDelete}>
             <Trash2 className="w-4 h-4" />

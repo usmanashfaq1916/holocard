@@ -101,6 +101,20 @@ export default function SettingsPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+
+    fetch("/api/settings/preferences")
+      .then((r) => r.json())
+      .then((prefs) => {
+        if (prefs && typeof prefs === "object") {
+          if ("emailNotifications" in prefs) setEmailNotifications(prefs.emailNotifications);
+          if ("marketingEmails" in prefs) setMarketingEmails(prefs.marketingEmails);
+          if ("productUpdates" in prefs) setProductUpdates(prefs.productUpdates);
+          if ("showInSearch" in prefs) setShowInSearch(prefs.showInSearch);
+          if ("allowAnalytics" in prefs) setAllowAnalytics(prefs.allowAnalytics);
+          if ("showContactOnCard" in prefs) setShowContactOnCard(prefs.showContactOnCard);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -401,6 +415,19 @@ export default function SettingsPage() {
                 <Toggle checked={productUpdates} onCheckedChange={setProductUpdates} />
               </div>
             </div>
+
+            <button
+              onClick={() => {
+                fetch("/api/settings/preferences", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ emailNotifications, marketingEmails, productUpdates }),
+                }).then(() => toast.success("Notification preferences saved"));
+              }}
+              className={buttonVariants({ variant: "default", size: "sm" })}
+            >
+              Save Preferences
+            </button>
           </div>
         </TabsContent>
 
@@ -445,6 +472,19 @@ export default function SettingsPage() {
                 <Toggle checked={showContactOnCard} onCheckedChange={setShowContactOnCard} />
               </div>
             </div>
+
+            <button
+              onClick={() => {
+                fetch("/api/settings/preferences", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ showInSearch, allowAnalytics, showContactOnCard }),
+                }).then(() => toast.success("Privacy preferences saved"));
+              }}
+              className={buttonVariants({ variant: "default", size: "sm" })}
+            >
+              Save Preferences
+            </button>
           </div>
         </TabsContent>
 

@@ -14,6 +14,8 @@ const ARViewer = dynamic(() => import("@/components/ar/ar-viewer"), {
   ),
 });
 
+type ARViewerProps = React.ComponentProps<typeof ARViewer>;
+
 const Fallback3DViewer = dynamic(() => import("@/components/ar/fallback-viewer"), {
   ssr: false,
   loading: () => (
@@ -49,7 +51,7 @@ interface CardData {
       mindFileUrl?: string;
       status: string;
     };
-    scenes?: unknown[];
+    scenes?: { id: string; name: string; order: number; duration: number; transitionType: string; elements: unknown[] }[];
   };
 }
 
@@ -155,6 +157,7 @@ export default function ARPage() {
         linkedin={card.linkedin}
         profileImage={card.profileImage}
         templateType={card.arExperience?.templateType}
+        scenes={card.arExperience?.scenes as ARViewerProps["scenes"]}
       />
     </Suspense>
   );

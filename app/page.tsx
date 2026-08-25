@@ -1,7 +1,8 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import {
   QrCode,
   Smartphone,
@@ -21,12 +22,66 @@ import {
   Lock,
   EyeOff,
   Server,
+  Camera,
+  Video,
+  MessageCircle,
+  Mail,
+  Phone,
+  ExternalLink,
+  GitFork,
+  User,
+  Building,
+  Briefcase,
+  Scan,
+  LinkIcon,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { HeroHoloCard } from "@/components/home/hero-holo-card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
+const capabilities = [
+  { icon: Sparkles, label: "Create" },
+  { icon: QrCode, label: "Share via QR" },
+  { icon: Scan, label: "Scan AR" },
+  { icon: Video, label: "3D & Video" },
+  { icon: Users, label: "Connect" },
+  { icon: BarChart3, label: "Track" },
+];
+
+const steps = [
+  { num: "01", title: "Create", desc: "Design your digital card with our intuitive editor. Add your photo, bio, links, and branding.", icon: Palette },
+  { num: "02", title: "Share", desc: "Get a unique QR code and URL. Print it on physical cards or share digitally.", icon: QrCode },
+  { num: "03", title: "Scan", desc: "Someone scans your QR code. Your profile loads instantly in their mobile browser.", icon: Smartphone },
+  { num: "04", title: "Experience", desc: "Point the camera at your card and watch it come alive with 3D, video, and interactive buttons.", icon: Eye },
+];
+
+const cardFields = [
+  { icon: User, label: "Full Name" },
+  { icon: Briefcase, label: "Title & Company" },
+  { icon: Mail, label: "Email Address" },
+  { icon: Phone, label: "Phone Number" },
+  { icon: Globe, label: "Website" },
+  { icon: ExternalLink, label: "LinkedIn" },
+  { icon: GitFork, label: "GitHub / Portfolio" },
+  { icon: MessageCircle, label: "WhatsApp" },
+  { icon: Share2, label: "Social Profiles" },
+];
+
+const arElements = [
+  { icon: Video, label: "Video Overlay", desc: "Play intro videos on your card" },
+  { icon: Layers, label: "3D Objects", desc: "Floating logos, products, avatars" },
+  { icon: Sparkles, label: "Animations", desc: "Dynamic particle effects" },
+  { icon: LinkIcon, label: "Interactive Buttons", desc: "Tap to open links, call, email" },
+];
+
+const analyticsMetrics = [
+  { label: "Profile Views", value: "2,847", change: "+23%", icon: Eye },
+  { label: "QR Scans", value: "1,203", change: "+18%", icon: QrCode },
+  { label: "AR Experiences", value: "891", change: "+42%", icon: Sparkles },
+  { label: "Contact Saves", value: "456", change: "+31%", icon: Users },
+];
 
 const features = [
   { icon: Eye, title: "Augmented Reality", desc: "Bring your card to life with immersive AR experiences." },
@@ -41,14 +96,6 @@ const features = [
   { icon: Shield, title: "Secure", desc: "Enterprise-grade security protecting your data." },
   { icon: Zap, title: "Fast", desc: "Lightning-fast performance on all devices." },
   { icon: Users, title: "Multiple Cards", desc: "Separate cards for every professional context." },
-];
-
-const steps = [
-  { num: "01", title: "Create Your Card", desc: "Design your professional digital business card with our intuitive editor." },
-  { num: "02", title: "Add AR Experience", desc: "Upload your card image and configure 3D objects, videos, and interactive buttons." },
-  { num: "03", title: "Print & Share", desc: "Print your physical card with a QR code, or share your digital URL." },
-  { num: "04", title: "Scan", desc: "Someone scans your QR code or opens your link on their phone." },
-  { num: "05", title: "Experience AR", desc: "They point their camera at your card and watch it come alive in augmented reality." },
 ];
 
 const templates = [
@@ -103,17 +150,24 @@ const faqs = [
   { q: "Can I track who viewed my card?", a: "Yes, our analytics dashboard provides insights into views, QR scans, contact saves, and engagement metrics. Pro and Business users get detailed analytics including geographic data and referral sources." },
   { q: "How much does it cost?", a: "HoloCard offers a generous free tier with 1 card and core features. Pro plans start at $9/month with unlimited cards, premium templates, and advanced analytics. Business plans include team management and priority support." },
   { q: "What devices are supported?", a: "HoloCard works on all modern browsers across iOS, Android, Windows, macOS, and Linux. The AR experience is optimized for mobile devices with ARCore (Android) or ARKit (iOS) support." },
-  { q: "How do I edit my card after creation?", a: "Simply log in to your dashboard, go to My Cards, and click the Edit button on any card. Changes are saved instantly and your public card updates in real-time." },
-  { q: "Can I use my own custom domain?", a: "Yes! Business plan users can map their own custom domain to their HoloCard profile. For example, card.yourdomain.com instead of holocard.com/card/your-slug." },
-  { q: "How do I delete my account?", a: "Go to Settings > Delete Account in your dashboard. You will be asked to confirm by typing DELETE. All your data including cards, analytics, and contacts will be permanently removed." },
 ];
 
 export default function HomePage() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: scrollRef, offset: ["start end", "end start"] });
+  const cardRotate = useTransform(scrollYProgress, [0, 0.3, 0.6], [0, -15, 0]);
+  const cardScale = useTransform(scrollYProgress, [0, 0.3, 0.6], [0.8, 1.1, 1]);
+  const qrOpacity = useTransform(scrollYProgress, [0.25, 0.35], [0, 1]);
+  const profileY = useTransform(scrollYProgress, [0.4, 0.7], [40, 0]);
+  const profileOpacity = useTransform(scrollYProgress, [0.4, 0.6], [0, 1]);
+  const arScale = useTransform(scrollYProgress, [0.65, 0.85], [0.5, 1]);
+  const arOpacity = useTransform(scrollYProgress, [0.65, 0.8], [0, 1]);
+
   return (
     <div className="min-h-screen">
       <Navbar />
 
-      {/* Hero Section */}
+      {/* Phase 1: Hero — 6-capability framing */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-50" />
         <div className="absolute inset-0 bg-radial" />
@@ -126,12 +180,20 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
             >
               <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
-                Turn Your Business Card Into an{" "}
-                <span className="text-gradient">AR Experience.</span>
+                Your Business Card.{" "}
+                <span className="text-gradient">Reimagined in AR.</span>
               </h1>
-              <p className="mb-8 text-lg text-muted-foreground">
-                Your Business Card. Reimagined in AR. Point your phone at a HoloCard and watch your professional identity come alive.
+              <p className="mb-6 text-lg text-muted-foreground">
+                Create, share, scan, experience, connect, and track — all from one smart card. Point your phone at a HoloCard and watch your professional identity come alive.
               </p>
+              <div className="mb-8 flex flex-wrap gap-3">
+                {capabilities.map((cap) => (
+                  <span key={cap.label} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/50 px-3 py-1 text-xs font-medium backdrop-blur-sm">
+                    <cap.icon className="h-3 w-3 text-primary" />
+                    {cap.label}
+                  </span>
+                ))}
+              </div>
               <div className="flex flex-col gap-4 sm:flex-row">
                 <Link href="/register" className={buttonVariants({ variant: "default", size: "lg" })}>
                   Create Your AR Card
@@ -156,9 +218,51 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* Phase 5: Explain the Concept — "A Business Card That Does More" */}
       <section className="border-t border-border py-24">
         <div className="mx-auto max-w-6xl px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
+              A Business Card That <span className="text-gradient">Does More</span>
+            </h2>
+            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
+              Not just a card — a complete digital identity. Your profile, portfolio, videos, 3D content, social links, and analytics, all in one place.
+            </p>
+          </motion.div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              { icon: User, title: "Professional Profile", desc: "Name, title, company, about, photo — everything at a glance." },
+              { icon: Video, title: "Video & 3D Content", desc: "Embed intro videos, 3D models, and animated elements." },
+              { icon: Share2, title: "Social & Contact", desc: "LinkedIn, GitHub, WhatsApp, email, phone — all connected." },
+              { icon: QrCode, title: "QR Code Sharing", desc: "Print on physical cards or share digitally with one scan." },
+              { icon: Eye, title: "WebAR Experience", desc: "No app needed — AR works directly in the mobile browser." },
+              { icon: BarChart3, title: "Engagement Analytics", desc: "Track views, scans, saves, and link clicks in real time." },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="glass rounded-xl p-6"
+              >
+                <item.icon className="mb-3 h-6 w-6 text-primary" />
+                <h3 className="mb-2 font-semibold text-lg">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Phase 6: How It Works — 4 steps with connecting lines */}
+      <section className="border-t border-border py-24">
+        <div className="mx-auto max-w-5xl px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -169,7 +273,7 @@ export default function HomePage() {
               How It <span className="text-gradient">Works</span>
             </h2>
           </motion.div>
-          <div className="grid gap-6 md:grid-cols-5">
+          <div className="relative grid gap-8 md:grid-cols-4">
             {steps.map((step, i) => (
               <motion.div
                 key={step.num}
@@ -177,13 +281,233 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.15 }}
-                className="glass rounded-xl p-8 text-center"
+                className="relative text-center"
               >
-                <div className="mb-4 text-4xl font-bold text-gradient">{step.num}</div>
+                {i < steps.length - 1 && (
+                  <div className="absolute left-1/2 top-10 hidden h-0.5 w-full bg-gradient-to-r from-primary/50 to-primary/20 md:block" />
+                )}
+                <div className="relative z-10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
+                  <step.icon className="h-8 w-8 text-primary" />
+                </div>
+                <div className="mb-2 text-xs font-bold uppercase tracking-wider text-primary">Step {step.num}</div>
                 <h3 className="mb-2 text-xl font-semibold">{step.title}</h3>
-                <p className="text-muted-foreground">{step.desc}</p>
+                <p className="text-sm text-muted-foreground">{step.desc}</p>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Phase 7: Digital Business Card — "Everything You Need. One Smart Card." */}
+      <section className="border-t border-border py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
+              Everything You Need. <span className="text-gradient">One Smart Card.</span>
+            </h2>
+            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
+              A digital business card that holds your complete professional identity — and fits in your pocket.
+            </p>
+          </motion.div>
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="glass rounded-2xl p-6 md:p-8"
+            >
+              <div className="mb-6 flex items-center gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-xl font-bold text-white">
+                  JD
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">John Doe</h3>
+                  <p className="text-sm text-muted-foreground">Senior Engineer @ TechCorp</p>
+                </div>
+              </div>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Passionate about building innovative AR experiences. 10+ years in software engineering with a focus on emerging technologies.
+              </p>
+              <div className="mb-6 grid grid-cols-2 gap-2">
+                {cardFields.map((field) => (
+                  <div key={field.label} className="flex items-center gap-2 rounded-lg border border-border bg-background/50 px-3 py-2">
+                    <field.icon className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-xs">{field.label}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-3">
+                <button className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground">
+                  Save Contact
+                </button>
+                <button className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-medium">
+                  Share Profile
+                </button>
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="space-y-4"
+            >
+              <h3 className="text-2xl font-bold">More Than a Business Card</h3>
+              <p className="text-muted-foreground">
+                Your HoloCard is a living digital profile. Update it anytime — changes go live instantly. No reprints needed.
+              </p>
+              <ul className="space-y-3">
+                {[
+                  "One-tap vCard download to any phone",
+                  "QR code for instant sharing at events",
+                  "Public URL you can put anywhere",
+                  "Analytics on every view and scan",
+                  "AR experience that makes you unforgettable",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-sm">
+                    <Check className="h-4 w-4 shrink-0 text-primary" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Phase 8: AR Business Card — "Turn Your Card Into an AR Experience" */}
+      <section className="border-t border-border py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
+              Turn Your Card Into an <span className="text-gradient">AR Experience</span>
+            </h2>
+            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
+              Your physical card becomes a portal to immersive digital content. Video, 3D, animations — all triggered by a single scan.
+            </p>
+          </motion.div>
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-4"
+            >
+              <h3 className="text-2xl font-bold">What Happens When They Scan</h3>
+              <p className="text-muted-foreground">
+                Point your phone at a HoloCard and the physical card transforms into an interactive digital experience — no app required.
+              </p>
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                {arElements.map((el, i) => (
+                  <motion.div
+                    key={el.label}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.1 }}
+                    className="glass rounded-xl p-4"
+                  >
+                    <el.icon className="mb-2 h-5 w-5 text-primary" />
+                    <h4 className="text-sm font-semibold">{el.label}</h4>
+                    <p className="text-xs text-muted-foreground">{el.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="glass rounded-3xl p-2 glow-md"
+            >
+              <HeroHoloCard />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Phase 9: "From Paper to Digital Identity" Scroll Animation */}
+      <section ref={scrollRef} className="relative border-t border-border py-32 overflow-hidden">
+        <div className="mx-auto max-w-4xl px-4">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mb-20 text-center text-3xl font-bold md:text-4xl"
+          >
+            From Paper to <span className="text-gradient">Digital Identity</span>
+          </motion.h2>
+          <div className="relative flex flex-col items-center gap-12">
+            {/* Traditional Card */}
+            <motion.div style={{ rotate: cardRotate, scale: cardScale }} className="glass rounded-xl p-8 shadow-lg border border-border w-full max-w-xs text-center">
+              <div className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Traditional Card</div>
+              <div className="mb-2 text-lg font-semibold">John Doe</div>
+              <div className="text-sm text-muted-foreground">Senior Engineer @ TechCorp</div>
+              <div className="mt-3 text-xs text-muted-foreground">john@techcorp.com | +1 555 0123</div>
+            </motion.div>
+
+            {/* Arrow */}
+            <div className="text-2xl text-primary">&#8595;</div>
+
+            {/* QR Highlight */}
+            <motion.div style={{ opacity: qrOpacity }} className="flex flex-col items-center gap-3">
+              <div className="glass rounded-2xl p-6 border border-primary/30">
+                <QrCode className="h-24 w-24 text-primary" />
+              </div>
+              <span className="text-sm font-medium text-primary">Scan the QR Code</span>
+            </motion.div>
+
+            {/* Arrow */}
+            <div className="text-2xl text-primary">&#8595;</div>
+
+            {/* Digital Profile */}
+            <motion.div style={{ y: profileY, opacity: profileOpacity }} className="glass rounded-2xl p-6 w-full max-w-sm border border-border">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-sm font-bold text-white">JD</div>
+                <div>
+                  <div className="font-semibold">John Doe</div>
+                  <div className="text-xs text-muted-foreground">Senior Engineer @ TechCorp</div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <span className="rounded-md bg-primary/10 px-2 py-1 text-xs text-primary"><Mail className="mr-1 inline h-3 w-3" />Email</span>
+                <span className="rounded-md bg-primary/10 px-2 py-1 text-xs text-primary"><Phone className="mr-1 inline h-3 w-3" />Call</span>
+                <span className="rounded-md bg-primary/10 px-2 py-1 text-xs text-primary"><ExternalLink className="mr-1 inline h-3 w-3" />LinkedIn</span>
+              </div>
+            </motion.div>
+
+            {/* Arrow */}
+            <div className="text-2xl text-primary">&#8595;</div>
+
+            {/* AR Experience */}
+            <motion.div style={{ scale: arScale, opacity: arOpacity }} className="w-full max-w-md">
+              <div className="glass rounded-3xl p-2 glow-md">
+                <HeroHoloCard />
+              </div>
+              <div className="mt-4 text-center">
+                <span className="text-sm font-medium text-primary">AR Experience Activated</span>
+                <p className="text-xs text-muted-foreground">3D content, videos, and interactive buttons</p>
+              </div>
+            </motion.div>
+
+            {/* Final Tagline */}
+            <motion.div style={{ opacity: arOpacity }} className="mt-8 text-center">
+              <p className="text-2xl font-bold md:text-3xl">One Card. <span className="text-gradient">Infinite Possibilities.</span></p>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -265,7 +589,55 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Live Demo */}
+      {/* Phase 11: Analytics — "Know How Your Network Is Engaging" */}
+      <section className="border-t border-border py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
+              Know How Your Network <span className="text-gradient">Is Engaging</span>
+            </h2>
+            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
+              Real-time analytics show you who viewed your card, scanned your QR, saved your contact, and more.
+            </p>
+          </motion.div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {analyticsMetrics.map((m, i) => (
+              <motion.div
+                key={m.label}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="glass rounded-xl p-6 text-center"
+              >
+                <m.icon className="mx-auto mb-3 h-6 w-6 text-primary" />
+                <div className="text-3xl font-bold">{m.value}</div>
+                <div className="text-sm text-muted-foreground">{m.label}</div>
+                <div className="mt-1 text-xs font-medium text-emerald-500">{m.change}</div>
+              </motion.div>
+            ))}
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-8 text-center"
+          >
+            <Link href="/register" className={buttonVariants({ variant: "outline" })}>
+              See Full Analytics Dashboard
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Phase 13: Live Demo — QR + Phone Mockup */}
       <section className="border-t border-border py-24">
         <div className="mx-auto max-w-6xl px-4">
           <motion.div
@@ -278,35 +650,145 @@ export default function HomePage() {
               See It In <span className="text-gradient">Action</span>
             </h2>
             <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
-              Try the interactive AR HoloCard. Drag to rotate, click to flip.
+              Scan the QR code or launch the AR experience on your phone.
             </p>
           </motion.div>
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            {/* Left: Physical card + QR */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="flex flex-col items-center gap-6"
+            >
+              <div className="glass rounded-xl p-6 shadow-lg border border-border text-center">
+                <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Sample HoloCard</div>
+                <div className="mb-1 text-lg font-semibold">John Doe</div>
+                <div className="text-sm text-muted-foreground">Senior Engineer @ TechCorp</div>
+              </div>
+              <div className="text-2xl text-primary">&#8595;</div>
+              <div className="glass rounded-2xl p-4 border border-primary/30">
+                <QrCode className="h-32 w-32 text-primary" />
+              </div>
+              <span className="text-sm font-medium text-primary">Scan to experience</span>
+            </motion.div>
+
+            {/* Right: Phone mockup with AR preview */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex flex-col items-center"
+            >
+              <div className="relative w-64 rounded-[2.5rem] border-4 border-gray-800 bg-gray-900 p-2 shadow-2xl">
+                <div className="absolute left-1/2 top-0 h-5 w-24 -translate-x-1/2 rounded-b-xl bg-gray-800" />
+                <div className="overflow-hidden rounded-[2rem] bg-background">
+                  <div className="p-4">
+                    <HeroHoloCard />
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 flex gap-3">
+                <Link href="/register" className={buttonVariants({ variant: "default", size: "sm" })}>
+                  Create Your HoloCard
+                </Link>
+                <Link href="/ar/usman-ashfaq" className={buttonVariants({ variant: "outline", size: "sm" })}>
+                  <Eye className="mr-2 h-3 w-3" />
+                  Launch AR Experience
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Phase 14: Trust & Social Proof — "Made for Modern Networking" */}
+      <section className="border-t border-border py-24">
+        <div className="mx-auto max-w-6xl px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mx-auto max-w-lg"
+            transition={{ duration: 0.5 }}
           >
-            <div className="glass rounded-3xl p-2 glow-md">
-              <HeroHoloCard />
-            </div>
-            <div className="mt-4 flex justify-center gap-3">
-              <Link
-                href="/register"
-                className={buttonVariants({ variant: "default", size: "sm" })}
-              >
-                Create Your HoloCard
-              </Link>
-              <Link
-                href="/ar/usman-ashfaq"
-                className={buttonVariants({ variant: "outline", size: "sm" })}
-              >
-                <Eye className="mr-2 h-3 w-3" />
-                Experience AR
-              </Link>
-            </div>
+            <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
+              Made for <span className="text-gradient">Modern Networking</span>
+            </h2>
+            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
+              Trusted by professionals who want to stand out and make lasting impressions.
+            </p>
           </motion.div>
+          <div className="mb-12 grid grid-cols-2 gap-4 md:grid-cols-4">
+            {[
+              { label: "Professionals", icon: Briefcase },
+              { label: "Entrepreneurs", icon: Zap },
+              { label: "Creators", icon: Sparkles },
+              { label: "Sales Teams", icon: Users },
+            ].map((p, i) => (
+              <motion.div
+                key={p.label}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="glass rounded-xl p-4 text-center"
+              >
+                <p.icon className="mx-auto mb-2 h-6 w-6 text-primary" />
+                <div className="text-sm font-medium">{p.label}</div>
+              </motion.div>
+            ))}
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0 }}
+              className="glass rounded-xl p-6"
+            >
+              <Lock className="mb-3 h-6 w-6 text-primary" />
+              <h3 className="mb-2 font-semibold">End-to-End Encryption</h3>
+              <p className="text-sm text-muted-foreground">
+                All data is encrypted in transit and at rest. Your personal information is never exposed to unauthorized parties.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="glass rounded-xl p-6"
+            >
+              <EyeOff className="mb-3 h-6 w-6 text-primary" />
+              <h3 className="mb-2 font-semibold">Privacy First</h3>
+              <p className="text-sm text-muted-foreground">
+                You control exactly what information is public, unlisted, or private. We never sell your data to third parties.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="glass rounded-xl p-6"
+            >
+              <Server className="mb-3 h-6 w-6 text-primary" />
+              <h3 className="mb-2 font-semibold">Secure Infrastructure</h3>
+              <p className="text-sm text-muted-foreground">
+                Hosted on enterprise-grade infrastructure with automatic backups, DDoS protection, and 99.9% uptime.
+              </p>
+            </motion.div>
+          </div>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+            {["WebAR", "Digital Profile", "QR Sharing", "Analytics"].map((tag) => (
+              <span key={tag} className="flex items-center gap-1.5">
+                <Check className="h-4 w-4 text-primary" />
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -421,66 +903,6 @@ export default function HomePage() {
                 </Link>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Trust & Credibility */}
-      <section className="border-t border-border py-24">
-        <div className="mx-auto max-w-6xl px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
-              Built for <span className="text-gradient">Trust & Security</span>
-            </h2>
-            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
-              Your professional identity deserves a platform that takes security seriously.
-            </p>
-          </motion.div>
-          <div className="grid gap-6 md:grid-cols-3">
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0 }}
-              className="glass rounded-xl p-6"
-            >
-              <Lock className="mb-3 h-6 w-6 text-primary" />
-              <h3 className="mb-2 font-semibold">End-to-End Encryption</h3>
-              <p className="text-sm text-muted-foreground">
-                All data is encrypted in transit and at rest. Your personal information is never exposed to unauthorized parties.
-              </p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="glass rounded-xl p-6"
-            >
-              <EyeOff className="mb-3 h-6 w-6 text-primary" />
-              <h3 className="mb-2 font-semibold">Privacy First</h3>
-              <p className="text-sm text-muted-foreground">
-                You control exactly what information is public, unlisted, or private. We never sell your data to third parties.
-              </p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-              className="glass rounded-xl p-6"
-            >
-              <Server className="mb-3 h-6 w-6 text-primary" />
-              <h3 className="mb-2 font-semibold">Secure Infrastructure</h3>
-              <p className="text-sm text-muted-foreground">
-                Hosted on enterprise-grade infrastructure with automatic backups, DDoS protection, and 99.9% uptime.
-              </p>
-            </motion.div>
           </div>
         </div>
       </section>

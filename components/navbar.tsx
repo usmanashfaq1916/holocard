@@ -18,8 +18,8 @@ const navLinks: NavLink[] = [
     children: [
       { label: "Features", href: "/features" },
       { label: "Templates", href: "/templates" },
-      { label: "Pricing", href: "/pricing" },
-      { label: "How It Works", href: "/how-it-works" },
+      { label: "How It Works", href: "/#how-it-works" },
+      { label: "Pricing", href: "/#pricing" },
     ],
   },
   {
@@ -27,13 +27,13 @@ const navLinks: NavLink[] = [
     children: [
       { label: "About", href: "/about" },
       { label: "Contact", href: "/contact" },
-      { label: "Documentation", href: "/demo" },
+      { label: "API Docs", href: "/docs" },
     ],
   },
-  { label: "Features", href: "/features" },
+  { label: "AR Experience", href: "/ar/usman-ashfaq" },
+  { label: "How It Works", href: "/#how-it-works" },
   { label: "Templates", href: "/templates" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "Demo", href: "/demo" },
+  { label: "Pricing", href: "/#pricing" },
 ];
 
 export function Navbar() {

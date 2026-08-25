@@ -2,6 +2,7 @@
 
 import { Suspense, useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { CONTACT_EMAIL } from "@/lib/config";
 import {
   Environment,
   Float,
@@ -214,7 +215,7 @@ function CardFront({
       <group position={[-1.2, -0.2, 0.005]}>
         {[
           { label: "Profile", url: `#features` },
-          { label: "Contact", url: "mailto:hello@holocard.com" },
+          { label: "Contact", url: `mailto:${CONTACT_EMAIL}` },
           { label: "Connect", url: "https://linkedin.com" },
         ].map((item, i) => (
           <group

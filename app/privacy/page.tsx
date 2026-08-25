@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { CONTACT_EMAIL } from "@/lib/config";
 
 export const metadata = {
   title: "Privacy Policy | HoloCard",
@@ -60,7 +61,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-2xl font-semibold">7. Your Rights</h2>
             <p className="text-muted-foreground">
-              You can access, update, or delete your account and data at any time through your dashboard settings. For data export requests, contact us at hello@holocard.com.
+              You can access, update, or delete your account and data at any time through your dashboard settings. For data export requests, contact us at {CONTACT_EMAIL}.
             </p>
           </section>
 
@@ -74,7 +75,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-2xl font-semibold">9. Contact Us</h2>
             <p className="text-muted-foreground">
-              If you have questions about this privacy policy, please contact us at hello@holocard.com.
+              If you have questions about this privacy policy, please contact us at {CONTACT_EMAIL}.
             </p>
           </section>
         </div>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email";
+import { CONTACT_EMAIL } from "@/lib/config";
 
 export async function POST(req: Request) {
   try {
@@ -18,7 +19,7 @@ export async function POST(req: Request) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://holocard.app";
 
     const emailSent = await sendEmail({
-      to: "hello@holocard.com",
+      to: CONTACT_EMAIL,
       subject: `Contact Form: ${body.name}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">

@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { CONTACT_EMAIL } from "@/lib/config";
 
 export const metadata = {
   title: "Terms of Service | HoloCard",
@@ -81,7 +82,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold">10. Contact</h2>
             <p className="text-muted-foreground">
-              Questions about these terms? Contact us at hello@holocard.com.
+              Questions about these terms? Contact us at {CONTACT_EMAIL}.
             </p>
           </section>
         </div>

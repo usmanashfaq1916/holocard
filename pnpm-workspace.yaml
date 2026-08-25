@@ -6,3 +6,4 @@ allowBuilds:
   prisma: true
   canvas: false
   bcryptjs: true
+  unrs-resolver: true

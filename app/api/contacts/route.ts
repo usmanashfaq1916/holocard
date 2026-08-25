@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth/config";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function GET() {
   const session = await auth();
@@ -18,6 +19,12 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for") || "unknown";
+  const { allowed } = await checkRateLimit(`contact-save:${ip}`, 10, 60000);
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+  }
+
   const body = await req.json();
   const { cardId, name, email, phone, message, source } = body;
 

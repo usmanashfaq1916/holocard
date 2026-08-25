@@ -48,6 +48,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [unauthorized, setUnauthorized] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [dbConnected, setDbConnected] = useState<boolean | null>(null);
   const [userPage, setUserPage] = useState(1);
   const [cardPage, setCardPage] = useState(1);
   const [users, setUsers] = useState<AdminData["recentUsers"]>([]);
@@ -64,6 +65,7 @@ export default function AdminPage() {
           setLoading(false);
           return null;
         }
+        setDbConnected(true);
         return r.json();
       })
       .then((d) => {
@@ -74,7 +76,10 @@ export default function AdminPage() {
           setLoading(false);
         }
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setDbConnected(false);
+        setLoading(false);
+      });
   }, []);
 
   const fetchUsers = useCallback(async (page: number) => {
@@ -202,9 +207,11 @@ export default function AdminPage() {
         <h2 className="mb-4 text-lg font-semibold">System Health</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-500" />
+            <div className={`h-2 w-2 rounded-full ${dbConnected === false ? "bg-red-500" : "bg-green-500"}`} />
             <span className="text-sm">Database</span>
-            <span className="text-xs text-muted-foreground">Connected</span>
+            <span className="text-xs text-muted-foreground">
+              {dbConnected === null ? "Checking..." : dbConnected ? "Connected" : "Disconnected"}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm">Total Users</span>

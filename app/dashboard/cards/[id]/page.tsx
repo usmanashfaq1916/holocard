@@ -51,8 +51,8 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
     DISABLED: "bg-red-100 text-red-700",
   };
 
-  const publicUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/card/${card.slug}`;
-  const arUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/ar/${card.slug}`;
+  const publicUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/card/${card.slug}`;
+  const arUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/ar/${card.slug}`;
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">

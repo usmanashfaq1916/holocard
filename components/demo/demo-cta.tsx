@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Check, Zap, Shield, Globe } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { DEMO_AR_URL } from "@/lib/config";
 
 export function DemoCTA() {
   return (
@@ -33,7 +34,7 @@ export function DemoCTA() {
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
           <Link
-            href="/ar/usman-ashfaq"
+            href={DEMO_AR_URL}
             className={buttonVariants({ variant: "outline", size: "lg" })}
           >
             View Live Demo

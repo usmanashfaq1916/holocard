@@ -9,7 +9,7 @@ import { sendWelcomeEmail } from "@/lib/email";
 export async function POST(req: Request) {
   try {
     const ip = req.headers.get("x-forwarded-for") || "unknown";
-    const rate = checkRateLimit(`register:${ip}`, 5, 60000);
+    const rate = await checkRateLimit(`register:${ip}`, 5, 60000);
     if (!rate.allowed) {
       return NextResponse.json({ error: "Too many attempts. Please try again later." }, { status: 429 });
     }

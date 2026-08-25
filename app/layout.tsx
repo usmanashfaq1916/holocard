@@ -35,14 +35,14 @@ export const metadata: Metadata = {
     title: "HoloCard - Your Business Card, Reimagined in AR",
     description:
       "Create an interactive digital business card that comes alive through Augmented Reality.",
-    images: ["/og-image.png"],
+    images: ["/og-image.svg"],
   },
   twitter: {
     card: "summary_large_image",
     title: "HoloCard - Your Business Card, Reimagined in AR",
     description:
       "Create an interactive digital business card that comes alive through Augmented Reality.",
-    images: ["/og-image.png"],
+    images: ["/og-image.svg"],
   },
   robots: {
     index: true,

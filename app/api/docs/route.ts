@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
 
-const spec = {
-  openapi: "3.0.3",
-  info: {
-    title: "HoloCard API",
-    description: "API for HoloCard AR business card platform",
-    version: "1.0.0",
-    contact: { name: "HoloCard Support", email: "support@holocard.app" },
-  },
-  servers: [
-    { url: "https://holocard-fawn.vercel.app", description: "Production" },
-    { url: "http://localhost:3000", description: "Development" },
-  ],
+function getBaseUrl() {
+  return process.env.NEXT_PUBLIC_BASE_URL || "https://holocard.app";
+}
+
+export async function GET() {
+  const baseUrl = getBaseUrl();
+
+  const spec = {
+    openapi: "3.0.3",
+    info: {
+      title: "HoloCard API",
+      description: "API for HoloCard AR business card platform",
+      version: "1.0.0",
+      contact: { name: "HoloCard Support", email: "support@holocard.app" },
+    },
+    servers: [
+      { url: baseUrl, description: "Production" },
+      { url: "http://localhost:3000", description: "Development" },
+    ],
   paths: {
     "/api/auth/register": {
       post: {
@@ -280,8 +287,6 @@ const spec = {
     },
   },
 };
-
-export async function GET() {
   return NextResponse.json(spec, {
     headers: {
       "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
+import { DEMO_AR_URL } from "@/lib/config";
 import { buttonVariants } from "@/components/ui/button";
 
 interface NavLink {
@@ -30,7 +31,7 @@ const navLinks: NavLink[] = [
       { label: "API Docs", href: "/docs" },
     ],
   },
-  { label: "AR Experience", href: "/ar/usman-ashfaq" },
+  { label: "AR Experience", href: DEMO_AR_URL },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Templates", href: "/templates" },
   { label: "Pricing", href: "/#pricing" },

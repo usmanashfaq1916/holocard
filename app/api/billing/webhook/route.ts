@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-function getStripe() {
+async function getStripe() {
   if (!process.env.STRIPE_SECRET_KEY) return null;
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const Stripe = require("stripe").default;
+  const Stripe = (await import("stripe")).default;
   return new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2026-07-29.dahlia",
   });
 }
 
 export async function POST(request: NextRequest) {
-  const stripe = getStripe();
+  const stripe = await getStripe();
   if (!stripe) {
     return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
   }
@@ -23,7 +22,8 @@ export async function POST(request: NextRequest) {
   const body = await request.text();
   const sig = request.headers.get("stripe-signature") || "";
 
-  let event: { type: string; data: { object: Record<string, unknown> & { id?: string; subscription?: string; customer?: string; metadata?: Record<string, string>; status?: string } } };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let event: any;
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {

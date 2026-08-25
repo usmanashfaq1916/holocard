@@ -2,11 +2,9 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { prisma } from "@/lib/db";
 
-function getStripe() {
+async function getStripe() {
   if (!process.env.STRIPE_SECRET_KEY) return null;
-  // Dynamic import to avoid build-time initialization
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const Stripe = require("stripe").default;
+  const { default: Stripe } = await import("stripe");
   return new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2026-07-29.dahlia",
   });
@@ -18,7 +16,7 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const stripe = getStripe();
+  const stripe = await getStripe();
   if (!stripe) {
     return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
   }

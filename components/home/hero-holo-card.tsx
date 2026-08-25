@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Eye } from "lucide-react";
 import { LazyARModelViewer } from "@/lib/lazy-imports";
 import { buttonVariants } from "@/components/ui/button";
+import { DEMO_SLUG, DEMO_AR_URL } from "@/lib/config";
 
 export function HeroHoloCard() {
   return (
@@ -20,7 +21,7 @@ export function HeroHoloCard() {
             { platform: "twitter", url: "#" },
             { platform: "github", url: "#" },
           ]}
-          slug="usman-ashfaq"
+          slug={DEMO_SLUG}
           className="h-[300px] w-full md:h-[350px]"
         />
       </div>
@@ -28,7 +29,7 @@ export function HeroHoloCard() {
       {/* Try AR button */}
       <div className="mt-4 flex justify-center">
         <Link
-          href="/ar/usman-ashfaq"
+          href={DEMO_AR_URL}
           className={buttonVariants({ variant: "default", size: "sm" })}
         >
           <Eye className="mr-2 h-3 w-3" />

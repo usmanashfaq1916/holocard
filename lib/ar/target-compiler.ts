@@ -35,6 +35,9 @@ export function validateTargetFile(file: File): { valid: boolean; error?: string
 export async function validateTargetImage(
   file: File
 ): Promise<{ valid: boolean; error?: string; width?: number; height?: number }> {
+  if (typeof Image === "undefined" || typeof URL === "undefined") {
+    return { valid: true };
+  }
   const img = new Image();
   const url = URL.createObjectURL(file);
 

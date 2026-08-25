@@ -40,6 +40,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { HeroHoloCard } from "@/components/home/hero-holo-card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { DEMO_AR_URL } from "@/lib/config";
 
 const capabilities = [
   { icon: Sparkles, label: "Create" },
@@ -199,7 +200,7 @@ export default function HomePage() {
                   Create Your AR Card
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
-                <Link href="/ar/usman-ashfaq" className={buttonVariants({ variant: "outline", size: "lg" })}>
+                <Link href={DEMO_AR_URL} className={buttonVariants({ variant: "outline", size: "lg" })}>
                   <Eye className="mr-2 h-4 w-4" />
                   Try AR Demo
                 </Link>
@@ -694,7 +695,7 @@ export default function HomePage() {
                 <Link href="/register" className={buttonVariants({ variant: "default", size: "sm" })}>
                   Create Your HoloCard
                 </Link>
-                <Link href="/ar/usman-ashfaq" className={buttonVariants({ variant: "outline", size: "sm" })}>
+                <Link href={DEMO_AR_URL} className={buttonVariants({ variant: "outline", size: "sm" })}>
                   <Eye className="mr-2 h-3 w-3" />
                   Launch AR Experience
                 </Link>
@@ -966,7 +967,7 @@ export default function HomePage() {
                 Create Your AR Card
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-              <Link href="/ar/usman-ashfaq" className={buttonVariants({ variant: "outline", size: "lg" })}>
+              <Link href={DEMO_AR_URL} className={buttonVariants({ variant: "outline", size: "lg" })}>
                 <Eye className="mr-2 h-4 w-4" />
                 Try AR Demo
               </Link>

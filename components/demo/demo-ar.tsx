@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Smartphone, ArrowRight, UserPlus, Share2, QrCode } from "lucide-react";
+import { DEMO_AR_URL } from "@/lib/config";
 
 export function DemoAR() {
   return (
@@ -88,7 +89,7 @@ export function DemoAR() {
           </div>
 
           <Link
-            href="/ar/usman-ashfaq"
+            href={DEMO_AR_URL}
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
             Try Live AR Experience

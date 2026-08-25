@@ -120,6 +120,7 @@ export default function ARPage() {
     return (
       <Fallback3DViewer
         name={card.name}
+        cardSlug={card.slug}
         designation={card.designation}
         company={card.company}
         phone={card.phone}

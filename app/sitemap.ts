@@ -16,18 +16,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/register`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
   ];
 
-  const publishedCards = await prisma.card.findMany({
-    where: { status: "ACTIVE" },
-    select: { slug: true, updatedAt: true },
-    orderBy: { updatedAt: "desc" },
-  });
+  let cardPages: MetadataRoute.Sitemap = [];
 
-  const cardPages = publishedCards.map((card) => ({
-    url: `${BASE_URL}/card/${card.slug}`,
-    lastModified: card.updatedAt,
-    changeFrequency: "weekly" as const,
-    priority: 0.9,
-  }));
+  try {
+    const publishedCards = await prisma.card.findMany({
+      where: { status: "ACTIVE" },
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    cardPages = publishedCards.map((card) => ({
+      url: `${BASE_URL}/card/${card.slug}`,
+      lastModified: card.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    }));
+  } catch {
+    // Database may be unreachable during build — return static pages only
+  }
 
   return [...staticPages, ...cardPages];
 }

@@ -123,11 +123,11 @@ function ARSceneContent({
   templateType?: string;
   onInteraction: (type: string, url?: string) => void;
 }) {
+  useAR();
+
   if (templateType === "DATA_ANALYST") {
     return <DataAnalystScene onInteraction={onInteraction} />;
   }
-
-  useAR();
 
   return (
     <ARAnchor
@@ -440,6 +440,7 @@ export default function ARViewer(props: ARViewerProps) {
     return (
       <Fallback3DViewer
         name={props.cardName}
+        cardSlug={props.cardSlug}
         designation={props.cardDesignation}
         company={props.cardCompany}
         phone={props.phone}

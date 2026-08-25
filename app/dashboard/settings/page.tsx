@@ -349,7 +349,12 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <Button variant="destructive">Log out all sessions</Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                >
+                  Log out all sessions
+                </Button>
               </div>
             </div>
           </div>

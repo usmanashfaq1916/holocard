@@ -6,6 +6,7 @@ import { Suspense, useState, useEffect, useCallback, useRef } from "react";
 
 interface FallbackViewerProps {
   name: string;
+  cardSlug?: string;
   designation?: string;
   company?: string;
   phone?: string;
@@ -126,7 +127,7 @@ export default function Fallback3DViewer(props: FallbackViewerProps) {
             Your device is low on graphics memory. Please view the digital card instead.
           </p>
           <a
-            href={`/card/${props.name.toLowerCase().replace(/\s+/g, "-")}`}
+            href={`/card/${props.cardSlug || props.name.toLowerCase().replace(/\s+/g, "-")}`}
             className="inline-block bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 py-2 text-sm font-medium transition-colors"
           >
             View Digital Card

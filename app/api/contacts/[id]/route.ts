@@ -2,16 +2,18 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth/config";
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
+export async function DELETE(_req: Request, { params }: RouteParams) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
+
   const contact = await prisma.contact.findUnique({
     where: { id },
     include: { card: { select: { userId: true } } },
@@ -22,5 +24,6 @@ export async function DELETE(
   }
 
   await prisma.contact.delete({ where: { id } });
+
   return NextResponse.json({ success: true });
 }

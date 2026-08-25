@@ -134,10 +134,10 @@ export default function MediaPage() {
         return;
       }
 
-      const { url, filename, mimeType, size } = await uploadRes.json();
+      const { id, url, filename, mimeType, size } = await uploadRes.json();
 
       const newMedia: MediaItem = {
-        id: crypto.randomUUID(),
+        id,
         filename,
         url,
         type: mimeType?.startsWith("video/") ? "VIDEO" : mimeType?.startsWith("model/") ? "MODEL_3D" : "IMAGE",

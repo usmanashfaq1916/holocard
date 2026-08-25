@@ -54,3 +54,34 @@ export async function DELETE(req: Request) {
 
   return NextResponse.json({ success: true });
 }
+
+export async function PATCH(req: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const mediaId = searchParams.get("id");
+
+  if (!mediaId) {
+    return NextResponse.json({ error: "Media ID required" }, { status: 400 });
+  }
+
+  const media = await prisma.media.findUnique({ where: { id: mediaId } });
+  if (!media || media.userId !== session.user.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const body = await req.json().catch(() => ({}));
+  if (!body.filename || typeof body.filename !== "string") {
+    return NextResponse.json({ error: "Filename required" }, { status: 400 });
+  }
+
+  const updated = await prisma.media.update({
+    where: { id: mediaId },
+    data: { filename: body.filename.trim() },
+  });
+
+  return NextResponse.json(updated);
+}

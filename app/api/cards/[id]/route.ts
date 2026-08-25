@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth/config";
 import { cardSchema } from "@/lib/validation";
 import { getStorage } from "@/lib/storage";
+import { sendCardPublishedEmail } from "@/lib/email";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -151,6 +152,19 @@ export async function PATCH(req: Request, { params }: RouteParams) {
     where: { id },
     data: result.data,
   });
+
+  // Send published email if status changed to ACTIVE
+  if (result.data.status === "ACTIVE" && card.status !== "ACTIVE") {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { email: true, name: true },
+    });
+    if (user?.email) {
+      sendCardPublishedEmail(user.email, user.name || "there", updated.name, updated.slug).catch(
+        () => {}
+      );
+    }
+  }
 
   return NextResponse.json(updated);
 }

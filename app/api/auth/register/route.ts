@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { registerSchema } from "@/lib/validation";
 import { createNotification } from "@/lib/notify";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -53,6 +54,8 @@ export async function POST(req: Request) {
       "welcome",
       "/dashboard/cards/new"
     );
+
+    sendWelcomeEmail(email, name).catch(() => {});
 
     return NextResponse.json(
       {

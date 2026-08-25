@@ -586,11 +586,34 @@ export default function SettingsPage() {
                             )
                           )}
                         </div>
-                        {isCurrent && (
+                        {isCurrent ? (
                           <p className="mt-3 text-xs font-medium text-primary">
                             Current Plan
                           </p>
-                        )}
+                        ) : tier !== "FREE" ? (
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await fetch("/api/billing/checkout", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ plan: tier }),
+                                });
+                                const data = await res.json();
+                                if (data.url) {
+                                  window.location.href = data.url;
+                                } else {
+                                  toast.error(data.error || "Failed to start checkout");
+                                }
+                              } catch {
+                                toast.error("Failed to start checkout");
+                              }
+                            }}
+                            className="mt-3 w-full rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+                          >
+                            Upgrade to {config.name}
+                          </button>
+                        ) : null}
                       </div>
                     );
                   }

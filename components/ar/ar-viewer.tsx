@@ -67,6 +67,9 @@ interface ARViewerProps {
   profileImage?: string;
   templateType?: string;
   scenes?: ARSceneData[];
+  brandLogo?: string;
+  brandColor?: string;
+  showBranding?: boolean;
 }
 
 type ViewerState =
@@ -278,6 +281,9 @@ function ARSceneContent({
   targetFound,
   templateType,
   scenes,
+  brandLogo,
+  brandColor,
+  showBranding = true,
   onInteraction,
 }: {
   name: string;
@@ -293,6 +299,9 @@ function ARSceneContent({
   targetFound: boolean;
   templateType?: string;
   scenes?: ARSceneData[];
+  brandLogo?: string;
+  brandColor?: string;
+  showBranding?: boolean;
   onInteraction: (type: string, url?: string) => void;
 }) {
   useAR();
@@ -470,14 +479,16 @@ function ARSceneContent({
               </group>
             </group>
 
-            <Text
-              position={[0, -0.85, 0.03]}
-              fontSize={0.04}
-              color="#94A3B8"
-              anchorX="center"
-            >
-              Powered by HoloCard
-            </Text>
+            {showBranding && (
+              <Text
+                position={[0, -0.85, 0.03]}
+                fontSize={0.04}
+                color={brandColor || "#94A3B8"}
+                anchorX="center"
+              >
+                {brandLogo ? "Powered by " : "Powered by HoloCard"}
+              </Text>
+            )}
           </AnimatedGroup>
         </>
       )}
@@ -664,6 +675,9 @@ export default function ARViewer(props: ARViewerProps) {
             targetFound={targetFound}
             templateType={props.templateType}
             scenes={props.scenes}
+            brandLogo={props.brandLogo}
+            brandColor={props.brandColor}
+            showBranding={props.showBranding}
             onInteraction={handleInteraction}
           />
         </ARView>

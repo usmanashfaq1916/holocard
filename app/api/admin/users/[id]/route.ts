@@ -57,3 +57,27 @@ export async function GET(_req: Request, { params }: RouteParams) {
 
   return NextResponse.json(user);
 }
+
+export async function DELETE(_req: Request, { params }: RouteParams) {
+  const session = await auth();
+  if (!session?.user?.id || (session.user as { role?: string }).role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
+  const { id } = await params;
+
+  if (id === session.user.id) {
+    return NextResponse.json({ error: "Cannot delete yourself" }, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id }, select: { id: true, role: true } });
+  if (!user) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  if (user.role === "ADMIN") {
+    return NextResponse.json({ error: "Cannot delete admin users" }, { status: 400 });
+  }
+
+  await prisma.user.delete({ where: { id } });
+  return NextResponse.json({ deleted: true });
+}

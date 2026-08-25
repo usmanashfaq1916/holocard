@@ -378,7 +378,7 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
             </span>
           </label>
           <Separator orientation="vertical" className="h-6 mx-1" />
-          <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
             <input
               type="color"
               value={selectedColor}
@@ -415,25 +415,29 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1 overflow-auto flex justify-center">
-          <div className={activeSide === "FRONT" ? "block" : "hidden"}>
-            <FabricCanvas
-              ref={frontCanvasRef}
-              cardData={cardData}
-              onChange={updateHistoryState}
-            />
+          <div className={`${activeSide === "FRONT" ? "block" : "hidden"} min-w-0`}>
+            <div className="origin-top-left scale-[0.35] sm:scale-[0.5] md:scale-[0.7] lg:scale-100 w-[1050px]">
+              <FabricCanvas
+                ref={frontCanvasRef}
+                cardData={cardData}
+                onChange={updateHistoryState}
+              />
+            </div>
           </div>
-          <div className={activeSide === "BACK" ? "block" : "hidden"}>
-            <FabricCanvas
-              ref={backCanvasRef}
-              backgroundColor="#ffffff"
-              onChange={updateHistoryState}
-            />
+          <div className={`${activeSide === "BACK" ? "block" : "hidden"} min-w-0`}>
+            <div className="origin-top-left scale-[0.35] sm:scale-[0.5] md:scale-[0.7] lg:scale-100 w-[1050px]">
+              <FabricCanvas
+                ref={backCanvasRef}
+                backgroundColor="#ffffff"
+                onChange={updateHistoryState}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="w-64 space-y-4">
+        <div className="w-full lg:w-64 space-y-4">
           <div className="border rounded-lg p-3">
             <h4 className="text-sm font-medium mb-2">Template</h4>
             <div className="grid grid-cols-2 gap-2">

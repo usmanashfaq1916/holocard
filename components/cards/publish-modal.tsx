@@ -65,7 +65,12 @@ export function PublishModal({ cardId, cardName, cardSlug, open, onClose, onPubl
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="publish-modal-title"
+    >
       <div
         className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-background shadow-2xl"
         onClick={(e) => e.stopPropagation()}
@@ -73,6 +78,7 @@ export function PublishModal({ cardId, cardName, cardSlug, open, onClose, onPubl
         <button
           onClick={handleClose}
           className="absolute right-3 top-3 z-10 rounded-full bg-muted p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          aria-label="Close publish dialog"
         >
           <X className="h-4 w-4" />
         </button>
@@ -83,7 +89,7 @@ export function PublishModal({ cardId, cardName, cardSlug, open, onClose, onPubl
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
               <Loader2 className="h-8 w-8 text-primary animate-spin" />
             </div>
-            <h2 className="text-xl font-bold">Validating Card</h2>
+            <h2 id="publish-modal-title" className="text-xl font-bold">Validating Card</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Checking your card is ready to publish...
             </p>

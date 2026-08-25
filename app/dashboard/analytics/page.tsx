@@ -111,10 +111,10 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5" role="region" aria-label="Analytics overview">
         {statCards.map((stat) => (
-          <div key={stat.label} className="glass rounded-xl p-4">
-            <stat.icon className={`h-5 w-5 ${stat.color}`} />
+          <div key={stat.label} className="glass rounded-xl p-4" aria-label={stat.label}>
+            <stat.icon className={`h-5 w-5 ${stat.color}`} aria-hidden="true" />
             <p className="mt-2 text-2xl font-bold">
               {loading ? (
                 <span className="inline-block h-7 w-16 animate-pulse rounded bg-muted" />

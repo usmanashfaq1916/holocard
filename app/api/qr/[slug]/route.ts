@@ -7,7 +7,9 @@ interface RouteParams {
 
 export async function GET(_req: Request, { params }: RouteParams) {
   const { slug } = await params;
-  const url = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/card/${slug}`;
+  const type = new URL(_req.url).searchParams.get("type") || "ar";
+  const path = type === "card" ? "card" : "ar";
+  const url = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/${path}/${slug}`;
 
   const format = new URL(_req.url).searchParams.get("format") || "png";
 

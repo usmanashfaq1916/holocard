@@ -31,6 +31,9 @@ import {
 interface AnalyticsData {
   totalViews: number;
   totalQrScans: number;
+  qrArScans: number;
+  qrCardScans: number;
+  qrLegacyScans: number;
   totalArSessions: number;
   totalContactSaves: number;
   totalLinkClicks: number;
@@ -120,6 +123,24 @@ export default function AnalyticsPage() {
               )}
             </p>
             <p className="text-xs text-muted-foreground">{stat.label}</p>
+            {stat.label === "QR Scans" && data && !loading && (
+              <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                <div className="flex justify-between">
+                  <span>AR QR</span>
+                  <span>{data.qrArScans}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Digital Card QR</span>
+                  <span>{data.qrCardScans}</span>
+                </div>
+                {data.qrLegacyScans > 0 && (
+                  <div className="flex justify-between">
+                    <span>Legacy QR</span>
+                    <span>{data.qrLegacyScans}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>

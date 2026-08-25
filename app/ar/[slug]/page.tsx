@@ -68,7 +68,7 @@ export default function ARPage() {
   useEffect(() => {
     const referrer = document.referrer;
     if (referrer.includes("/qr") || referrer.includes("qr")) {
-      trackAREvent({ cardId: card?.id || "", eventType: "QR_SCAN" });
+      trackAREvent({ cardId: card?.id || "", eventType: "QR_AR_SCAN" });
     }
   }, [card]);
 

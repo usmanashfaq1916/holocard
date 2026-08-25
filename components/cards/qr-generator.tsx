@@ -5,15 +5,17 @@ import QRCodeLib from "qrcode";
 
 interface QRGeneratorProps {
   slug: string;
+  type?: "ar" | "card";
   size?: number;
   darkColor?: string;
   lightColor?: string;
 }
 
-export function QRGenerator({ slug, size = 200, darkColor, lightColor }: QRGeneratorProps) {
+export function QRGenerator({ slug, type = "ar", size = 200, darkColor, lightColor }: QRGeneratorProps) {
   const [dataUrl, setDataUrl] = useState<string | null>(null);
   const [isDark, setIsDark] = useState(false);
-  const url = `${typeof window !== "undefined" ? window.location.origin : ""}/card/${slug}`;
+  const path = type === "card" ? "card" : "ar";
+  const url = `${typeof window !== "undefined" ? window.location.origin : ""}/${path}/${slug}`;
 
   useEffect(() => {
     const dark = document.documentElement.classList.contains("dark");

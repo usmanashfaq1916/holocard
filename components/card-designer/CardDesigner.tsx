@@ -131,7 +131,7 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
           });
           if (!createRes.ok) throw new Error("Failed to create experience");
           const exp = await createRes.json();
-          experienceId = exp.id;
+          experienceId = exp.experience?.id || exp.id;
         }
         setArExperienceId(experienceId);
       }

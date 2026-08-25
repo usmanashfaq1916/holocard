@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { Plus, Eye, QrCode, Copy, Trash2, ExternalLink, GripVertical, CopyPlus, Pencil, BarChart3, Archive, Upload } from "lucide-react";
+import { Plus, Eye, QrCode, Copy, Trash2, ExternalLink, GripVertical, CopyPlus, Pencil, BarChart3, Archive, Upload, Sparkles } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { toast } from "sonner";
 import { QRGenerator } from "@/components/cards/qr-generator";
@@ -24,6 +24,7 @@ export default function CardsPage() {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState<string | null>(null);
+  const [qrType, setQrType] = useState<"ar" | "card">("ar");
   const [showShare, setShowShare] = useState<string | null>(null);
   const [publishCard, setPublishCard] = useState<Card | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -324,18 +325,41 @@ export default function CardsPage() {
               </div>
 
               {showQR === card.id && (
-                <div className="mt-4 flex flex-col items-center gap-3 rounded-lg border border-border p-4">
-                  <QRGenerator slug={card.slug} size={160} />
-                  <div className="flex gap-2">
+                <div className="mt-4 rounded-lg border border-border p-4 space-y-3">
+                  <div className="flex gap-1 rounded-lg bg-muted p-1">
+                    <button
+                      onClick={() => setQrType("ar")}
+                      className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                        qrType === "ar" ? "bg-background shadow text-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      <Sparkles className="mr-1 h-3 w-3 inline" /> AR QR
+                    </button>
+                    <button
+                      onClick={() => setQrType("card")}
+                      className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                        qrType === "card" ? "bg-background shadow text-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      <QrCode className="mr-1 h-3 w-3 inline" /> Digital Card QR
+                    </button>
+                  </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <QRGenerator slug={card.slug} type={qrType} size={160} />
+                    <p className="text-xs text-muted-foreground">
+                      /{qrType === "ar" ? "ar" : "card"}/{card.slug}
+                    </p>
+                  </div>
+                  <div className="flex justify-center gap-2">
                     <a
-                      href={`/api/qr/${card.slug}?format=png`}
+                      href={`/api/qr/${card.slug}?type=${qrType}&format=png`}
                       download
                       className={buttonVariants({ variant: "outline", size: "sm" })}
                     >
                       PNG
                     </a>
                     <a
-                      href={`/api/qr/${card.slug}?format=svg`}
+                      href={`/api/qr/${card.slug}?type=${qrType}&format=svg`}
                       download
                       className={buttonVariants({ variant: "outline", size: "sm" })}
                     >

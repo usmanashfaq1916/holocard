@@ -4,6 +4,8 @@ import { useEffect, useRef, useCallback } from "react";
 
 type EventName =
   | "QR_SCAN"
+  | "QR_AR_SCAN"
+  | "QR_CARD_SCAN"
   | "AR_PAGE_OPENED"
   | "CAMERA_STARTED"
   | "TARGET_DETECTED"

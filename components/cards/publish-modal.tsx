@@ -47,14 +47,13 @@ export function PublishModal({ cardId, cardName, cardSlug, open, onClose, onPubl
 
   const startPublish = () => {
     setStep("validate");
-    // Simulate validation
     setTimeout(() => setStep("confirm"), 800);
   };
 
-  const copyUrl = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/card/${cardSlug}`);
+  const copyArUrl = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/ar/${cardSlug}`);
     setCopied(true);
-    toast.success("URL copied!");
+    toast.success("AR URL copied!");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -110,7 +109,7 @@ export function PublishModal({ cardId, cardName, cardSlug, open, onClose, onPubl
               </div>
               <div className="flex items-center gap-3 rounded-lg border border-border p-3">
                 <Check className="h-4 w-4 text-success" />
-                <span className="text-sm">QR code will be generated automatically</span>
+                <span className="text-sm">AR QR code will be generated</span>
               </div>
             </div>
 
@@ -142,39 +141,62 @@ export function PublishModal({ cardId, cardName, cardSlug, open, onClose, onPubl
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
               <Check className="h-7 w-7 text-success" />
             </div>
-            <h2 className="text-xl font-bold">Your HoloCard is now live!</h2>
+            <h2 className="text-xl font-bold">Experience Published!</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {cardName} is published and ready to share.
+              {cardName} is live and ready to share.
             </p>
 
             <div className="mt-4 rounded-xl border border-border p-4">
               <div className="flex items-center justify-center">
-                <QRGenerator slug={cardSlug} size={140} />
+                <QRGenerator slug={cardSlug} type="ar" size={140} />
               </div>
               <p className="mt-2 text-center text-xs text-muted-foreground">
-                /card/{cardSlug}
+                Scan to Launch AR
+              </p>
+              <p className="mt-1 text-center text-xs font-mono text-muted-foreground">
+                /ar/{cardSlug}
               </p>
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
-                href={`/card/${cardSlug}`}
+                href={`/ar/${cardSlug}`}
                 target="_blank"
                 className={buttonVariants({ variant: "default", size: "sm" })}
               >
-                <ExternalLink className="mr-1 h-3 w-3" /> Open Card
+                <ExternalLink className="mr-1 h-3 w-3" /> Open AR
               </Link>
-              <button onClick={copyUrl} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                {copied ? <Check className="mr-1 h-3 w-3" /> : <Copy className="mr-1 h-3 w-3" />}
-                {copied ? "Copied!" : "Copy URL"}
-              </button>
               <a
-                href={`/api/qr/${cardSlug}?format=png`}
+                href={`/api/qr/${cardSlug}?type=ar&format=png`}
                 download
                 className={buttonVariants({ variant: "outline", size: "sm" })}
               >
                 <QrCode className="mr-1 h-3 w-3" /> Download QR
               </a>
+              <button onClick={copyArUrl} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                {copied ? <Check className="mr-1 h-3 w-3" /> : <Copy className="mr-1 h-3 w-3" />}
+                {copied ? "Copied!" : "Copy AR Link"}
+              </button>
+            </div>
+
+            <div className="mt-4 border-t border-border pt-4">
+              <p className="text-xs text-muted-foreground mb-2">Digital Card</p>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={`/card/${cardSlug}`}
+                  target="_blank"
+                  className={buttonVariants({ variant: "ghost", size: "sm" })}
+                >
+                  <ExternalLink className="mr-1 h-3 w-3" /> Open Card
+                </Link>
+                <a
+                  href={`/api/qr/${cardSlug}?type=card&format=png`}
+                  download
+                  className={buttonVariants({ variant: "ghost", size: "sm" })}
+                >
+                  <QrCode className="mr-1 h-3 w-3" /> Card QR
+                </a>
+              </div>
             </div>
 
             <button

@@ -15,6 +15,8 @@ export async function POST(request: NextRequest) {
     const validEvents = [
       "PROFILE_VIEW",
       "QR_SCAN",
+      "QR_AR_SCAN",
+      "QR_CARD_SCAN",
       "AR_LAUNCH",
       "AR_SESSION",
       "CONTACT_SAVE",

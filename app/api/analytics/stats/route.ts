@@ -56,7 +56,10 @@ export async function GET(req: Request) {
   });
 
   const totalViews = events.filter((e) => e.eventType === "PROFILE_VIEW").length;
-  const totalQrScans = events.filter((e) => e.eventType === "QR_SCAN").length;
+  const qrArScans = events.filter((e) => e.eventType === "QR_AR_SCAN").length;
+  const qrCardScans = events.filter((e) => e.eventType === "QR_CARD_SCAN").length;
+  const qrLegacyScans = events.filter((e) => e.eventType === "QR_SCAN").length;
+  const totalQrScans = qrArScans + qrCardScans + qrLegacyScans;
   const totalArSessions = events.filter((e) =>
     ["AR_LAUNCH", "AR_SESSION"].includes(e.eventType)
   ).length;
@@ -73,12 +76,34 @@ export async function GET(req: Request) {
   ).length;
 
   // Events by type
+  const eventFriendlyNames: Record<string, string> = {
+    PROFILE_VIEW: "Profile Views",
+    QR_SCAN: "Legacy QR Scans",
+    QR_AR_SCAN: "AR QR Scans",
+    QR_CARD_SCAN: "Digital Card QR Scans",
+    AR_LAUNCH: "AR Launches",
+    AR_SESSION: "AR Sessions",
+    CONTACT_SAVE: "Contacts Saved",
+    PHONE_CLICK: "Phone Clicks",
+    EMAIL_CLICK: "Email Clicks",
+    WHATSAPP_CLICK: "WhatsApp Clicks",
+    LINKEDIN_CLICK: "LinkedIn Clicks",
+    WEBSITE_CLICK: "Website Clicks",
+    SOCIAL_CLICK: "Social Clicks",
+    CTA_CLICK: "CTA Clicks",
+    SHARE: "Shares",
+    VIDEO_PLAY: "Video Plays",
+    CAMERA_STARTED: "Camera Starts",
+    TARGET_DETECTED: "Target Detected",
+    AR_EXPERIENCE_STARTED: "AR Experience Starts",
+    AR_INTERACTION: "AR Interactions",
+  };
   const eventCounts: Record<string, number> = {};
   events.forEach((e) => {
     eventCounts[e.eventType] = (eventCounts[e.eventType] || 0) + 1;
   });
   const eventsByType = Object.entries(eventCounts)
-    .map(([name, value]) => ({ name, value }))
+    .map(([name, value]) => ({ name: eventFriendlyNames[name] || name, value }))
     .sort((a, b) => b.value - a.value)
     .slice(0, 8);
 
@@ -94,7 +119,7 @@ export async function GET(req: Request) {
     const key = e.createdAt.toISOString().split("T")[0];
     if (viewsByDate[key]) {
       if (e.eventType === "PROFILE_VIEW") viewsByDate[key].views++;
-      if (e.eventType === "QR_SCAN") viewsByDate[key].scans++;
+      if (["QR_SCAN", "QR_AR_SCAN", "QR_CARD_SCAN"].includes(e.eventType)) viewsByDate[key].scans++;
     }
   });
   const viewsOverTime = Object.entries(viewsByDate).map(([date, data]) => ({
@@ -128,6 +153,9 @@ export async function GET(req: Request) {
   return NextResponse.json({
     totalViews,
     totalQrScans,
+    qrArScans,
+    qrCardScans,
+    qrLegacyScans,
     totalArSessions,
     totalContactSaves,
     totalLinkClicks,

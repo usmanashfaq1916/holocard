@@ -80,16 +80,29 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      return NextResponse.json({ error: "Experience already exists for this card" }, { status: 409 });
+      return NextResponse.json({ experience: existing, created: false }, { status: 200 });
     }
 
-    const experience = await prisma.aRExperience.create({
-      data: {
-        cardId,
-        name,
-        templateType: templateType || null,
-      },
-    });
+    let experience;
+    try {
+      experience = await prisma.aRExperience.create({
+        data: {
+          cardId,
+          name,
+          templateType: templateType || null,
+        },
+      });
+    } catch (err: unknown) {
+      if (err && typeof err === "object" && "code" in err && err.code === "P2002") {
+        const raceExisting = await prisma.aRExperience.findUnique({
+          where: { cardId },
+        });
+        if (raceExisting) {
+          return NextResponse.json({ experience: raceExisting, created: false }, { status: 200 });
+        }
+      }
+      throw err;
+    }
 
     await prisma.aRScene.create({
       data: {
@@ -100,7 +113,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(experience, { status: 201 });
+    return NextResponse.json({ experience, created: true }, { status: 201 });
   } catch (error) {
     console.error("Experience create error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

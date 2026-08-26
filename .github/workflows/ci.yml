@@ -43,6 +43,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Remove stale .vercel directory
+        run: rm -rf .vercel
+
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         with:

@@ -4,7 +4,7 @@ import type { Prisma } from "@prisma/client";
 const SLUG = "demo";
 
 async function main() {
-  console.log("Setting up demo.png AR experience...");
+  console.log("Setting up demo1.jpg AR experience...");
 
   const owner = await prisma.user.findUnique({ where: { email: "usman@demo.com" } });
   if (!owner) {
@@ -17,12 +17,15 @@ async function main() {
       status: "ACTIVE",
       visibility: "PUBLIC",
       isPublic: true,
+      name: "Demo Card",
+      designation: "Augmented Reality",
+      company: "HoloCard",
     },
     create: {
       userId: owner.id,
       slug: SLUG,
-      name: "Demo User",
-      designation: "AR Demo Specialist",
+      name: "Demo Card",
+      designation: "Augmented Reality",
       company: "HoloCard",
       bio: "Scan my card to see it come alive in augmented reality.",
       email: "hello@holocard.demo",
@@ -41,7 +44,7 @@ async function main() {
     update: {},
     create: {
       cardId: card.id,
-      name: "Demo.png AR Experience",
+      name: "Demo1 AR Experience",
       templateType: "PERSONAL_BRAND",
       status: "DRAFT",
     },
@@ -59,13 +62,13 @@ async function main() {
   const target = await prisma.aRTarget.create({
     data: {
       experienceId: experience.id,
-      imageUrl: "/demo.png",
-      mindFileUrl: "/targets/demo.mind",
+      imageUrl: "/demo1.jpg",
+      mindFileUrl: "/targets/demo1.mind",
       status: "READY",
       quality: "PRECOMPILED",
-      dimensions: { width: 526, height: 518 },
+      dimensions: { width: 4167, height: 4167 },
       metadata: {
-        source: "public/demo.png",
+        source: "public/demo1.jpg",
         compiledOffline: true,
         note: "Compiled via browser MindAR compiler (Node lacks Image API)",
       },
@@ -105,29 +108,35 @@ async function main() {
   const elementSeeds: ElementSeed[] = [
     {
       type: "THREE_D",
-      position: { x: 0, y: 0.95, z: 0.05 },
-      scale: { x: 1.4, y: 1.4, z: 1.4 },
-      metadata: { shape: "torusKnot", color: "#D4AF37", spinSpeed: 0.8 },
+      position: { x: 0, y: 0.85, z: 0.05 },
+      scale: { x: 1.2, y: 1.2, z: 1.2 },
+      metadata: { shape: "icosahedron", color: "#8B5CF6", spinSpeed: 1.0 },
+    },
+    {
+      type: "THREE_D",
+      position: { x: 0, y: -0.18, z: 0.02 },
+      scale: { x: 1, y: 1, z: 0.06 },
+      metadata: { shape: "box", color: "#1E293B", spinSpeed: 0 },
     },
     {
       type: "TEXT",
-      position: { x: 0, y: 0.58, z: 0.03 },
-      metadata: { text: "Demo User", fontSize: 0.14, color: "#FFFFFF" },
+      position: { x: 0, y: -0.12, z: 0.05 },
+      metadata: { text: "Demo Card", fontSize: 0.12, color: "#FFFFFF" },
     },
     {
       type: "TEXT",
-      position: { x: 0, y: 0.4, z: 0.03 },
+      position: { x: 0, y: -0.26, z: 0.05 },
       metadata: {
-        text: "AR Demo Specialist at HoloCard",
+        text: "Augmented Reality Experience",
         fontSize: 0.07,
-        color: "#CBD5E1",
+        color: "#A5B4FC",
       },
     },
     {
       type: "VIDEO",
       assetUrl: "/videos/holo-loop.mp4",
-      position: { x: 0, y: -0.05, z: 0.04 },
-      scale: { x: 0.9, y: 0.9, z: 1 },
+      position: { x: -0.55, y: 0.35, z: 0.04 },
+      scale: { x: 0.6, y: 0.6, z: 1 },
     },
     {
       type: "BUTTON",

@@ -597,14 +597,14 @@ export default function HomePage() {
               <div className="glass rounded-xl p-6 shadow-lg border border-white/10 text-center">
                 <div className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">AR Target Image</div>
                 <Image
-                  src="/demo.png"
+                  src="/demo1.jpg"
                   alt="HoloCard AR target — display this image on a screen or print it"
                   width={224}
-                  height={220}
+                  height={224}
                   className="mx-auto rounded-lg border border-white/10"
                 />
                 <p className="mt-3 max-w-[17rem] text-xs text-gray-400">Print this image or show it on another screen, then point your phone camera at it.</p>
-                <a href="/demo.png" download className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors">
+                <a href="/demo1.jpg" download className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors">
                   <Download className="h-3 w-3" />
                   Download image
                 </a>

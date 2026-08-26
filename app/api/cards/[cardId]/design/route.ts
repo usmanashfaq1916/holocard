@@ -3,11 +3,11 @@ import { auth } from "@/lib/auth/config";
 import { prisma } from "@/lib/db";
 
 interface RouteParams {
-  params: Promise<{ id: string }>;
+  params: Promise<{ cardId: string }>;
 }
 
 export async function GET(_req: Request, { params }: RouteParams) {
-  const { id } = await params;
+  const { cardId: id } = await params;
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -27,7 +27,7 @@ export async function GET(_req: Request, { params }: RouteParams) {
 }
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
-  const { id } = await params;
+  const { cardId: id } = await params;
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

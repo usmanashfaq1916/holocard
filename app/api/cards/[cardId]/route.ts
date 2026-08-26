@@ -6,7 +6,7 @@ import { getStorage } from "@/lib/storage";
 import { sendCardPublishedEmail } from "@/lib/email";
 
 interface RouteParams {
-  params: Promise<{ id: string }>;
+  params: Promise<{ cardId: string }>;
 }
 
 export async function GET(_req: Request, { params }: RouteParams) {
@@ -15,7 +15,7 @@ export async function GET(_req: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { cardId: id } = await params;
   const card = await prisma.card.findUnique({
     where: { id },
     include: { socialLinks: { orderBy: { order: "asc" } } },
@@ -34,7 +34,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { cardId: id } = await params;
   const card = await prisma.card.findUnique({
     where: { id },
     include: { socialLinks: true, buttons: true },
@@ -119,7 +119,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { cardId: id } = await params;
   const card = await prisma.card.findUnique({ where: { id } });
 
   if (!card || card.userId !== session.user.id) {
@@ -175,7 +175,7 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { cardId: id } = await params;
   const card = await prisma.card.findUnique({ where: { id } });
 
   if (!card || card.userId !== session.user.id) {

@@ -188,6 +188,46 @@ function ImageElement({ url, position, scale }: {
   );
 }
 
+function ThreeDElement({ position, rotation, scale, metadata }: {
+  position: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number };
+  scale: { x: number; y: number; z: number };
+  metadata?: Record<string, unknown>;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const shape = (metadata?.shape as string) || "torusKnot";
+  const color = (metadata?.color as string) || "#D4AF37";
+  const spin = (metadata?.spinSpeed as number) ?? 0.6;
+
+  useFrame((_, delta) => {
+    if (!meshRef.current) return;
+    meshRef.current.rotation.y += delta * spin;
+    meshRef.current.rotation.x += delta * spin * 0.35;
+  });
+
+  return (
+    <mesh
+      ref={meshRef}
+      position={[position.x, position.y, position.z]}
+      rotation={[rotation.x, rotation.y, rotation.z]}
+      scale={[scale.x, scale.y, scale.z]}
+    >
+      {shape === "torus" ? (
+        <torusGeometry args={[0.18, 0.06, 24, 64]} />
+      ) : shape === "box" ? (
+        <boxGeometry args={[0.25, 0.25, 0.25]} />
+      ) : shape === "sphere" ? (
+        <sphereGeometry args={[0.16, 32, 32]} />
+      ) : shape === "icosahedron" ? (
+        <icosahedronGeometry args={[0.18]} />
+      ) : (
+        <torusKnotGeometry args={[0.12, 0.04, 128, 24]} />
+      )}
+      <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.15} clearcoat={1} />
+    </mesh>
+  );
+}
+
 function SceneElement({ element, onAction }: {
   element: ARElementData;
   onAction?: (type: string, url?: string) => void;
@@ -221,6 +261,15 @@ function SceneElement({ element, onAction }: {
             scale={element.scale}
           />
         </group>
+      );
+    case "THREE_D":
+      return (
+        <ThreeDElement
+          position={element.position}
+          rotation={element.rotation}
+          scale={element.scale}
+          metadata={element.metadata}
+        />
       );
     case "TEXT": {
       const text = (element.metadata?.text as string) || "Text";
@@ -260,7 +309,6 @@ function SceneElement({ element, onAction }: {
         </group>
       );
     }
-    case "3D":
     case "AUDIO":
     default:
       return null;
@@ -322,11 +370,17 @@ function ARSceneContent({
     >
       {/* Custom scene elements from builder */}
       {hasCustomElements ? (
-        <AnimatedGroup visible={targetFound} delay={0.3}>
+        <>
           {firstScene.elements.map((el) => (
-            <SceneElement key={el.id || el.order} element={el} onAction={onInteraction} />
+            <AnimatedGroup
+              key={el.id || el.order}
+              visible={targetFound}
+              delay={0.3 + el.order * 0.25}
+            >
+              <SceneElement element={el} onAction={onInteraction} />
+            </AnimatedGroup>
           ))}
-        </AnimatedGroup>
+        </>
       ) : (
         <>
           {/* Default card layout */}

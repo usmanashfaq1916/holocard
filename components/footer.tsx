@@ -40,11 +40,7 @@ export function Footer() {
                   How It Works
                 </Link>
               </li>
-              <li>
-                <Link href="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Demo
-                </Link>
-              </li>
+
             </ul>
           </div>
 

@@ -40,7 +40,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { HeroHoloCard } from "@/components/home/hero-holo-card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { DEMO_AR_URL, DEMO_CARD_URL } from "@/lib/config";
+import { DEMO_CARD_URL } from "@/lib/config";
 
 function AnimatedCounter({ target, duration = 2 }: { target: number; duration?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -249,10 +249,6 @@ export default function HomePage() {
                   Create Your HoloCard
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
-                <Link href={DEMO_AR_URL} className={buttonVariants({ variant: "outline", size: "lg" }) + " border-white/20 text-white hover:bg-white/5"}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  Experience AR
-                </Link>
               </div>
               <p className="mt-4 text-xs text-gray-500">No app required. Works directly in your mobile browser.</p>
             </motion.div>
@@ -304,9 +300,6 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                <Link href={DEMO_AR_URL} className={buttonVariants({ variant: "default", size: "sm" }) + " bg-blue-600 text-white hover:bg-blue-500"}>
-                  Try 3D Preview
-                </Link>
                 <Link href={DEMO_CARD_URL} className={buttonVariants({ variant: "outline", size: "sm" }) + " border-white/20 text-white hover:bg-white/5"}>
                   Open Digital Card
                 </Link>
@@ -606,9 +599,6 @@ export default function HomePage() {
                 <div className="overflow-hidden rounded-[2rem] bg-gray-900"><div className="p-4"><HeroHoloCard /></div></div>
               </div>
               <div className="mt-6 flex gap-3">
-                <Link href={DEMO_AR_URL} className={buttonVariants({ variant: "default", size: "sm" }) + " bg-blue-600 text-white hover:bg-blue-500"}>
-                  Launch AR Experience
-                </Link>
                 <Link href={DEMO_CARD_URL} className={buttonVariants({ variant: "outline", size: "sm" }) + " border-white/20 text-white hover:bg-white/5"}>
                   Open Digital Card
                 </Link>
@@ -711,9 +701,6 @@ export default function HomePage() {
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/register" className={buttonVariants({ variant: "default", size: "lg" }) + " bg-blue-600 text-white hover:bg-blue-500"}>
                 Create Your HoloCard <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-              <Link href={DEMO_AR_URL} className={buttonVariants({ variant: "outline", size: "lg" }) + " border-white/20 text-white hover:bg-white/5"}>
-                <Eye className="mr-2 h-4 w-4" />Experience AR
               </Link>
             </div>
           </motion.div>

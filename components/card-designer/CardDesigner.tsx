@@ -30,8 +30,8 @@ import { CARD_TEMPLATES } from "@/lib/card-templates";
 const FabricCanvas = dynamic(() => import("./FabricCanvas"), {
   ssr: false,
   loading: () => (
-    <div className="w-[1050px] h-[600px] bg-slate-100 rounded-lg animate-pulse flex items-center justify-center">
-      <span className="text-slate-400">Loading canvas...</span>
+    <div className="w-[1050px] h-[600px] bg-muted rounded-lg animate-pulse flex items-center justify-center">
+      <span className="text-muted-foreground">Loading canvas...</span>
     </div>
   ),
 });
@@ -447,7 +447,7 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
                   onClick={() => handleTemplateChange(key)}
                   className={`p-2 rounded border text-xs text-center transition-colors ${
                     selectedTemplate === key
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      ? "border-primary bg-primary/10 text-primary"
                       : "border-slate-200 hover:border-slate-300"
                   }`}
                 >
@@ -459,7 +459,7 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
 
           <div className="border rounded-lg p-3">
             <h4 className="text-sm font-medium mb-2">Card Data</h4>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
               Text fields are populated from your card profile. Edit them in the card settings.
             </p>
           </div>

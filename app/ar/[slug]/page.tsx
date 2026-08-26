@@ -8,8 +8,8 @@ import { trackAREvent } from "@/lib/ar/analytics";
 const ARViewer = dynamic(() => import("@/components/ar/ar-viewer"), {
   ssr: false,
   loading: () => (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
     </div>
   ),
 });
@@ -19,8 +19,8 @@ type ARViewerProps = React.ComponentProps<typeof ARViewer>;
 const Fallback3DViewer = dynamic(() => import("@/components/ar/fallback-viewer"), {
   ssr: false,
   loading: () => (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
     </div>
   ),
 });
@@ -90,10 +90,10 @@ export default function ARPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-white/60 text-sm">Loading experience...</p>
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-muted-foreground text-sm">Loading experience...</p>
         </div>
       </div>
     );
@@ -101,13 +101,13 @@ export default function ARPage() {
 
   if (error || !card) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-2">Card Not Found</h1>
-          <p className="text-white/60 mb-4">{error || "This card does not exist."}</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Card Not Found</h1>
+          <p className="text-muted-foreground mb-4">{error || "This card does not exist."}</p>
           <a
             href="/"
-            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 py-2 text-sm font-medium transition-colors"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6 py-2 text-sm font-medium transition-colors"
           >
             Go to HoloCard
           </a>
@@ -137,8 +137,8 @@ export default function ARPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
         </div>
       }
     >

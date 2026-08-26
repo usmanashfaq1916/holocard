@@ -669,7 +669,7 @@ export default function SettingsPage() {
                       <div className="grid gap-4 sm:grid-cols-3">
                         <div className="rounded-xl border border-border p-4">
                           <div className="flex items-center gap-2 mb-2">
-                            <Image className="h-5 w-5 text-blue-500" />
+                            <Image className="h-5 w-5 text-primary" />
                             <span className="text-sm font-medium">Images</span>
                           </div>
                           <p className="text-2xl font-bold">{formatSize(storageUsage.images)}</p>

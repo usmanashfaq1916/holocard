@@ -179,7 +179,7 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
                 href={publicUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                className="flex items-center gap-2 text-sm text-primary hover:underline"
               >
                 <ExternalLink className="h-4 w-4" />
                 View Public Card
@@ -188,7 +188,7 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
                 href={arUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                className="flex items-center gap-2 text-sm text-primary hover:underline"
               >
                 <Sparkles className="h-4 w-4" />
                 View AR Experience

@@ -110,13 +110,13 @@ async function main() {
       type: "THREE_D",
       position: { x: 0, y: 0.85, z: 0.05 },
       scale: { x: 1.2, y: 1.2, z: 1.2 },
-      metadata: { shape: "icosahedron", color: "#8B5CF6", spinSpeed: 1.0 },
+      metadata: { shape: "icosahedron", color: "#059669", spinSpeed: 1.0 },
     },
     {
       type: "THREE_D",
       position: { x: 0, y: -0.18, z: 0.02 },
       scale: { x: 1, y: 1, z: 0.06 },
-      metadata: { shape: "box", color: "#1E293B", spinSpeed: 0 },
+      metadata: { shape: "box", color: "#2D2520", spinSpeed: 0 },
     },
     {
       type: "TEXT",
@@ -129,7 +129,7 @@ async function main() {
       metadata: {
         text: "Augmented Reality Experience",
         fontSize: 0.07,
-        color: "#A5B4FC",
+        color: "#6EE7B7",
       },
     },
     {
@@ -149,7 +149,7 @@ async function main() {
       type: "BUTTON",
       position: { x: -0.37, y: -0.62, z: 0.05 },
       scale: { x: 0.6, y: 0.6, z: 1 },
-      metadata: { label: "Email", bgColor: "#2563EB" },
+      metadata: { label: "Email", bgColor: "#059669" },
       action: {
         type: "OPEN_EMAIL",
         payload: { url: "mailto:hello@holocard.demo" },
@@ -182,7 +182,7 @@ async function main() {
       type: "BUTTON",
       position: { x: 0.74, y: -0.62, z: 0.05 },
       scale: { x: 0.6, y: 0.6, z: 1 },
-      metadata: { label: "Website", bgColor: "#7C3AED" },
+      metadata: { label: "Website", bgColor: "#0D9488" },
       action: {
         type: "OPEN_URL",
         payload: { url: "https://holocard-fawn.vercel.app" },

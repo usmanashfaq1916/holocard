@@ -268,7 +268,7 @@ export default function ARSceneBuilderPage({
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -358,7 +358,7 @@ export default function ARSceneBuilderPage({
                   onChange={handleTargetUpload}
                   disabled={uploading}
                 />
-                <div className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 transition-colors">
+                <div className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 transition-colors">
                   <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
                   <p className="text-sm text-slate-500">
                     {uploading ? "Processing..." : "Upload card image"}
@@ -385,7 +385,7 @@ export default function ARSceneBuilderPage({
                   }}
                   className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
                     selectedScene === i
-                      ? "bg-blue-50 text-blue-700 font-medium"
+                      ? "bg-primary/10 text-primary font-medium"
                       : "hover:bg-slate-50"
                   }`}
                 >
@@ -439,8 +439,8 @@ export default function ARSceneBuilderPage({
                 key={el.id || i}
                 className={`absolute cursor-pointer border-2 rounded transition-colors ${
                   selectedElement === i
-                    ? "border-blue-500 bg-blue-500/10"
-                    : "border-transparent hover:border-blue-300"
+                    ? "border-primary bg-primary/10"
+                    : "border-transparent hover:border-primary/50"
                 }`}
                 style={{
                   left: `${50 + el.position.x * 30}%`,

@@ -34,11 +34,11 @@ const STEP_CONFIG = [
 ];
 
 const TEMPLATES = [
-  { name: "Corporate", color: "from-blue-600 to-blue-800", style: "Professional" },
-  { name: "Minimal", color: "from-gray-500 to-gray-700", style: "Clean & Simple" },
+  { name: "Corporate", color: "from-emerald-600 to-teal-700", style: "Professional" },
+  { name: "Minimal", color: "from-stone-400 to-stone-600", style: "Clean & Simple" },
   { name: "Neon", color: "from-cyan-400 to-purple-500", style: "Bold & Vibrant" },
   { name: "Creative", color: "from-pink-500 to-orange-400", style: "Artistic" },
-  { name: "Dark", color: "from-gray-800 to-black", style: "Sleek & Modern" },
+  { name: "Dark", color: "from-stone-700 to-stone-900", style: "Sleek & Modern" },
   { name: "Gradient", color: "from-emerald-400 to-cyan-500", style: "Fresh & Dynamic" },
 ];
 

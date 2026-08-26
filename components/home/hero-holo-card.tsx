@@ -12,7 +12,7 @@ export function HeroHoloCard() {
           name="Usman Ashfaq"
           designation="Data Analyst"
           company="Tech Corp"
-          cardColor="#2563EB"
+          cardColor="#059669"
           socialLinks={[
             { platform: "linkedin", url: "#" },
             { platform: "twitter", url: "#" },

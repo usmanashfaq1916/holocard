@@ -109,8 +109,8 @@ export default function ExperiencesPage() {
       {experiences.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Plus className="w-8 h-8 text-blue-500" />
+              <div className="w-16 h-16 bg-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Plus className="w-8 h-8 text-primary" />
             </div>
             <h3 className="text-lg font-semibold mb-2">No AR Experiences Yet</h3>
             <p className="text-slate-500 mb-4">
@@ -128,7 +128,7 @@ export default function ExperiencesPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
                       {exp.name.charAt(0)}
                     </div>
                     <div>

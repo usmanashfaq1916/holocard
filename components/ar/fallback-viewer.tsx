@@ -120,15 +120,15 @@ export default function Fallback3DViewer(props: FallbackViewerProps) {
 
   if (contextFailed) {
     return (
-      <div className="w-full h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
+      <div className="w-full h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center">
         <div className="text-center px-6">
-          <h3 className="text-white text-lg font-semibold mb-2">3D View Unavailable</h3>
-          <p className="text-white/60 text-sm mb-6">
+          <h3 className="text-foreground text-lg font-semibold mb-2">3D View Unavailable</h3>
+          <p className="text-muted-foreground text-sm mb-6">
             Your device is low on graphics memory. Please view the digital card instead.
           </p>
           <a
             href={`/card/${props.cardSlug || props.name.toLowerCase().replace(/\s+/g, "-")}`}
-            className="inline-block bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 py-2 text-sm font-medium transition-colors"
+            className="inline-block bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6 py-2 text-sm font-medium transition-colors"
           >
             View Digital Card
           </a>
@@ -138,7 +138,7 @@ export default function Fallback3DViewer(props: FallbackViewerProps) {
   }
 
   return (
-    <div className="relative w-full h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+    <div className="relative w-full h-screen bg-gradient-to-b from-background to-muted/30">
       <Canvas camera={{ position: [0, 0, 5], fov: 42 }} gl={{ antialias: true, alpha: true, powerPreference: "default" }}>
         <ambientLight intensity={0.6} />
         <directionalLight position={[5, 5, 5]} intensity={1} />
@@ -158,17 +158,17 @@ export default function Fallback3DViewer(props: FallbackViewerProps) {
       </Canvas>
 
       {contextLost && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm z-10">
+        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10">
           <div className="text-center px-6">
-            <div className="animate-spin h-6 w-6 border-2 border-white/30 border-t-white rounded-full mx-auto mb-3" />
-            <p className="text-white text-sm font-medium">3D view paused — restoring...</p>
-            <p className="text-white/50 text-xs mt-1">Your device may be low on graphics memory.</p>
+            <div className="animate-spin h-6 w-6 border-2 border-border border-t-primary rounded-full mx-auto mb-3" />
+            <p className="text-foreground text-sm font-medium">3D view paused — restoring...</p>
+            <p className="text-muted-foreground text-xs mt-1">Your device may be low on graphics memory.</p>
           </div>
         </div>
       )}
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center">
-        <p className="text-white/60 text-sm mb-4">
+        <p className="text-muted-foreground text-sm mb-4">
           Drag to rotate • Scroll to zoom
         </p>
         <div className="flex gap-3 justify-center">
@@ -183,7 +183,7 @@ export default function Fallback3DViewer(props: FallbackViewerProps) {
           {props.email && (
             <a
               href={`mailto:${props.email}`}
-              className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 py-2 text-sm font-medium transition-colors"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6 py-2 text-sm font-medium transition-colors"
             >
               Email
             </a>

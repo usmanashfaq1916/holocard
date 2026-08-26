@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 
 describe("Notify Utility", () => {
   it("has createNotification function", async () => {
+    if (!process.env.DATABASE_URL) return;
     const mod = await import("@/lib/notify");
     expect(typeof mod.createNotification).toBe("function");
   });

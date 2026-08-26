@@ -5,12 +5,15 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { DEMO_AR_URL } from "@/lib/config";
+
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Features", href: "/#features" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Use Cases", href: "/#use-cases" },
   { label: "Pricing", href: "/#pricing" },
+  { label: "Demo", href: DEMO_AR_URL },
 ];
 
 export function Navbar() {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CONTACT_EMAIL } from "@/lib/config";
+import { CONTACT_EMAIL, DEMO_AR_URL } from "@/lib/config";
 
 export function Footer() {
   return (
@@ -38,6 +38,11 @@ export function Footer() {
               <li>
                 <Link href="/how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   How It Works
+                </Link>
+              </li>
+              <li>
+                <Link href={DEMO_AR_URL} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Demo
                 </Link>
               </li>
 

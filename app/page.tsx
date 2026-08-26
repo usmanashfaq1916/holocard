@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useRef, useEffect, useState, useCallback } from "react";
 import {
@@ -34,6 +35,7 @@ import {
   Scan,
   LinkIcon,
   Briefcase,
+  Download,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
@@ -588,18 +590,28 @@ export default function HomePage() {
             <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
               Experience HoloCard <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Yourself</span>
             </h2>
-            <p className="mx-auto mb-12 max-w-2xl text-center text-gray-400">Scan the QR code with your phone and see the card come alive.</p>
+            <p className="mx-auto mb-12 max-w-2xl text-center text-gray-400">Open the AR page on your phone, then point the camera at the target image to see the card come alive.</p>
           </motion.div>
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="flex flex-col items-center gap-6">
               <div className="glass rounded-xl p-6 shadow-lg border border-white/10 text-center">
-                <div className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">Sample HoloCard</div>
-                <div className="mb-1 text-lg font-semibold">John Doe</div>
-                <div className="text-sm text-gray-400">Software Engineer @ TechCorp</div>
+                <div className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">AR Target Image</div>
+                <Image
+                  src="/demo.png"
+                  alt="HoloCard AR target — display this image on a screen or print it"
+                  width={224}
+                  height={220}
+                  className="mx-auto rounded-lg border border-white/10"
+                />
+                <p className="mt-3 max-w-[17rem] text-xs text-gray-400">Print this image or show it on another screen, then point your phone camera at it.</p>
+                <a href="/demo.png" download className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors">
+                  <Download className="h-3 w-3" />
+                  Download image
+                </a>
               </div>
               <div className="text-2xl text-blue-400">&#8595;</div>
-              <div className="glass rounded-2xl p-4 border border-blue-400/30"><QrCode className="h-32 w-32 text-blue-400" /></div>
-              <span className="text-sm font-medium text-blue-400">Scan to experience</span>
+              <Link href={DEMO_AR_URL} aria-label="Open AR demo page" className="glass rounded-2xl p-4 border border-blue-400/30 hover:border-blue-400/60 transition-colors"><QrCode className="h-32 w-32 text-blue-400" /></Link>
+              <span className="text-sm font-medium text-blue-400">Scan QR to open the AR page on your phone</span>
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }} className="flex flex-col items-center">
               <div className="relative w-64 rounded-[2.5rem] border-4 border-gray-700 bg-gray-900 p-2 shadow-2xl">

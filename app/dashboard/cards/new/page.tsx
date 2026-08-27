@@ -76,6 +76,7 @@ export default function NewCardPage() {
   const [targetQuality, setTargetQuality] = useState<TargetQualityResult | null>(null);
   const [uploading, setUploading] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [publishErrors, setPublishErrors] = useState<string[]>([]);
 
   const steps: WorkflowStep[] = WORKFLOW_STEPS.map((s, i) => ({
     ...s,
@@ -90,7 +91,7 @@ export default function NewCardPage() {
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
-      setCardData((prev) => ({ ...prev, cardImage: data.url }));
+      setCardData((prev) => ({ ...prev, cardImage: data.url, mediaId: data.id }));
 
       const quality = await analyzeTargetQuality(data.url);
       setTargetQuality(quality);
@@ -130,28 +131,73 @@ export default function NewCardPage() {
     setCardData((prev) => ({ ...prev, slug }));
   }, []);
 
+  const validateCardData = useCallback((): string[] => {
+    const errors: string[] = [];
+    if (!cardData.name.trim()) {
+      errors.push("Name is required");
+    }
+    if (cardData.slug.length < 3) {
+      errors.push("Slug must be at least 3 characters");
+    }
+    if (cardData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cardData.email)) {
+      errors.push("Please enter a valid email address");
+    }
+    if (cardData.website && !/^https?:\/\/.+/.test(cardData.website)) {
+      errors.push("Website must start with http:// or https://");
+    }
+    return errors;
+  }, [cardData.name, cardData.slug, cardData.email, cardData.website]);
+
   const handlePublish = useCallback(async () => {
+    const errors = validateCardData();
+    if (errors.length > 0) {
+      setPublishErrors(errors);
+      return;
+    }
+    setPublishErrors([]);
     setPublishing(true);
     try {
       const res = await fetch("/api/cards", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...cardData,
+          name: cardData.name,
+          slug: cardData.slug,
+          designation: cardData.designation,
+          company: cardData.company,
+          phone: cardData.phone,
+          email: cardData.email,
+          website: cardData.website,
+          bio: cardData.bio,
+          profileImage: cardData.profileImage,
+          templateId: cardData.templateId,
           status: "ACTIVE",
           visibility: "PUBLIC",
         }),
       });
-      if (!res.ok) throw new Error("Publish failed");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Publish failed" }));
+        throw new Error(err.error || "Publish failed");
+      }
       const data = await res.json();
+
+      if (cardData.mediaId) {
+        await fetch(`/api/media?id=${cardData.mediaId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cardId: data.id }),
+        }).catch(() => {});
+      }
+
       toast.success("Card published!");
       router.push(`/dashboard/cards/${data.id}/ar`);
-    } catch {
-      toast.error("Publish failed. Please try again.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Publish failed. Please try again.";
+      toast.error(message);
     } finally {
       setPublishing(false);
     }
-  }, [cardData, router]);
+  }, [cardData, router, validateCardData]);
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -490,6 +536,16 @@ export default function NewCardPage() {
                 Publish Card
               </Button>
             </div>
+
+            {publishErrors.length > 0 && (
+              <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                <ul className="list-disc list-inside space-y-1">
+                  {publishErrors.map((e) => (
+                    <li key={e}>{e}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 

@@ -53,14 +53,13 @@ export default function AIGeneratorPage() {
         }),
       });
       const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Generation failed. Please try again.");
+        return;
+      }
       setResult(data);
     } catch {
-      setResult({
-        headline: `${profession || "Professional"} | ${industry || "Industry"}`,
-        bio: `Experienced ${profession || "professional"} with a passion for innovation and excellence in the ${industry || "industry"} sector.`,
-        about: `${name || "A dedicated professional"} with ${experience || "extensive"} experience in ${profession || "the field"}. Skilled in ${skills || "relevant areas"} and committed to delivering high-quality results.`,
-        tagline: "Driving results through innovation and expertise.",
-      });
+      toast.error("Network error. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -91,9 +90,13 @@ export default function AIGeneratorPage() {
         }),
       });
       const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Transform failed. Please try again.");
+        return;
+      }
       setResult(data);
     } catch {
-      toast.error("Transform failed. Please try again.");
+      toast.error("Network error. Please try again.");
     } finally {
       setLoading(false);
     }

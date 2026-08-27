@@ -74,13 +74,30 @@ export async function PATCH(req: Request) {
   }
 
   const body = await req.json().catch(() => ({}));
-  if (!body.filename || typeof body.filename !== "string") {
-    return NextResponse.json({ error: "Filename required" }, { status: 400 });
+
+  const data: { filename?: string; cardId?: string } = {};
+
+  if (body.filename !== undefined) {
+    if (typeof body.filename !== "string" || !body.filename.trim()) {
+      return NextResponse.json({ error: "Filename must be a non-empty string" }, { status: 400 });
+    }
+    data.filename = body.filename.trim();
+  }
+
+  if (body.cardId !== undefined) {
+    if (typeof body.cardId !== "string") {
+      return NextResponse.json({ error: "cardId must be a string" }, { status: 400 });
+    }
+    data.cardId = body.cardId || null;
+  }
+
+  if (Object.keys(data).length === 0) {
+    return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
   }
 
   const updated = await prisma.media.update({
     where: { id: mediaId },
-    data: { filename: body.filename.trim() },
+    data,
   });
 
   return NextResponse.json(updated);

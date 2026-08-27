@@ -53,6 +53,7 @@ interface CardData {
   profileImage: string;
   templateId: string;
   cardImage: string;
+  mediaId: string;
 }
 
 export default function NewCardPage() {
@@ -70,6 +71,7 @@ export default function NewCardPage() {
     profileImage: "",
     templateId: "",
     cardImage: "",
+    mediaId: "",
   });
   const [targetQuality, setTargetQuality] = useState<TargetQualityResult | null>(null);
   const [uploading, setUploading] = useState(false);

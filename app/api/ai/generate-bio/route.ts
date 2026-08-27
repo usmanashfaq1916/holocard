@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
 interface GenerateParams {
   name: string;
   role: string;
@@ -64,16 +62,23 @@ function generateTemplateContent(params: GenerateParams): { headline: string; bi
 }
 
 async function generateWithOpenAI(params: GenerateParams, action?: string, existing?: Record<string, string>): Promise<{ headline: string; bio: string; about: string; tagline: string } | null> {
-  if (!OPENAI_API_KEY) return null;
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.error("[AI] OPENAI_API_KEY not set");
+    return null;
+  }
 
   const prompt = buildPrompt(params, action, existing);
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
@@ -81,15 +86,24 @@ async function generateWithOpenAI(params: GenerateParams, action?: string, exist
         temperature: 0.7,
         max_tokens: 500,
       }),
+      signal: controller.signal,
     });
 
-    if (!response.ok) return null;
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => "unknown");
+      console.error(`[AI] OpenAI API error ${response.status}: ${errText}`);
+      return null;
+    }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content?.trim();
-    if (!content) return null;
+    if (!content) {
+      console.error("[AI] Empty response from OpenAI");
+      return null;
+    }
 
-    // Try to parse JSON from the response (strip markdown fences if present)
     const cleaned = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
     const parsed = JSON.parse(cleaned);
 
@@ -101,8 +115,10 @@ async function generateWithOpenAI(params: GenerateParams, action?: string, exist
         tagline: String(parsed.tagline),
       };
     }
+    console.error("[AI] OpenAI response missing required fields:", cleaned);
     return null;
-  } catch {
+  } catch (e) {
+    console.error("[AI] OpenAI call failed:", e);
     return null;
   }
 }
@@ -125,7 +141,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  // Map frontend field names to backend names
   const name = String(body.name || "");
   const role = String(body.profession || body.role || "");
   const skills = Array.isArray(body.skills) ? body.skills.map(String) : typeof body.skills === "string" ? body.skills.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
@@ -144,7 +159,6 @@ export async function POST(req: Request) {
 
   const params: GenerateParams = { name, role, skills, experience, industry, style };
 
-  // Try OpenAI first, then fall back to template
   const aiResult = await generateWithOpenAI(params, action, existing);
   if (aiResult) {
     return NextResponse.json({ ...aiResult, generated: true, source: "ai" });

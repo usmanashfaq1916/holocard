@@ -18,7 +18,7 @@ describe("Storage Provider Factory", () => {
   });
 
   it("StorageProvider interface has required methods", async () => {
-    const mod = await import("@/lib/storage/types");
+    await import("@/lib/storage/types");
     // Type-only check - the interface should exist
     expect(true).toBe(true);
   });

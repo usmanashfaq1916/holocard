@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Smartphone, Camera, Eye, ArrowRight } from "lucide-react";
+import { Smartphone, Camera, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackAREvent } from "@/lib/ar/analytics";
 
@@ -67,6 +68,19 @@ export default function ARPage() {
   const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
+    const fetchCard = async () => {
+      try {
+        const res = await fetch(`/api/cards/by-slug/${slug}`);
+        if (!res.ok) throw new Error("Card not found");
+        const data = await res.json();
+        setCard(data);
+        trackAREvent({ cardId: data.id, eventType: "AR_PAGE_OPENED" });
+      } catch {
+        setError("Card not found");
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchCard();
   }, [slug]);
 
@@ -76,20 +90,6 @@ export default function ARPage() {
       trackAREvent({ cardId: card?.id || "", eventType: "QR_AR_SCAN" });
     }
   }, [card]);
-
-  const fetchCard = async () => {
-    try {
-      const res = await fetch(`/api/cards/by-slug/${slug}`);
-      if (!res.ok) throw new Error("Card not found");
-      const data = await res.json();
-      setCard(data);
-      trackAREvent({ cardId: data.id, eventType: "AR_PAGE_OPENED" });
-    } catch {
-      setError("Card not found");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -108,12 +108,12 @@ export default function ARPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-2">Card Not Found</h1>
           <p className="text-muted-foreground mb-4">{error || "This card does not exist."}</p>
-          <a
+          <Link
             href="/"
             className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6 py-2 text-sm font-medium transition-colors"
           >
             Go to HoloCard
-          </a>
+          </Link>
         </div>
       </div>
     );

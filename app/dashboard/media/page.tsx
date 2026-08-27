@@ -14,7 +14,6 @@ import {
   Film,
   Box,
   Pencil,
-  CreditCard,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -34,7 +33,7 @@ interface MediaItem {
 type FilterType = "ALL" | "IMAGE" | "VIDEO" | "MODEL_3D";
 
 const filterOptions: { value: FilterType; label: string; icon: typeof ImageIcon }[] = [
-  { value: "ALL", label: "All", icon: Image as any },
+  { value: "ALL", label: "All", icon: ImageIcon },
   { value: "IMAGE", label: "Images", icon: FileImage },
   { value: "VIDEO", label: "Videos", icon: FileVideo },
   { value: "MODEL_3D", label: "3D Models", icon: FileBox },
@@ -252,6 +251,7 @@ export default function MediaPage() {
                 {/* Thumbnail */}
                 <div className="relative aspect-square bg-muted">
                   {isImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={item.url}
                       alt={item.filename}

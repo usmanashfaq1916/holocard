@@ -10,7 +10,6 @@ import {
   Paintbrush,
   Sparkles,
   ExternalLink,
-  QrCode,
   Globe,
   Lock,
   Eye,

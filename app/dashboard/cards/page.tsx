@@ -120,7 +120,8 @@ export default function CardsPage() {
     setDragOverId(id);
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
+  const handleDragLeave = (_e: React.DragEvent) => {
+    void _e;
     dragCounter.current--;
     if (dragCounter.current === 0) {
       setDragOverId(null);

@@ -21,11 +21,6 @@ import {
   Box,
   UserPlus,
   MousePointerClick,
-  TrendingUp,
-  Calendar,
-  Smartphone,
-  Monitor,
-  Globe,
 } from "lucide-react";
 
 interface AnalyticsData {

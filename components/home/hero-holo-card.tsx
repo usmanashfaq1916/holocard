@@ -1,6 +1,5 @@
 "use client";
 
-import { Suspense } from "react";
 import { LazyARModelViewer } from "@/lib/lazy-imports";
 import { DEMO_SLUG } from "@/lib/config";
 

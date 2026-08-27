@@ -132,25 +132,22 @@ export async function compileTarget(
 
   onProgress?.({ phase: "matching", progress: 0 });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataList = (await compiler.compileImageTargets([img], (p: number) => {
     const phase = p < 50 ? "matching" : "tracking";
     onProgress?.({ phase, progress: p });
-  })) as any[];
+  })) as { matchingData?: { maximaPoints: unknown[]; minimaPoints: unknown[] }[]; trackingData?: { points: unknown[] }[] }[];
 
   onProgress?.({ phase: "exporting", progress: 95 });
 
   const buffer = compiler.exportData();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const matchingFeatures = (dataList[0] as any)?.matchingData?.reduce(
+  const matchingFeatures = dataList[0]?.matchingData?.reduce(
     (sum: number, kf: { maximaPoints: unknown[]; minimaPoints: unknown[] }) =>
       sum + kf.maximaPoints.length + kf.minimaPoints.length,
     0
   ) ?? 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const trackingFeatures = (dataList[0] as any)?.trackingData?.reduce(
+  const trackingFeatures = dataList[0]?.trackingData?.reduce(
     (sum: number, tf: { points: unknown[] }) => sum + tf.points.length,
     0
   ) ?? 0;

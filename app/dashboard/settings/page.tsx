@@ -9,7 +9,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { PLANS, type PlanTier } from "@/lib/plans";
 
 interface UserData {
@@ -86,7 +85,7 @@ export default function SettingsPage() {
     if (saved) {
       applyTheme(saved);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetch("/api/dashboard/stats")
@@ -669,6 +668,7 @@ export default function SettingsPage() {
                       <div className="grid gap-4 sm:grid-cols-3">
                         <div className="rounded-xl border border-border p-4">
                           <div className="flex items-center gap-2 mb-2">
+                            {/* eslint-disable-next-line jsx-a11y/alt-text */}
                             <Image className="h-5 w-5 text-primary" />
                             <span className="text-sm font-medium">Images</span>
                           </div>

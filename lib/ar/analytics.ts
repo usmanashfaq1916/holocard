@@ -63,7 +63,7 @@ export async function trackAREvent({
 }
 
 export function useARSession(cardId: string) {
-  const sessionStart = useRef<number>(Date.now());
+  const sessionStart = useRef<number>(0);
   const hasTrackedSession = useRef(false);
 
   useEffect(() => {

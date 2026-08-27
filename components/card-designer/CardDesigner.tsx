@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
 import {
   Undo2,
   Redo2,
@@ -21,7 +20,6 @@ import {
   Loader2,
   ArrowRight,
   Image as ImageIcon,
-  Palette,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { FabricCanvasHandle } from "./FabricCanvas";
@@ -57,7 +55,6 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
   const [selectedColor, setSelectedColor] = useState("#000000");
   const [selectedFont, setSelectedFont] = useState("Arial");
   const [selectedFontSize, setSelectedFontSize] = useState(18);
-  const [activeObject, setActiveObject] = useState<string | null>(null);
 
   const handleAddText = useCallback(() => {
     const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
@@ -137,23 +134,23 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
     ref.current?.deleteSelected();
   }, [activeSide]);
 
-  const handleUndo = useCallback(() => {
-    const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
-    ref.current?.undo();
-    updateHistoryState();
-  }, [activeSide]);
-
-  const handleRedo = useCallback(() => {
-    const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
-    ref.current?.redo();
-    updateHistoryState();
-  }, [activeSide]);
-
   const updateHistoryState = useCallback(() => {
     const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
     setCanUndo(ref.current?.canUndo() ?? false);
     setCanRedo(ref.current?.canRedo() ?? false);
   }, [activeSide]);
+
+  const handleUndo = useCallback(() => {
+    const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
+    ref.current?.undo();
+    updateHistoryState();
+  }, [activeSide, updateHistoryState]);
+
+  const handleRedo = useCallback(() => {
+    const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
+    ref.current?.redo();
+    updateHistoryState();
+  }, [activeSide, updateHistoryState]);
 
   const handleExport = useCallback(() => {
     const ref = activeSide === "FRONT" ? frontCanvasRef : backCanvasRef;
@@ -254,7 +251,7 @@ export default function CardDesigner({ cardId, cardData, onSave }: CardDesignerP
       setArState("error");
       toast.error("Failed to create AR target");
     }
-  }, [cardId, cardData?.name, arExperienceId]);
+  }, [cardId, cardData, arExperienceId]);
 
   const handleTemplateChange = useCallback(
     async (style: string) => {

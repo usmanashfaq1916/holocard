@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useMemo } from "react";
 import {
   QrCode,
   Smartphone,
@@ -23,7 +23,6 @@ import {
   Lock,
   EyeOff,
   Server,
-  Camera,
   Video,
   MessageCircle,
   Mail,
@@ -135,23 +134,37 @@ const faqs = [
 ];
 
 function ParticlesBackground() {
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 30 }, (_, i) => ({
+        id: i,
+        x: ((i * 37) % 100),
+        y: ((i * 53) % 100),
+        scale: 0.5 + ((i * 13) % 50) / 100,
+        animY1: ((i * 71) % 100),
+        animY2: ((i * 43) % 100),
+        duration: 10 + ((i * 17) % 10),
+      })),
+    []
+  );
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: 30 }).map((_, i) => (
+      {particles.map((p) => (
         <motion.div
-          key={i}
+          key={p.id}
           className="absolute h-1 w-1 rounded-full bg-primary/20"
           initial={{
-            x: `${Math.random() * 100}%`,
-            y: `${Math.random() * 100}%`,
-            scale: Math.random() * 0.5 + 0.5,
+            x: `${p.x}%`,
+            y: `${p.y}%`,
+            scale: p.scale,
           }}
           animate={{
-            y: [`${Math.random() * 100}%`, `${Math.random() * 100}%`],
+            y: [`${p.animY1}%`, `${p.animY2}%`],
             opacity: [0.2, 0.6, 0.2],
           }}
           transition={{
-            duration: Math.random() * 10 + 10,
+            duration: p.duration,
             repeat: Infinity,
             ease: "linear",
           }}

@@ -14,7 +14,6 @@ import {
   LogOut,
   Bell,
   Search,
-  Check,
   Users,
   Image,
   Sparkles,

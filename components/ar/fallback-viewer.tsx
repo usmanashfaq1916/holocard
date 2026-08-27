@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
+import Image from "next/image";
 import {
   Phone,
   Mail,
@@ -9,11 +10,7 @@ import {
   ExternalLink,
   Download,
   Share2,
-  MapPin,
   User,
-  Building,
-  Video,
-  Image,
 } from "lucide-react";
 
 interface FallbackViewerProps {
@@ -120,9 +117,11 @@ export default function Fallback3DViewer(props: FallbackViewerProps) {
         {/* Profile */}
         <div className="text-center mb-8">
           {props.profileImage ? (
-            <img
+            <Image
               src={props.profileImage}
               alt={props.name}
+              width={96}
+              height={96}
               className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-border"
             />
           ) : (

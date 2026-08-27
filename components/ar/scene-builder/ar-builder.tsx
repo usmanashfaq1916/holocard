@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import {
-  Plus,
   Trash2,
   Copy,
   MoveUp,

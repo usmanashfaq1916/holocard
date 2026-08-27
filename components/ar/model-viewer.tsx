@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useRef, useState, useCallback, useMemo, useEffect } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Suspense, useRef, useState, useCallback, useEffect } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { CONTACT_EMAIL } from "@/lib/config";
 import {
   Environment,
@@ -26,7 +26,6 @@ function TiltGroup({
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const targetRotation = useRef({ x: 0, y: 0 });
-  const { size } = useThree();
 
   const handlePointerMove = useCallback(
     (e: { clientX: number; clientY: number; target: HTMLElement }) => {
@@ -134,7 +133,6 @@ function CardFront({
   name,
   designation,
   company,
-  profileImage,
   socialLinks,
 }: {
   name: string;
@@ -291,7 +289,7 @@ function CardFront({
 /* ──────────── Back face content ──────────── */
 
 function CardBack({ slug }: { slug: string }) {
-  const qrUrl = `/api/qr/${slug}`;
+  void slug;
   return (
     <group position={[0, 0, -0.026]} rotation={[0, Math.PI, 0]}>
       {/* QR code image */}
@@ -476,7 +474,7 @@ export function ARModelViewer({
     try {
       const canvas = document.createElement("canvas");
       const gl = canvas.getContext("webgl") || canvas.getContext("webgl2");
-      if (!gl) setWebglSupported(false);
+      if (!gl) setWebglSupported(false); // eslint-disable-line react-hooks/set-state-in-effect
     } catch {
       setWebglSupported(false);
     }

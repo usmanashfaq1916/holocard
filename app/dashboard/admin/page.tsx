@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import {
   Users,
   CreditCard,
@@ -82,32 +82,30 @@ export default function AdminPage() {
       });
   }, []);
 
-  const fetchUsers = useCallback(async (page: number) => {
-    try {
-      const res = await fetch(`/api/admin?users=true&page=${page}&limit=${pageSize}`);
-      if (res.ok) {
-        const d = await res.json();
-        if (d.recentUsers) setUsers(d.recentUsers);
-      }
-    } catch {}
-  }, []);
-
-  const fetchCards = useCallback(async (page: number) => {
-    try {
-      const res = await fetch(`/api/admin?cards=true&page=${page}&limit=${pageSize}`);
-      if (res.ok) {
-        const d = await res.json();
-        if (d.recentCards) setCards(d.recentCards);
-      }
-    } catch {}
-  }, []);
-
   useEffect(() => {
     if (data) {
-      fetchUsers(userPage);
-      fetchCards(cardPage);
+      const loadUsers = async (page: number) => {
+        try {
+          const res = await fetch(`/api/admin?users=true&page=${page}&limit=${pageSize}`);
+          if (res.ok) {
+            const d = await res.json();
+            if (d.recentUsers) setUsers(d.recentUsers);
+          }
+        } catch {}
+      };
+      const loadCards = async (page: number) => {
+        try {
+          const res = await fetch(`/api/admin?cards=true&page=${page}&limit=${pageSize}`);
+          if (res.ok) {
+            const d = await res.json();
+            if (d.recentCards) setCards(d.recentCards);
+          }
+        } catch {}
+      };
+      loadUsers(userPage);
+      loadCards(cardPage);
     }
-  }, [data, userPage, cardPage, fetchUsers, fetchCards]);
+  }, [data, userPage, cardPage]);
 
   const deleteUser = async (userId: string) => {
     if (!confirm("Are you sure you want to delete this user? This cannot be undone.")) return;

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import QRCodeLib from "qrcode";
 
 interface QRGeneratorProps {
@@ -11,16 +12,23 @@ interface QRGeneratorProps {
   lightColor?: string;
 }
 
+function useDarkMode() {
+  return useSyncExternalStore(
+    (callback) => {
+      const observer = new MutationObserver(callback);
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+      return () => observer.disconnect();
+    },
+    () => document.documentElement.classList.contains("dark"),
+    () => false
+  );
+}
+
 export function QRGenerator({ slug, type = "ar", size = 200, darkColor, lightColor }: QRGeneratorProps) {
   const [dataUrl, setDataUrl] = useState<string | null>(null);
-  const [isDark, setIsDark] = useState(false);
+  const isDark = useDarkMode();
   const path = type === "card" ? "card" : "ar";
   const url = `${typeof window !== "undefined" ? window.location.origin : ""}/${path}/${slug}`;
-
-  useEffect(() => {
-    const dark = document.documentElement.classList.contains("dark");
-    setIsDark(dark);
-  }, []);
 
   useEffect(() => {
     const dark = darkColor || (isDark ? "#ffffff" : "#0F172A");
@@ -43,5 +51,5 @@ export function QRGenerator({ slug, type = "ar", size = 200, darkColor, lightCol
     );
   }
 
-  return <img src={dataUrl} alt={`QR code for ${slug}`} width={size} height={size} className="rounded-lg" />;
+  return <Image src={dataUrl} alt={`QR code for ${slug}`} width={size} height={size} className="rounded-lg" />;
 }

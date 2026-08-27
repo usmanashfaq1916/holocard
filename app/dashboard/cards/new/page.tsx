@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Upload,
   Scan,
@@ -235,9 +236,11 @@ export default function NewCardPage() {
 
             {cardData.cardImage && (
               <div className="flex justify-center mb-6">
-                <img
+                <Image
                   src={cardData.cardImage}
                   alt="Uploaded business card"
+                  width={384}
+                  height={256}
                   className="max-w-xs rounded-lg border border-border"
                 />
               </div>
@@ -537,6 +540,7 @@ export default function NewCardPage() {
 }
 
 async function analyzeTargetQuality(_url: string): Promise<TargetQualityResult> {
+  void _url;
   await new Promise((r) => setTimeout(r, 1000));
   return {
     score: 75,

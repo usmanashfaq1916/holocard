@@ -16,8 +16,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Name, email, and message are required" }, { status: 400 });
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://holocard.app";
-
     const emailSent = await sendEmail({
       to: CONTACT_EMAIL,
       subject: `Contact Form: ${body.name}`,

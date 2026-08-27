@@ -3,7 +3,6 @@
 import { useState, useCallback } from "react";
 import {
   Check,
-  AlertTriangle,
   Rocket,
   QrCode,
   Eye,

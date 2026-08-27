@@ -3,13 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Plus,
-  Eye,
   Pencil,
   Trash2,
-  Globe,
   QrCode,
   BarChart3,
   Copy,
@@ -33,21 +31,20 @@ export default function ExperiencesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchExperiences = async () => {
+      try {
+        const res = await fetch("/api/ar/experiences");
+        if (res.ok) {
+          setExperiences(await res.json());
+        }
+      } catch {
+        toast.error("Failed to load experiences");
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchExperiences();
   }, []);
-
-  const fetchExperiences = async () => {
-    try {
-      const res = await fetch("/api/ar/experiences");
-      if (res.ok) {
-        setExperiences(await res.json());
-      }
-    } catch {
-      toast.error("Failed to load experiences");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this experience?")) return;

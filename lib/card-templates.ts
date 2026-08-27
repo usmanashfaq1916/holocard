@@ -1,5 +1,3 @@
-import type { ARTemplateType } from "@prisma/client";
-
 export interface CardTemplateElement {
   type: "text" | "image" | "shape" | "line" | "qr" | "social";
   label: string;

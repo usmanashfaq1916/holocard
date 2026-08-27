@@ -40,7 +40,7 @@ describe("Sharing Utilities", () => {
     const originalCreateElement = document.createElement.bind(document);
     document.createElement = vi.fn((tag: string) => {
       if (tag === "a") {
-        return { href: "", download: "", click: mockClick } as any;
+        return { href: "", download: "", click: mockClick } as unknown as HTMLAnchorElement;
       }
       return originalCreateElement(tag);
     });

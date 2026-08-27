@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Camera,
@@ -11,18 +10,16 @@ import {
   Smartphone,
   RotateCcw,
 } from "lucide-react";
-import { detectARSupport, AR_ERRORS, type ARError } from "@/lib/ar/ar-types";
+import { type ARError } from "@/lib/ar/ar-types";
 
 interface ARInstructionsProps {
   onStart: () => void;
-  onView3D: () => void;
   onViewDigital: () => void;
   cardName: string;
 }
 
 export function ARInstructions({
   onStart,
-  onView3D,
   onViewDigital,
   cardName,
 }: ARInstructionsProps) {

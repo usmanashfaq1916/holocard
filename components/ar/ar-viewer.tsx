@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ARView, ARAnchor } from "r3f-mind-ar";
 import type { ARViewHandle } from "r3f-mind-ar";
@@ -170,7 +171,7 @@ function VideoElement({ url, position, scale, loop = true }: {
     const tex = new THREE.VideoTexture(video);
     tex.minFilter = THREE.LinearFilter;
     tex.magFilter = THREE.LinearFilter;
-    setTexture(tex);
+    setTexture(tex); // eslint-disable-line react-hooks/set-state-in-effect
 
     return () => {
       video.pause();
@@ -199,7 +200,7 @@ function ImageElement({ url, position, scale }: {
   useEffect(() => {
     const loader = new THREE.TextureLoader();
     const tex = loader.load(url);
-    setTexture(tex);
+    setTexture(tex); // eslint-disable-line react-hooks/set-state-in-effect
     return () => tex.dispose();
   }, [url]);
 
@@ -344,8 +345,6 @@ function ARSceneContent({
   name,
   designation,
   company,
-  socialLinks,
-  buttons,
   phone,
   email,
   whatsapp,
@@ -358,12 +357,11 @@ function ARSceneContent({
   brandColor,
   showBranding = true,
   onInteraction,
+  onAnchorFound,
 }: {
   name: string;
   designation?: string;
   company?: string;
-  socialLinks?: { platform: string; url: string }[];
-  buttons?: { label: string; url: string }[];
   phone?: string;
   email?: string;
   whatsapp?: string;
@@ -376,6 +374,7 @@ function ARSceneContent({
   brandColor?: string;
   showBranding?: boolean;
   onInteraction: (type: string, url?: string) => void;
+  onAnchorFound?: () => void;
 }) {
   useAR();
 
@@ -390,7 +389,7 @@ function ARSceneContent({
     <ARAnchor
       target={0}
       lerp={0.15}
-      onAnchorFound={() => {}}
+      onAnchorFound={onAnchorFound || (() => {})}
       onAnchorLost={() => {}}
     >
       {/* Custom scene elements from builder */}
@@ -605,6 +604,7 @@ function generateVCard(data: {
 }
 
 export default function ARViewer(props: ARViewerProps) {
+  const router = useRouter();
   const [state, setState] = useState<ViewerState>("instructions");
   const [arError, setArError] = useState<typeof AR_ERRORS.CAMERA_DENIED | null>(null);
   const [targetFound, setTargetFound] = useState(false);
@@ -681,8 +681,7 @@ export default function ARViewer(props: ARViewerProps) {
     return (
       <ARInstructions
         onStart={handleStartAR}
-        onView3D={() => setState("fallback-3d")}
-        onViewDigital={() => (window.location.href = `/card/${props.cardSlug}`)}
+        onViewDigital={() => router.push(`/card/${props.cardSlug}`)}
         cardName={props.cardName}
       />
     );
@@ -745,8 +744,6 @@ export default function ARViewer(props: ARViewerProps) {
             name={props.cardName}
             designation={props.cardDesignation}
             company={props.cardCompany}
-            socialLinks={props.socialLinks}
-            buttons={props.buttons}
             phone={props.phone}
             email={props.email}
             whatsapp={props.whatsapp}
@@ -759,6 +756,7 @@ export default function ARViewer(props: ARViewerProps) {
             brandColor={props.brandColor}
             showBranding={props.showBranding}
             onInteraction={handleInteraction}
+            onAnchorFound={handleAnchorFound}
           />
         </ARView>
 

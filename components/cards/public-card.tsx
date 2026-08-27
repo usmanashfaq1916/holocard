@@ -606,21 +606,3 @@ export function PublicCard({ card }: { card: Card }) {
     </div>
   );
 }
-
-function parseJsonArray(value: unknown): string[] {
-  try {
-    const parsed = typeof value === "string" ? JSON.parse(value) : value;
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function parseJsonObjectArray(value: unknown): Record<string, string>[] {
-  try {
-    const parsed = typeof value === "string" ? JSON.parse(value) : value;
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}

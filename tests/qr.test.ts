@@ -17,7 +17,6 @@ describe("QR Code Generation", () => {
   });
 
   it("should default to AR for unknown types", () => {
-    const slug = "test-card";
     const type = "unknown" as string;
     const path = type === "card" ? "card" : "ar";
     expect(path).toBe("ar");

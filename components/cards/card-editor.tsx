@@ -1,4 +1,5 @@
-﻿"use client";
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
@@ -8,7 +9,7 @@ import {
   User,
   Palette,
   Link2,
-  Image,
+  Image as ImageIcon,
   MousePointerClick,
   Search,
   Plus,
@@ -174,13 +175,6 @@ const DEFAULT_VALUES: CardEditorValues = {
   visibility: "PUBLIC" as const,
 };
 
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
 export function CardEditor({ cardId, initialData }: CardEditorProps) {
   const [buttons, setButtons] = useState<CardButton[]>([]);
   const [buttonDialogOpen, setButtonDialogOpen] = useState(false);
@@ -298,7 +292,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
       if (!cardId) {
         const created = await res.json();
         toast.success("Card created");
-        window.location.href = `/dashboard/cards/${created.id}/edit`;
+        window.location.href = `/dashboard/cards/${created.id}/edit`; // eslint-disable-line @next/next/no-location-assign-relative-destination
       } else {
         toast.success("Card saved successfully");
       }
@@ -396,7 +390,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
               <TabsTrigger value="profile"><User className="h-4 w-4" />Profile</TabsTrigger>
               <TabsTrigger value="design"><Palette className="h-4 w-4" />Design</TabsTrigger>
               <TabsTrigger value="social"><Link2 className="h-4 w-4" />Social</TabsTrigger>
-              <TabsTrigger value="media"><Image className="h-4 w-4" />Media</TabsTrigger>
+              <TabsTrigger value="media"><ImageIcon className="h-4 w-4" aria-hidden="true" />Media</TabsTrigger>
               <TabsTrigger value="buttons"><MousePointerClick className="h-4 w-4" />Buttons</TabsTrigger>
               <TabsTrigger value="contact"><MessageSquare className="h-4 w-4" />Contact</TabsTrigger>
               <TabsTrigger value="3d"><Box className="h-4 w-4" />3D Card</TabsTrigger>
@@ -754,6 +748,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                 <Label>Profile Image</Label>
                 <div className="flex items-center gap-4">
                   {formValues.profileImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={formValues.profileImage}
                       alt="Profile"
@@ -774,7 +769,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                         if (file) handleUpload(file, "profile");
                       }}
                     />
-                    <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}><Image className="h-4 w-4" />{formValues.profileImage ? "Change" : "Upload"}</span>
+                    <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}><ImageIcon className="h-4 w-4" aria-hidden="true" />{formValues.profileImage ? "Change" : "Upload"}</span>
                   </label>
                 </div>
               </div>
@@ -782,6 +777,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                 <Label>Company Logo</Label>
                 <div className="flex items-center gap-4">
                   {formValues.companyLogo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={formValues.companyLogo}
                       alt="Logo"
@@ -802,7 +798,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                         if (file) handleUpload(file, "company");
                       }}
                     />
-                    <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}><Image className="h-4 w-4" />{formValues.companyLogo ? "Change" : "Upload"}</span>
+                    <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}><ImageIcon className="h-4 w-4" aria-hidden="true" />{formValues.companyLogo ? "Change" : "Upload"}</span>
                   </label>
                 </div>
               </div>
@@ -810,6 +806,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                 <Label>Cover Image</Label>
                 <div className="flex items-center gap-4">
                   {formValues.bgImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={formValues.bgImage}
                       alt="Cover"
@@ -840,7 +837,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                         }}
                       />
                       <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}>
-                        <Image className="h-4 w-4" />{formValues.bgImage ? "Change" : "Upload"}
+                        <ImageIcon className="h-4 w-4" aria-hidden="true" />{formValues.bgImage ? "Change" : "Upload"}
                       </span>
                     </label>
                   )}

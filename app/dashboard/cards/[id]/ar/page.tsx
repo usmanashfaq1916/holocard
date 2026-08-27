@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,8 +9,6 @@ import {
   ArrowLeft,
   Plus,
   Trash2,
-  Play,
-  Pause,
   Eye,
   Upload,
   Save,
@@ -21,7 +18,6 @@ import {
   Type,
   MousePointerClick,
   Volume2,
-  Globe,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -95,18 +91,13 @@ export default function ARSceneBuilderPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const router = useRouter();
   const [experience, setExperience] = useState<ExperienceData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedScene, setSelectedScene] = useState(0);
   const [selectedElement, setSelectedElement] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    fetchExperience();
-  }, [id]);
-
-  const fetchExperience = async () => {
+  const fetchExperience = useCallback(async () => {
     try {
       const res = await fetch(`/api/ar/experiences/${id}`);
       if (res.ok) {
@@ -118,7 +109,11 @@ export default function ARSceneBuilderPage({
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchExperience(); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [fetchExperience]);
 
   const currentScene = experience?.scenes[selectedScene];
 
@@ -329,6 +324,7 @@ export default function ARSceneBuilderPage({
             <h3 className="text-sm font-medium mb-2">Target Image</h3>
             {experience.target?.imageUrl ? (
               <div className="space-y-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={experience.target.imageUrl}
                   alt="Target"

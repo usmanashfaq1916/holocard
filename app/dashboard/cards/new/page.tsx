@@ -621,21 +621,3 @@ export default function NewCardPage() {
     </div>
   );
 }
-
-async function analyzeTargetQuality(_url: string): Promise<TargetQualityResult> {
-  void _url;
-  await new Promise((r) => setTimeout(r, 1000));
-  return {
-    score: 75,
-    rating: "good",
-    checks: [
-      { name: "Resolution", passed: true, score: 80, message: "Good resolution" },
-      { name: "Contrast", passed: true, score: 75, message: "Moderate contrast" },
-      { name: "Sharpness", passed: true, score: 70, message: "Moderately sharp" },
-      { name: "Feature Density", passed: true, score: 80, message: "Good feature density" },
-      { name: "Aspect Ratio", passed: true, score: 100, message: "Good business card ratio" },
-    ],
-    warnings: [],
-    recommendations: ["For best results, use indirect lighting and avoid reflections."],
-  };
-}

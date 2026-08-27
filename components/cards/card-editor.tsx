@@ -304,25 +304,38 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
   };
 
   const [bgImageUploading, setBgImageUploading] = useState(false);
+  const [profileImageUploading, setProfileImageUploading] = useState(false);
+  const [companyLogoUploading, setCompanyLogoUploading] = useState(false);
 
   const handleUpload = async (file: File, purpose: "profile" | "company" | "background") => {
     if (!cardId) {
       toast.error("Save the card before uploading images");
       return;
     }
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("cardId", cardId);
-    formData.append("purpose", purpose === "profile" ? "profile" : purpose === "company" ? "company-logo" : "background");
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
-    if (res.ok) {
-      const data = await res.json();
-      if (purpose === "profile") setValue("profileImage", data.url);
-      else if (purpose === "company") setValue("companyLogo", data.url);
-      else setValue("bgImage", data.url);
-      toast.success("Image uploaded");
-    } else {
-      toast.error("Failed to upload image");
+    const setUploading = purpose === "profile" ? setProfileImageUploading
+      : purpose === "company" ? setCompanyLogoUploading
+      : setBgImageUploading;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("cardId", cardId);
+      formData.append("purpose", purpose === "profile" ? "profile" : purpose === "company" ? "company-logo" : "background");
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        if (purpose === "profile") setValue("profileImage", data.url);
+        else if (purpose === "company") setValue("companyLogo", data.url);
+        else setValue("bgImage", data.url);
+        toast.success("Image uploaded");
+      } else {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error || "Failed to upload image");
+      }
+    } catch {
+      toast.error("Upload failed. Check your connection and try again.");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -759,18 +772,23 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                       {initials}
                     </div>
                   )}
-                  <label className="cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleUpload(file, "profile");
-                      }}
-                    />
-                    <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}><ImageIcon className="h-4 w-4" aria-hidden="true" />{formValues.profileImage ? "Change" : "Upload"}</span>
-                  </label>
+                  {profileImageUploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  ) : (
+                    <label className="cursor-pointer">
+                      <input
+                        key={`profile-${formValues.profileImage}`}
+                        type="file"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleUpload(file, "profile");
+                        }}
+                      />
+                      <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}><ImageIcon className="h-4 w-4" aria-hidden="true" />{formValues.profileImage ? "Change" : "Upload"}</span>
+                    </label>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
@@ -788,18 +806,23 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                       Logo
                     </div>
                   )}
-                  <label className="cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleUpload(file, "company");
-                      }}
-                    />
-                    <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}><ImageIcon className="h-4 w-4" aria-hidden="true" />{formValues.companyLogo ? "Change" : "Upload"}</span>
-                  </label>
+                  {companyLogoUploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  ) : (
+                    <label className="cursor-pointer">
+                      <input
+                        key={`logo-${formValues.companyLogo}`}
+                        type="file"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleUpload(file, "company");
+                        }}
+                      />
+                      <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}><ImageIcon className="h-4 w-4" aria-hidden="true" />{formValues.companyLogo ? "Change" : "Upload"}</span>
+                    </label>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
@@ -822,18 +845,13 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
                   ) : (
                     <label className="cursor-pointer">
                       <input
+                        key={`bg-${formValues.bgImage}`}
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
                         className="hidden"
-                        onChange={async (e) => {
+                        onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (!file || !cardId) return;
-                          setBgImageUploading(true);
-                          try {
-                            await handleUpload(file, "background");
-                          } finally {
-                            setBgImageUploading(false);
-                          }
+                          if (file) handleUpload(file, "background");
                         }}
                       />
                       <span className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}>

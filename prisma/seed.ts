@@ -1,24 +1,27 @@
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
-// NOTE: The demo account (usman@demo.com) is a standard USER role account.
+// NOTE: The demo account is a standard USER role account.
 // It cannot access admin routes (/api/admin/*) and can only modify its own data.
-// Credentials are NOT in the public README — use the live demo URL instead.
+// Credentials are configurable via DEMO_EMAIL / DEMO_PASSWORD env vars.
+
+const DEMO_EMAIL = process.env.DEMO_EMAIL || "demo@holocard.app";
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD || "changeme123";
 
 async function main() {
   console.log("Seeding database...");
 
-  const hashedPassword = await bcrypt.hash("demo1234", 12);
+  const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 12);
 
   const user = await prisma.user.upsert({
-    where: { email: "usman@demo.com" },
+    where: { email: DEMO_EMAIL },
     update: {},
     create: {
-      name: "Usman Ashfaq",
-      email: "usman@demo.com",
+      name: "Demo User",
+      email: DEMO_EMAIL,
       password: hashedPassword,
       company: "HoloCard",
-      designation: "Data Analyst",
+      designation: "Product Designer",
     },
   });
 
@@ -49,23 +52,23 @@ async function main() {
   console.log("Created workspace + project for demo user");
 
   const card = await prisma.card.upsert({
-    where: { slug: "usman-ashfaq" },
+    where: { slug: "demo-sample" },
     update: {},
     create: {
       userId: user.id,
       workspaceId: workspace.id,
       projectId: project.id,
-      slug: "usman-ashfaq",
-      name: "Usman Ashfaq",
-      designation: "Data Analyst",
+      slug: "demo-sample",
+      name: "Alex Johnson",
+      designation: "Product Designer",
       company: "HoloCard",
-      bio: "Passionate data analyst with expertise in Python, SQL, Power BI, and Data Visualization. Turning raw data into actionable insights.",
-      email: "usman@holocard.com",
-      phone: "+1 234 567 890",
+      bio: "Creative product designer with a passion for building beautiful, user-centered digital experiences. Specializing in AR and interactive design.",
+      email: "alex@holocard.com",
+      phone: "+1 555 0100",
       website: "https://holocard.com",
-      linkedin: "https://linkedin.com/in/usman-ashfaq",
-      twitter: "https://x.com/usman-ashfaq",
-      location: "New York, NY",
+      linkedin: "https://linkedin.com/in/alexjohnson",
+      twitter: "https://x.com/alexjohnson",
+      location: "San Francisco, CA",
       status: "ACTIVE",
     },
   });

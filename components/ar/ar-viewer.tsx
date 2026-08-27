@@ -19,6 +19,7 @@ import { detectARSupport, AR_ERRORS } from "@/lib/ar/ar-types";
 import { useARSession } from "@/lib/ar/analytics";
 import { DataAnalystScene } from "./scenes/data-analyst-scene";
 import { sanitize } from "@/lib/sanitize";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 const Fallback3DViewer = dynamic(() => import("./fallback-viewer"), {
   ssr: false,
@@ -677,6 +678,16 @@ export default function ARViewer(props: ARViewerProps) {
     trackEvent("AR_INTERACTION", { type: "save-contact" });
   }, [props, trackEvent]);
 
+  useEffect(() => {
+    if (state !== "ar" || targetFound) return;
+    const timeout = setTimeout(() => {
+      if (!targetFound) {
+        setState("fallback-3d");
+      }
+    }, 8000);
+    return () => clearTimeout(timeout);
+  }, [state, targetFound]);
+
   if (state === "instructions") {
     return (
       <ARInstructions
@@ -720,7 +731,16 @@ export default function ARViewer(props: ARViewerProps) {
   if (state === "ar") {
     return (
       <div className="relative w-full h-screen">
-        <ARView
+        <ErrorBoundary fallback={
+          <div className="flex flex-col items-center justify-center min-h-screen bg-background p-6 text-center">
+            <p className="text-sm font-medium mb-2">AR experience failed to load</p>
+            <p className="text-xs text-muted-foreground mb-4">Try viewing the digital card instead.</p>
+            <button onClick={() => setState("fallback-3d")} className="rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+              View Digital Card
+            </button>
+          </div>
+        }>
+          <ARView
           ref={arRef}
           imageTargets={props.mindFileUrl}
           maxTrack={1}
@@ -759,6 +779,7 @@ export default function ARViewer(props: ARViewerProps) {
             onAnchorFound={handleAnchorFound}
           />
         </ARView>
+        </ErrorBoundary>
 
         <ARStatusOverlay isTracking={isTracking} targetFound={targetFound} animPhase={animPhase} />
 

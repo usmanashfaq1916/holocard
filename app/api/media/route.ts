@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth/config";
 import { getStorage } from "@/lib/storage";
+import { extractStorageKey } from "@/lib/storage/key";
 
 export async function GET() {
   const session = await auth();
@@ -37,14 +38,9 @@ export async function DELETE(req: Request) {
 
   try {
     const storage = await getStorage();
-    const url = media.url;
-    const bucketPrefix = process.env.STORAGE_DRIVER === "minio"
-      ? `${process.env.MINIO_BUCKET || "holocard"}/`
-      : "holocard-uploads/";
-
-    const keyMatch = url.split(bucketPrefix);
-    if (keyMatch.length > 1) {
-      await storage.delete(keyMatch[1]);
+    const key = extractStorageKey(media.url);
+    if (key) {
+      await storage.delete(key);
     }
   } catch {
     // Continue even if storage delete fails

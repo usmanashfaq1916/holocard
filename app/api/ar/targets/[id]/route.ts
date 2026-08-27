@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { prisma } from "@/lib/db";
 import { getStorage } from "@/lib/storage";
+import { extractStorageKey } from "@/lib/storage/key";
 
 export async function GET(
   _request: NextRequest,
@@ -57,14 +58,14 @@ export async function DELETE(
     const storage = await getStorage();
 
     if (target.mindFileUrl) {
-      const mindKey = target.mindFileUrl.split("/holocard-uploads/")[1];
+      const mindKey = extractStorageKey(target.mindFileUrl);
       if (mindKey) {
         try { await storage.delete(mindKey); } catch { /* continue */ }
       }
     }
 
     if (target.imageUrl) {
-      const imgKey = target.imageUrl.split("/holocard-uploads/")[1];
+      const imgKey = extractStorageKey(target.imageUrl);
       if (imgKey) {
         try { await storage.delete(imgKey); } catch { /* continue */ }
       }

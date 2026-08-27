@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { prisma } from "@/lib/db";
 import { getStorage } from "@/lib/storage";
+import { extractStorageKey } from "@/lib/storage/key";
 
 const CONFIRMATION_TEXT = "DELETE";
 
@@ -64,13 +65,9 @@ export async function POST(request: Request) {
 
     for (const fileUrl of allFiles) {
       try {
-        const bucketPrefix =
-          process.env.STORAGE_DRIVER === "minio"
-            ? `${process.env.MINIO_BUCKET || "holocard"}/`
-            : "holocard-uploads/";
-        const keyMatch = fileUrl.split(bucketPrefix);
-        if (keyMatch.length > 1) {
-          await storage.delete(keyMatch[1]);
+        const key = extractStorageKey(fileUrl);
+        if (key) {
+          await storage.delete(key);
         }
       } catch {
         // Continue even if storage delete fails

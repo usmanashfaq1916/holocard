@@ -415,7 +415,11 @@ function HoloCardScene({
       <directionalLight position={[-3, 2, 4]} intensity={0.3} color="#a0d4ff" />
       <LightSweep />
 
-      <Suspense fallback={null}>
+      <Suspense fallback={
+        <div className="flex items-center justify-center h-full">
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        </div>
+      }>
         <Environment preset="city" />
         <Float speed={1.5} rotationIntensity={0.15} floatIntensity={0.4}>
           <HoloCardBody
@@ -479,7 +483,7 @@ export function ARModelViewer({
       setWebglSupported(false);
     }
 
-    const timeout = setTimeout(() => setLoading(false), 15000);
+    const timeout = setTimeout(() => setLoading(false), 8000);
     return () => clearTimeout(timeout);
   }, []);
 

@@ -82,7 +82,7 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-**Live demo:** [holocard-fawn.vercel.app](https://holocard-fawn.vercel.app) — try the public card at `/card/usman-ashfaq`
+**Live demo:** [holocard-fawn.vercel.app](https://holocard-fawn.vercel.app) — try the public card at `/card/demo-sample`
 
 ## Architecture
 

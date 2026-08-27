@@ -17,13 +17,15 @@ interface ShareButtonsProps {
 export function ShareButtons({ slug, name, designation, company, phone, email: cardEmail, website }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
+  const base = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : "");
+  const cardUrl = `${base}/card/${slug}`;
+
   const handleNativeShare = async () => {
     await shareCard({ name, slug, designation });
   };
 
   const handleCopy = async () => {
-    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-    const success = await copyToClipboard(`${baseUrl}/card/${slug}`);
+    const success = await copyToClipboard(cardUrl);
     if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -35,9 +37,11 @@ export function ShareButtons({ slug, name, designation, company, phone, email: c
   const handleEmail = () => shareViaEmail({ name, slug });
   const handleVCard = () => downloadVCard({ name, designation, company, phone, email: cardEmail, website });
 
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out ${name}'s digital business card`)}`;
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== "undefined" ? `${window.location.origin}/card/${slug}` : "")}`;
-  const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(typeof window !== "undefined" ? `${window.location.origin}/card/${slug}` : "")}&text=${encodeURIComponent(`Check out ${name}'s digital business card`)}`;
+  const shareText = encodeURIComponent(`Check out ${name}'s digital business card`);
+  const encodedUrl = encodeURIComponent(cardUrl);
+  const twitterUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${shareText}`;
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+  const telegramUrl = `https://t.me/share/url?url=${encodedUrl}&text=${shareText}`;
 
   return (
     <div className="flex flex-wrap justify-center gap-2">

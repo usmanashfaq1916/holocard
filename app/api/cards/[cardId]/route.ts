@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth/config";
 import { cardSchema } from "@/lib/validation";
 import { getStorage } from "@/lib/storage";
+import { extractStorageKey } from "@/lib/storage/key";
 import { sendCardPublishedEmail } from "@/lib/email";
 
 interface RouteParams {
@@ -187,12 +188,9 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
 
   for (const item of media) {
     try {
-      const bucketPrefix = process.env.STORAGE_DRIVER === "minio"
-        ? `${process.env.MINIO_BUCKET || "holocard"}/`
-        : "holocard-uploads/";
-      const keyMatch = item.url.split(bucketPrefix);
-      if (keyMatch.length > 1) {
-        await storage.delete(keyMatch[1]);
+      const key = extractStorageKey(item.url);
+      if (key) {
+        await storage.delete(key);
       }
     } catch {
       // Continue even if storage delete fails

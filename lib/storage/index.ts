@@ -15,7 +15,16 @@ export async function getStorage(): Promise<StorageProvider> {
     _provider = new MinIOProvider();
   } else {
     const { SupabaseProvider } = await import("./supabase");
-    _provider = new SupabaseProvider();
+    const primary = new SupabaseProvider();
+
+    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+      const { CloudinaryProvider } = await import("./cloudinary");
+      const fallback = new CloudinaryProvider();
+      const { CompositeStorageProvider } = await import("./composite");
+      _provider = new CompositeStorageProvider(primary, fallback, "cloudinary");
+    } else {
+      _provider = primary;
+    }
   }
 
   return _provider;

@@ -8,9 +8,9 @@ export function HeroHoloCard() {
     <div className="relative">
       <div className="glass animate-float rounded-2xl p-2 glow-md">
         <LazyARModelViewer
-          name="Usman Ashfaq"
-          designation="Data Analyst"
-          company="Tech Corp"
+          name="Alex Johnson"
+          designation="Product Designer"
+          company="HoloCard"
           cardColor="#059669"
           socialLinks={[
             { platform: "linkedin", url: "#" },

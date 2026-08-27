@@ -10,17 +10,12 @@ Live: `https://holocard-fawn.vercel.app`
 
 ## Phase 1 — Remove exposed demo credentials (Security, do this first)
 
-**Problem:** The README currently prints a working demo login in plain text:
-`usman@demo.com` / `demo1234`
-
-This is publicly visible to anyone who opens the repo from the site's footer link.
+**Problem:** The README previously contained a working demo login in plain text.
+Credentials should never appear in public-facing documentation.
 
 **Tasks:**
-1. Remove the literal email/password pair from `README.md`.
-2. Replace it with a pointer to how the demo account is created, e.g.:
-   > "A demo account is seeded via `pnpm db:seed` — see `prisma/seed.ts` for credentials used in local development."
-3. Open `prisma/seed.ts` (or wherever the seed script lives) and confirm the demo password is not something guessable/reused elsewhere. If it's fine for a local dev seed, leave it, but never print it in a public-facing doc again.
-4. If a hosted demo login is still needed for recruiters/visitors, consider gating it behind a "Request Demo Access" link/email instead of a public credential.
+1. Verify `README.md` no longer contains any credential pair.
+2. The demo account is seeded via `pnpm db:seed` — see `prisma/seed.ts` for credentials used in local development (configurable via `DEMO_EMAIL` / `DEMO_PASSWORD` env vars).
 
 **Verify before moving on:**
 - [ ] `README.md` no longer contains any real credential pair

@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { WorkflowProgress, type WorkflowStep } from "@/components/workflow/workflow-progress";
 import { TargetQualityDisplay } from "@/components/ar/target-quality-display";
+import { analyzeTargetQuality } from "@/lib/ar/target-quality";
 import type { TargetQualityResult } from "@/lib/ar/target-quality";
 
 const WORKFLOW_STEPS = [
@@ -95,6 +96,30 @@ export default function NewCardPage() {
 
       const quality = await analyzeTargetQuality(data.url);
       setTargetQuality(quality);
+
+      const extractRes = await fetch("/api/ai/extract-card", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: data.url }),
+      });
+      if (extractRes.ok) {
+        const { extracted } = await extractRes.json();
+        if (extracted) {
+          setCardData((prev) => ({
+            ...prev,
+            name: extracted.name || prev.name,
+            slug: extracted.name
+              ? (prev.slug || extracted.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""))
+              : prev.slug,
+            designation: extracted.designation || prev.designation,
+            company: extracted.company || prev.company,
+            phone: extracted.phone || prev.phone,
+            email: extracted.email || prev.email,
+            website: extracted.website || prev.website,
+          }));
+          toast.success("Card info extracted — review in the next step");
+        }
+      }
 
       toast.success("Card image uploaded");
       setCurrentStep(1);

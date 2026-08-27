@@ -259,6 +259,7 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
         setValue(f as any, card[f] as any);
       }
     });
+    if (card.status) setCardStatus(card.status);
   }, [cardId, setValue]);
 
   const loadButtons = useCallback(async () => {
@@ -306,6 +307,22 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
   const [bgImageUploading, setBgImageUploading] = useState(false);
   const [profileImageUploading, setProfileImageUploading] = useState(false);
   const [companyLogoUploading, setCompanyLogoUploading] = useState(false);
+  const [cardStatus, setCardStatus] = useState<"ACTIVE" | "DRAFT" | "ARCHIVED" | "DISABLED">("DRAFT");
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (!cardId) return;
+    const res = await fetch(`/api/cards/${cardId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    if (res.ok) {
+      setCardStatus(newStatus as typeof cardStatus);
+      toast.success(`Card status: ${newStatus.toLowerCase()}`);
+    } else {
+      toast.error("Failed to update status");
+    }
+  };
 
   const handleUpload = async (file: File, purpose: "profile" | "company" | "background") => {
     if (!cardId) {
@@ -395,6 +412,21 @@ export function CardEditor({ cardId, initialData }: CardEditorProps) {
               {cardId ? "Update your digital card" : "Create a new digital business card"}
             </p>
           </div>
+          {cardId && (
+            <div className="ml-auto flex items-center gap-2">
+              <Label className="text-xs text-muted-foreground whitespace-nowrap">Status</Label>
+              <select
+                value={cardStatus}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                className="h-8 rounded-md border border-input bg-background px-2 text-sm"
+              >
+                <option value="DRAFT">Draft</option>
+                <option value="ACTIVE">Active</option>
+                <option value="ARCHIVED">Archived</option>
+                <option value="DISABLED">Disabled</option>
+              </select>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>

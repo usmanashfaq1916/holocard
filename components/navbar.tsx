@@ -8,10 +8,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { DEMO_AR_URL } from "@/lib/config";
 
 const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Features", href: "/#features" },
+  { label: "Product", href: "/#features" },
+  { label: "Templates", href: "/templates" },
   { label: "How It Works", href: "/#how-it-works" },
-  { label: "Use Cases", href: "/#use-cases" },
   { label: "Pricing", href: "/#pricing" },
   { label: "Demo", href: DEMO_AR_URL },
 ];
@@ -62,7 +61,7 @@ export function Navbar() {
             href="/register"
             className={buttonVariants({ variant: "default" }) + " bg-primary text-primary-foreground hover:bg-primary/90"}
           >
-            Create HoloCard
+            Create AR Card
           </Link>
         </div>
 
@@ -104,7 +103,7 @@ export function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className={buttonVariants({ variant: "default" }) + " bg-primary text-primary-foreground hover:bg-primary/90"}
               >
-                Create HoloCard
+                Create AR Card
               </Link>
             </div>
           </nav>

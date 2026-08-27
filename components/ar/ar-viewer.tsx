@@ -85,11 +85,13 @@ function AnimatedGroup({
   delay,
   children,
   liftY = 0.08,
+  animationType = "fade-in",
 }: {
   visible: boolean;
   delay: number;
   children: React.ReactNode;
   liftY?: number;
+  animationType?: string;
 }) {
   const ref = useRef<THREE.Group>(null);
   const startTime = useRef(-1);
@@ -102,13 +104,36 @@ function AnimatedGroup({
     const t = visible ? Math.min(Math.max((elapsed - delay) / 0.5, 0), 1) : 0;
     const ease = t * t * (3 - 2 * t);
     ref.current.visible = t > 0.001;
-    ref.current.position.y = THREE.MathUtils.lerp(-liftY, 0, ease);
+
+    switch (animationType) {
+      case "scale-in":
+        ref.current.scale.set(ease, ease, ease);
+        break;
+      case "slide-in":
+        ref.current.position.y = THREE.MathUtils.lerp(liftY, 0, ease);
+        break;
+      case "float":
+        ref.current.position.y = visible ? Math.sin(elapsed * 2) * 0.05 : 0;
+        break;
+      case "bounce":
+        ref.current.position.y = visible ? Math.abs(Math.sin(elapsed * 3)) * 0.1 : 0;
+        break;
+      case "pulse":
+        if (visible) {
+          const pulse = 1 + Math.sin(elapsed * 4) * 0.05;
+          ref.current.scale.set(pulse, pulse, pulse);
+        }
+        break;
+      default:
+        ref.current.position.y = THREE.MathUtils.lerp(-liftY, 0, ease);
+    }
+
     ref.current.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
         const mat = child.material as THREE.MeshPhysicalMaterial | THREE.MeshBasicMaterial;
         if ("opacity" in mat) {
           mat.transparent = true;
-          mat.opacity = ease;
+          mat.opacity = animationType === "pulse" ? 1 : ease;
         }
       }
     });
@@ -375,7 +400,8 @@ function ARSceneContent({
             <AnimatedGroup
               key={el.id || el.order}
               visible={targetFound}
-              delay={0.3 + el.order * 0.25}
+              delay={0.3 + el.order * 0.3}
+              animationType={el.animation?.type || "fade-in"}
             >
               <SceneElement element={el} onAction={onInteraction} />
             </AnimatedGroup>
@@ -739,26 +765,26 @@ export default function ARViewer(props: ARViewerProps) {
         <ARStatusOverlay isTracking={isTracking} targetFound={targetFound} animPhase={animPhase} />
 
         {/* Top bar */}
-        <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-50">
-          <div className="bg-black/50 backdrop-blur-md rounded-full px-4 py-2 text-white text-sm font-medium">
+        <div className="absolute top-0 left-0 right-0 p-3 flex justify-between items-center z-50 safe-area-top">
+          <div className="bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5 text-white text-xs font-medium">
             {props.cardName}
           </div>
           <button
             onClick={() => setState("fallback-3d")}
-            className="bg-black/50 backdrop-blur-md rounded-full px-4 py-2 text-white text-sm hover:bg-black/70 transition-colors"
+            className="bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5 text-white text-xs hover:bg-black/70 transition-colors"
           >
-            View in 3D
+            Digital Card
           </button>
         </div>
 
         {/* Bottom bar with contact actions */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 z-50">
-          <div className="flex justify-center gap-2">
+        <div className="absolute bottom-0 left-0 right-0 p-3 z-50 safe-area-bottom">
+          <div className="flex justify-center gap-1.5 flex-wrap">
             {props.phone && (
               <a
                 href={`tel:${props.phone}`}
                 onClick={() => trackEvent("CTA_CLICK", { type: "phone" })}
-                className="bg-green-500 hover:bg-green-600 text-white rounded-full px-4 py-2 text-sm font-medium transition-colors"
+                className="bg-green-500 hover:bg-green-600 active:bg-green-700 text-white rounded-full px-3 py-2 text-xs font-medium transition-colors min-h-[44px] flex items-center"
               >
                 Call
               </a>
@@ -767,7 +793,7 @@ export default function ARViewer(props: ARViewerProps) {
               <a
                 href={`mailto:${props.email}`}
                 onClick={() => trackEvent("CTA_CLICK", { type: "email" })}
-                className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 text-sm font-medium transition-colors"
+                className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-full px-3 py-2 text-xs font-medium transition-colors min-h-[44px] flex items-center"
               >
                 Email
               </a>
@@ -776,14 +802,14 @@ export default function ARViewer(props: ARViewerProps) {
               <a
                 href={`https://wa.me/${props.whatsapp.replace(/\D/g, "")}`}
                 onClick={() => trackEvent("CTA_CLICK", { type: "whatsapp" })}
-                className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 py-2 text-sm font-medium transition-colors"
+                className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-full px-3 py-2 text-xs font-medium transition-colors min-h-[44px] flex items-center"
               >
                 WhatsApp
               </a>
             )}
             <button
               onClick={handleSaveContact}
-              className="bg-purple-500 hover:bg-purple-600 text-white rounded-full px-4 py-2 text-sm font-medium transition-colors"
+              className="bg-purple-500 hover:bg-purple-600 active:bg-purple-700 text-white rounded-full px-3 py-2 text-xs font-medium transition-colors min-h-[44px] flex items-center"
             >
               Save Contact
             </button>

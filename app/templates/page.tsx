@@ -5,9 +5,9 @@ import { TemplateGrid } from "@/components/templates/template-grid";
 import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = {
-  title: "Templates",
+  title: "AR Templates",
   description:
-    "Choose from professionally designed templates for your AR business card.",
+    "Choose from professionally designed AR templates for your business card. Each template creates a unique augmented reality experience.",
 };
 
 const FALLBACK_TEMPLATES = [
@@ -147,11 +147,12 @@ export default async function TemplatesPage() {
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-24">
         <div className="mb-16 text-center">
           <h1 className="mb-4 text-4xl font-bold md:text-5xl">
-            <span className="text-gradient">Templates</span>
+            <span className="text-gradient">AR Templates</span>
           </h1>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Choose a professionally designed template and customize it to match
-            your brand. Each template features a unique layout and style.
+            Choose a professionally designed AR template and customize it to match
+            your brand. Each template creates a unique augmented reality experience
+            when your card is scanned.
           </p>
         </div>
         <TemplateGrid templates={templates} />

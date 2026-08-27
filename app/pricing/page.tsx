@@ -15,11 +15,12 @@ export default function PricingPage() {
       period: "forever",
       description: "Perfect for getting started",
       features: [
-        "1 business card",
+        "1 AR business card",
         "Basic templates",
-        "QR code",
+        "QR code generation",
         "Basic analytics",
         "Save contact (.vcf)",
+        "Public URL",
       ],
       cta: "Get Started",
       highlighted: false,
@@ -32,9 +33,9 @@ export default function PricingPage() {
       features: [
         "Unlimited cards",
         "Premium templates",
-        "AR experiences",
+        "Advanced AR effects",
         "Custom branding",
-        "Advanced analytics",
+        "Detailed analytics",
         "Priority support",
         "5GB storage",
       ],
@@ -48,11 +49,8 @@ export default function PricingPage() {
       description: "For teams and companies",
       features: [
         "Everything in Pro",
-        "Team accounts",
+        "Team management",
         "Company branding",
-        "Admin controls",
-        "API access",
-        "SSO authentication",
         "Dedicated support",
         "25GB storage",
       ],
@@ -71,6 +69,9 @@ export default function PricingPage() {
           </h1>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
             Choose the plan that fits your needs. Upgrade anytime.
+          </p>
+          <p className="mt-4 text-sm text-primary font-medium">
+            Early Access — Create your first AR business card free.
           </p>
         </div>
         <div className="grid gap-8 md:grid-cols-3">

@@ -34,19 +34,19 @@ export function ARInstructions({
             <Smartphone className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-2">
-            Bring Your HoloCard to Life
+            Bring This Card to Life
           </h1>
           <p className="text-muted-foreground">
-            Experience {cardName}&apos;s business card in augmented reality
+            Point your camera at {cardName}&apos;s business card to see the AR experience
           </p>
         </div>
 
         <div className="space-y-4 mb-8 text-left">
           {[
-            { step: "1", text: "Allow camera access when prompted" },
-            { step: "2", text: "Point your camera at the HoloCard" },
-            { step: "3", text: "Keep the entire card visible in frame" },
-            { step: "4", text: "Watch your AR experience appear!" },
+            { step: "1", text: "Tap Start AR and allow camera access" },
+            { step: "2", text: "Point your camera at the physical business card" },
+            { step: "3", text: "Keep the entire card visible in the frame" },
+            { step: "4", text: "Watch the AR content appear on top of the card" },
           ].map(({ step, text }) => (
             <div key={step} className="flex items-start gap-3">
               <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold flex-shrink-0">
@@ -60,26 +60,16 @@ export function ARInstructions({
         <div className="space-y-3">
           <Button onClick={onStart} className="w-full" size="lg">
             <Camera className="w-5 h-5 mr-2" />
-            Start AR Experience
+            Start AR
           </Button>
-          <div className="flex gap-3">
-            <Button
-              onClick={onView3D}
-              variant="outline"
-              className="flex-1"
-            >
-              <Eye className="w-4 h-4 mr-1" />
-              View in 3D
-            </Button>
-            <Button
-              onClick={onViewDigital}
-              variant="outline"
-              className="flex-1"
-            >
-              <ArrowRight className="w-4 h-4 mr-1" />
-              Digital Card
-            </Button>
-          </div>
+          <Button
+            onClick={onViewDigital}
+            variant="outline"
+            className="w-full"
+          >
+            <ArrowRight className="w-4 h-4 mr-2" />
+            View Digital Card
+          </Button>
         </div>
       </div>
     </div>
@@ -119,6 +109,12 @@ export function ARErrorScreen({ error, onRetry, onView3D }: ARErrorScreenProps) 
         </div>
         <h2 className="text-xl font-bold text-foreground mb-2">{error.message}</h2>
         <p className="text-muted-foreground mb-6">{error.suggestion}</p>
+        <div className="bg-muted/50 rounded-lg p-4 mb-6 text-left">
+          <p className="text-sm font-medium text-foreground mb-2">What happened:</p>
+          <p className="text-sm text-muted-foreground mb-3">{error.message}</p>
+          <p className="text-sm font-medium text-foreground mb-2">How to fix it:</p>
+          <p className="text-sm text-muted-foreground">{error.suggestion}</p>
+        </div>
         <div className="flex gap-3 justify-center">
           {onRetry && (
             <Button onClick={onRetry} variant="outline">
@@ -147,10 +143,12 @@ interface ARStatusOverlayProps {
 export function ARStatusOverlay({ isTracking, targetFound, animPhase = 0 }: ARStatusOverlayProps) {
   if (!isTracking) return null;
 
-  let statusText = "Point camera at the HoloCard...";
+  let statusText = "Point camera at the business card...";
   let statusColor = "bg-black/50 text-white";
+  let showTips = !targetFound;
 
   if (targetFound) {
+    showTips = false;
     statusColor = "bg-green-500/90 text-white";
     if (animPhase < 1) {
       statusText = "Card detected!";
@@ -159,17 +157,31 @@ export function ARStatusOverlay({ isTracking, targetFound, animPhase = 0 }: ARSt
     } else if (animPhase < 3) {
       statusText = "Loading 3D content...";
     } else {
-      statusText = "Ready!";
+      statusText = "AR Active";
     }
   }
 
   return (
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50">
-      <div
-        className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md transition-all ${statusColor}`}
-      >
-        {statusText}
+    <>
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50">
+        <div
+          className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md transition-all ${statusColor}`}
+        >
+          {statusText}
+        </div>
       </div>
-    </div>
+      {showTips && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 max-w-xs">
+          <div className="bg-black/70 backdrop-blur-md rounded-xl px-4 py-3 text-white text-xs space-y-1">
+            <p className="font-medium mb-2">Tips for better tracking:</p>
+            <p>- Move closer to the card</p>
+            <p>- Improve lighting conditions</p>
+            <p>- Keep the card inside the frame</p>
+            <p>- Avoid glare and reflections</p>
+            <p>- Hold steady for a moment</p>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -197,10 +197,17 @@ export default function CardsPage() {
           ))}
         </div>
       ) : cards.length === 0 ? (
-        <div className="glass flex flex-col items-center justify-center rounded-xl p-12">
-          <p className="text-muted-foreground">No cards yet</p>
-          <Link href="/dashboard/cards/new" className={buttonVariants({ variant: "default", className: "mt-4" })}>
-            Create Your First Card
+        <div className="glass flex flex-col items-center justify-center rounded-xl p-12 text-center">
+          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
+            <Sparkles className="w-8 h-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Create Your First AR Card</h3>
+          <p className="text-sm text-muted-foreground max-w-sm mb-6">
+            Upload a physical business card and transform it into an interactive AR experience.
+          </p>
+          <Link href="/dashboard/cards/new" className={buttonVariants({ variant: "default" })}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create AR Card
           </Link>
         </div>
       ) : (

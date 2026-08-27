@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect, useState, useCallback } from "react";
 import {
   QrCode,
@@ -44,45 +44,13 @@ import { HeroHoloCard } from "@/components/home/hero-holo-card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { DEMO_CARD_URL, DEMO_AR_URL } from "@/lib/config";
 
-function AnimatedCounter({ target, duration = 2 }: { target: number; duration?: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!isInView) return;
-    let start = 0;
-    const end = target;
-    const stepTime = (duration * 1000) / end;
-    const timer = setInterval(() => {
-      start += Math.ceil(end / (duration * 60));
-      if (start >= end) {
-        setCount(end);
-        clearInterval(timer);
-      } else {
-        setCount(start);
-      }
-    }, 1000 / 60);
-    return () => clearInterval(timer);
-  }, [isInView, target, duration]);
-
-  return <span ref={ref}>{count.toLocaleString()}</span>;
-}
-
-const capabilities = [
-  { icon: Sparkles, label: "Create" },
-  { icon: QrCode, label: "Share" },
-  { icon: Scan, label: "Scan" },
-  { icon: Eye, label: "Experience" },
-  { icon: Users, label: "Connect" },
-  { icon: BarChart3, label: "Track" },
-];
-
 const steps = [
-  { num: "01", title: "Create", desc: "Design your digital card with our intuitive editor. Add your photo, bio, links, and branding.", icon: Palette },
-  { num: "02", title: "Share", desc: "Get a unique QR code and URL. Print it on physical cards or share digitally.", icon: QrCode },
-  { num: "03", title: "Scan", desc: "Someone scans your QR code. Your profile loads instantly in their mobile browser.", icon: Smartphone },
-  { num: "04", title: "Experience", desc: "Point the camera at your card and watch it come alive with 3D, video, and interactive buttons.", icon: Eye },
+  { num: "01", title: "Upload", desc: "Upload your existing printed business card.", icon: Smartphone },
+  { num: "02", title: "Build", desc: "Add videos, images, 3D models and interactive buttons.", icon: Sparkles },
+  { num: "03", title: "Publish", desc: "Generate your unique AR experience and QR code.", icon: QrCode },
+  { num: "04", title: "Scan", desc: "Someone scans the QR code on your card.", icon: Scan },
+  { num: "05", title: "Point", desc: "They point their phone camera at the physical card.", icon: Eye },
+  { num: "06", title: "Experience", desc: "Watch the business card come alive with interactive AR content.", icon: Share2 },
 ];
 
 const cardFields = [
@@ -115,7 +83,7 @@ const features = [
   { icon: BarChart3, title: "Analytics", desc: "Track visits, scans and engagement." },
   { icon: Palette, title: "Custom Branding", desc: "Use your own colors, logo and visual identity." },
   { icon: Globe, title: "Custom URL", desc: "Give every profile a memorable HoloCard URL." },
-  { icon: Shield, title: "Secure", desc: "Enterprise-grade security protecting your data." },
+  { icon: Shield, title: "Secure", desc: "Your data is stored securely. You control visibility." },
   { icon: Zap, title: "Fast", desc: "Lightning-fast performance on all devices." },
 ];
 
@@ -154,14 +122,16 @@ const pricingPlans = [
 ];
 
 const faqs = [
-  { q: "What is HoloCard?", a: "HoloCard is a platform that creates interactive digital business cards with Augmented Reality experiences. Your contacts can scan your QR code and see your professional profile come alive in 3D." },
-  { q: "How does the AR experience work?", a: "When someone scans your QR code or opens your link on a mobile device, they can activate AR mode to see your 3D profile card floating in front of them. They can rotate it, interact with it, and save your contact details directly." },
-  { q: "Do I need to install an app?", a: "No app installation is required. HoloCard works directly in mobile browsers using WebAR technology. Simply share your link or QR code and your contacts can experience AR instantly." },
-  { q: "Can I create multiple cards?", a: "Yes! Free users get 1 card, while Pro and Business users can create unlimited cards. This is perfect for having separate cards for different professional contexts like networking, sales, or personal branding." },
-  { q: "Is my data secure?", a: "Absolutely. We use enterprise-grade encryption and security practices. Your data is stored securely, and you have full control over what information is displayed publicly. We never sell your data to third parties." },
-  { q: "Can I track who viewed my card?", a: "Yes, our analytics dashboard provides insights into views, QR scans, contact saves, and engagement metrics. Pro and Business users get detailed analytics including geographic data and referral sources." },
-  { q: "How much does it cost?", a: "HoloCard offers a generous free tier with 1 card and core features. Pro plans start at $9/month with unlimited cards, premium templates, and advanced analytics. Business plans include team management and priority support." },
-  { q: "What devices are supported?", a: "HoloCard works on all modern browsers across iOS, Android, Windows, macOS, and Linux. The AR experience is optimized for mobile devices with ARCore (Android) or ARKit (iOS) support." },
+  { q: "What is HoloCard?", a: "HoloCard transforms your physical business card into an interactive AR experience. Upload your card, build your AR content, publish, and print the QR code on your card. When someone scans it, your card comes alive with video, 3D, contact buttons and more." },
+  { q: "Do I need a mobile app?", a: "No. HoloCard works directly in mobile browsers using WebAR technology. No app download is required — just scan the QR code and point your camera at the card." },
+  { q: "How does AR recognize my card?", a: "HoloCard uses image-target technology. When you upload your physical card, it is analyzed for unique visual features. The AR system recognizes these features when someone points their camera at the card." },
+  { q: "Do I need a special printed card?", a: "No. Your existing business card works. HoloCard analyzes the visual features of your printed card and uses it as the AR trigger. Cards with high contrast and distinctive designs work best." },
+  { q: "Does my existing business card work?", a: "Most business cards work well. Cards with clear text, logos, and good contrast produce the best AR targets. Very plain or low-contrast cards may have reduced tracking quality." },
+  { q: "What happens if AR isn't supported?", a: "If AR isn't available on the user's device, HoloCard shows a premium digital fallback — a full-featured online business card with your profile, contact buttons, social links and more." },
+  { q: "Can I use videos?", a: "Yes. You can embed intro videos, product demos, or portfolio reels that appear in the AR experience when your card is detected." },
+  { q: "Can I add 3D models?", a: "Yes. HoloCard supports GLB and GLTF 3D models. Display floating logos, product models, or any 3D content that appears when your card is scanned." },
+  { q: "Can I update my AR experience after printing?", a: "Yes — this is a major advantage. Your physical card never changes, but you can update videos, links, 3D models, social links, and promotions anytime. The AR experience updates instantly." },
+  { q: "Can I track scans?", a: "Yes. The analytics dashboard tracks AR launches, target detections, button clicks, video plays, contact saves, and more. You can see what's engaging your audience." },
 ];
 
 function ParticlesBackground() {
@@ -218,7 +188,7 @@ export default function HomePage() {
     <div className="min-h-screen">
       <Navbar />
 
-      {/* Phase 2+3: Hero — Full-screen cinematic with particles and scan effect */}
+      {/* Hero — Full-screen cinematic with particles and scan effect */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
         <motion.div style={{ y: bgY }} className="absolute inset-0 bg-grid opacity-30" />
         <div className="absolute inset-0 bg-radial" />
@@ -232,28 +202,20 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
             >
               <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
-                Your Business Card.{" "}
-                <span className="text-gradient">Brought to Life.</span>
+                Turn Your Business Card{" "}
+                <span className="text-gradient">Into an AR Experience</span>
               </h1>
               <p className="mb-6 text-lg text-muted-foreground">
-                Create, share, scan, experience, connect, and track — all from one smart card.
+                Scan a physical business card and watch it come alive with video, 3D, contact buttons, social links and interactive content.
               </p>
-              <div className="mb-8 flex flex-wrap gap-3">
-                {capabilities.map((cap) => (
-                  <span key={cap.label} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-                    <cap.icon className="h-3 w-3 text-primary" />
-                    {cap.label}
-                  </span>
-                ))}
-              </div>
               <div className="flex flex-col gap-4 sm:flex-row">
                 <Link href="/register" className={buttonVariants({ variant: "default", size: "lg" }) + " bg-primary text-primary-foreground hover:bg-primary/90"}>
-                  Create Your HoloCard
+                  Create Your AR Card
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
                 <Link href={DEMO_AR_URL} className={buttonVariants({ variant: "outline", size: "lg" }) + " border-border text-foreground hover:bg-muted/80"}>
                   <Eye className="mr-2 h-4 w-4" />
-                  Try Demo
+                  Try Live AR Demo
                 </Link>
               </div>
               <p className="mt-4 text-xs text-muted-foreground/70">No app required. Works directly in your mobile browser.</p>
@@ -349,26 +311,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Phase 6: How It Works — 4 steps with connecting lines */}
+      {/* How It Works — 6 steps with connecting lines */}
       <section id="how-it-works" className="border-t border-border py-24">
-        <div className="mx-auto max-w-5xl px-4">
+        <div className="mx-auto max-w-6xl px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
             <h2 className="mb-12 text-center text-3xl font-bold md:text-4xl">
               How It <span className="text-gradient">Works</span>
             </h2>
           </motion.div>
-          <div className="relative grid gap-8 md:grid-cols-4">
+          <div className="relative grid gap-6 md:grid-cols-6">
             {steps.map((step, i) => (
-              <motion.div key={step.num} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.15 }} className="relative text-center">
+              <motion.div key={step.num} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }} className="relative text-center">
                 {i < steps.length - 1 && (
                   <div className="absolute left-1/2 top-10 hidden h-0.5 w-full bg-gradient-to-r from-primary/50 to-primary/20 md:block" />
                 )}
-                <div className="relative z-10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
-                  <step.icon className="h-8 w-8 text-primary" />
+                <div className="relative z-10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
+                  <step.icon className="h-6 w-6 text-primary" />
                 </div>
-                <div className="mb-2 text-xs font-bold uppercase tracking-wider text-primary">Step {step.num}</div>
-                <h3 className="mb-2 text-xl font-semibold">{step.title}</h3>
-                <p className="text-sm text-muted-foreground">{step.desc}</p>
+                <div className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">Step {step.num}</div>
+                <h3 className="mb-1 text-lg font-semibold">{step.title}</h3>
+                <p className="text-xs text-muted-foreground">{step.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -520,7 +482,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Phase 11: Analytics Section */}
+      {/* Analytics Section — Real metrics you'll see after publishing */}
       <section className="border-t border-border py-24">
         <div className="mx-auto max-w-6xl px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
@@ -532,16 +494,15 @@ export default function HomePage() {
           <div className="glass rounded-2xl p-6 mb-8 border border-border">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "Profile Views", value: 2847, change: "+23%", icon: Eye },
-                { label: "QR Scans", value: 1203, change: "+18%", icon: QrCode },
-                { label: "AR Experiences", value: 891, change: "+42%", icon: Sparkles },
-                { label: "Contact Saves", value: 456, change: "+31%", icon: Users },
+                { label: "AR Launches", icon: Eye, desc: "Camera opened" },
+                { label: "Target Detections", icon: QrCode, desc: "Card recognized" },
+                { label: "AR Experiences", icon: Sparkles, desc: "Interactions" },
+                { label: "Contact Saves", icon: Users, desc: "vCards downloaded" },
               ].map((m, i) => (
                 <motion.div key={m.label} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.1 }} className="rounded-xl bg-muted/50 border border-border p-6 text-center">
                   <m.icon className="mx-auto mb-3 h-6 w-6 text-primary" />
-                  <div className="text-3xl font-bold"><AnimatedCounter target={m.value} /></div>
+                  <div className="text-lg font-semibold">{m.desc}</div>
                   <div className="text-sm text-muted-foreground">{m.label}</div>
-                  <div className="mt-1 text-xs font-medium text-emerald-400">{m.change}</div>
                 </motion.div>
               ))}
             </div>
@@ -554,7 +515,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Phase 12: Use Cases */}
+      {/* Use Cases */}
       <section id="use-cases" className="border-t border-border py-24">
         <div className="mx-auto max-w-6xl px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
@@ -565,13 +526,13 @@ export default function HomePage() {
           </motion.div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[
-              { icon: Zap, title: "Entrepreneurs", desc: "Show your company and vision with an interactive experience." },
-              { icon: Users, title: "Sales Professionals", desc: "Share products and contact information instantly." },
-              { icon: Globe, title: "Real Estate", desc: "Show properties, videos and contact details in AR." },
-              { icon: Palette, title: "Freelancers", desc: "Present your portfolio and services memorably." },
-              { icon: Building, title: "Agencies", desc: "Create memorable client introductions at scale." },
-              { icon: Sparkles, title: "Events & Networking", desc: "Make every introduction interactive and unforgettable." },
-              { icon: Shield, title: "Companies", desc: "Deploy branded HoloCards across your entire team." },
+              { icon: Zap, title: "Sales", desc: "Show products and services directly from the card." },
+              { icon: Globe, title: "Real Estate", desc: "Show properties in 3D with gallery and contact." },
+              { icon: Palette, title: "Creators", desc: "Show portfolios with video and social links." },
+              { icon: Users, title: "Consultants", desc: "Show presentations and case studies in AR." },
+              { icon: Building, title: "Restaurants", desc: "Show menu, food gallery and location." },
+              { icon: Sparkles, title: "Events", desc: "Create memorable networking experiences." },
+              { icon: Shield, title: "Companies", desc: "Deploy consistent AR cards across teams." },
             ].map((useCase, i) => (
               <motion.div key={useCase.title} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.08 }} className="glass rounded-xl p-6 transition-all hover:scale-[1.02] hover:glow-sm">
                 <useCase.icon className="mb-3 h-6 w-6 text-primary" />
@@ -651,16 +612,16 @@ export default function HomePage() {
           </div>
           <div className="grid gap-6 md:grid-cols-3">
             <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }} className="glass rounded-xl p-6">
-              <Lock className="mb-3 h-6 w-6 text-primary" /><h3 className="mb-2 font-semibold">End-to-End Encryption</h3>
-              <p className="text-sm text-muted-foreground">All data encrypted in transit and at rest. Never exposed to unauthorized parties.</p>
+              <Lock className="mb-3 h-6 w-6 text-primary" /><h3 className="mb-2 font-semibold">Secure Storage</h3>
+              <p className="text-sm text-muted-foreground">Your data is encrypted in transit and stored securely. You control what is public or private.</p>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.1 }} className="glass rounded-xl p-6">
-              <EyeOff className="mb-3 h-6 w-6 text-primary" /><h3 className="mb-2 font-semibold">Privacy First</h3>
-              <p className="text-sm text-muted-foreground">You control what is public, unlisted, or private. We never sell your data.</p>
+              <EyeOff className="mb-3 h-6 w-6 text-primary" /><h3 className="mb-2 font-semibold">You Control Your Data</h3>
+              <p className="text-sm text-muted-foreground">Set your card to public, unlisted, or private. Update content anytime without reprinting.</p>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.2 }} className="glass rounded-xl p-6">
-              <Server className="mb-3 h-6 w-6 text-primary" /><h3 className="mb-2 font-semibold">Secure Infrastructure</h3>
-              <p className="text-sm text-muted-foreground">Enterprise-grade hosting with automatic backups and 99.9% uptime.</p>
+              <Server className="mb-3 h-6 w-6 text-primary" /><h3 className="mb-2 font-semibold">Reliable Hosting</h3>
+              <p className="text-sm text-muted-foreground">Hosted on modern infrastructure with automatic scaling. No app install required.</p>
             </motion.div>
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
@@ -676,7 +637,8 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
             <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">Simple <span className="text-gradient">Pricing</span></h2>
-            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">Choose the plan that fits your needs. Upgrade anytime.</p>
+            <p className="mx-auto mb-4 max-w-2xl text-center text-muted-foreground">Choose the plan that fits your needs. Upgrade anytime.</p>
+            <p className="mx-auto mb-12 max-w-xl text-center text-sm text-primary font-medium">Early Access — Create your first AR business card free.</p>
           </motion.div>
           <div className="grid gap-6 md:grid-cols-3">
             {pricingPlans.map((plan, i) => (

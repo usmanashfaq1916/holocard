@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
+import { Smartphone, Camera, Eye, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { trackAREvent } from "@/lib/ar/analytics";
 
 const ARViewer = dynamic(() => import("@/components/ar/ar-viewer"), {
@@ -62,6 +64,7 @@ export default function ARPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFallback, setShowFallback] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
     fetchCard();
@@ -131,6 +134,61 @@ export default function ARPage() {
         linkedin={card.linkedin}
         whatsapp={card.whatsapp}
       />
+    );
+  }
+
+  if (showIntro) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center p-4">
+        <div className="max-w-md w-full text-center">
+          <div className="mb-8">
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Smartphone className="w-8 h-8 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground mb-2">
+              Bring This Card to Life
+            </h1>
+            <p className="text-muted-foreground">
+              Point your camera at {card.name}&apos;s business card to see the AR experience
+            </p>
+          </div>
+
+          <div className="space-y-4 mb-8 text-left">
+            {[
+              { step: "1", text: "Tap Start AR and allow camera access" },
+              { step: "2", text: "Point your camera at the physical business card" },
+              { step: "3", text: "Keep the entire card visible in the frame" },
+              { step: "4", text: "Watch the AR content appear on top of the card" },
+            ].map(({ step, text }) => (
+              <div key={step} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold flex-shrink-0">
+                  {step}
+                </div>
+                <p className="text-muted-foreground text-sm">{text}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            <Button
+              onClick={() => setShowIntro(false)}
+              className="w-full"
+              size="lg"
+            >
+              <Camera className="w-5 h-5 mr-2" />
+              Start AR
+            </Button>
+            <Button
+              onClick={() => setShowFallback(true)}
+              variant="outline"
+              className="w-full"
+            >
+              <ArrowRight className="w-4 h-4 mr-2" />
+              View Digital Card
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   }
 

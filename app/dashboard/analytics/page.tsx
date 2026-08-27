@@ -71,11 +71,11 @@ export default function AnalyticsPage() {
 
   const statCards = data
     ? [
-        { label: "Total Views", value: data.totalViews.toLocaleString(), icon: Eye, color: "text-primary" },
-        { label: "QR Scans", value: data.totalQrScans.toLocaleString(), icon: QrCode, color: "text-cyan" },
-        { label: "AR Sessions", value: data.totalArSessions.toLocaleString(), icon: Box, color: "text-primary" },
-        { label: "Contact Saves", value: data.totalContactSaves.toLocaleString(), icon: UserPlus, color: "text-cyan" },
-        { label: "Link Clicks", value: data.totalLinkClicks.toLocaleString(), icon: MousePointerClick, color: "text-primary" },
+        { label: "AR Launches", value: data.totalArSessions.toLocaleString(), icon: Eye, color: "text-primary", desc: "Camera opened" },
+        { label: "Target Detections", value: data.totalQrScans.toLocaleString(), icon: QrCode, color: "text-cyan", desc: "Card recognized" },
+        { label: "Contact Saves", value: data.totalContactSaves.toLocaleString(), icon: UserPlus, color: "text-emerald-500", desc: "vCards downloaded" },
+        { label: "Website Clicks", value: data.totalLinkClicks.toLocaleString(), icon: MousePointerClick, color: "text-purple-500", desc: "Link interactions" },
+        { label: "Video Plays", value: "0", icon: Box, color: "text-amber-500", desc: "Video views" },
       ]
     : [];
 
@@ -123,24 +123,7 @@ export default function AnalyticsPage() {
               )}
             </p>
             <p className="text-xs text-muted-foreground">{stat.label}</p>
-            {stat.label === "QR Scans" && data && !loading && (
-              <div className="mt-2 space-y-1 text-xs text-muted-foreground">
-                <div className="flex justify-between">
-                  <span>AR QR</span>
-                  <span>{data.qrArScans}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Digital Card QR</span>
-                  <span>{data.qrCardScans}</span>
-                </div>
-                {data.qrLegacyScans > 0 && (
-                  <div className="flex justify-between">
-                    <span>Legacy QR</span>
-                    <span>{data.qrLegacyScans}</span>
-                  </div>
-                )}
-              </div>
-            )}
+            <p className="text-xs text-muted-foreground/70 mt-0.5">{stat.desc}</p>
           </div>
         ))}
       </div>

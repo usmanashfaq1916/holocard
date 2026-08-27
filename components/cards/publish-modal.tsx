@@ -1,219 +1,173 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { Check, ExternalLink, Copy, QrCode, Share2, X, Loader2 } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { toast } from "sonner";
-import { QRGenerator } from "@/components/cards/qr-generator";
+import { useState, useCallback } from "react";
+import {
+  Check,
+  AlertTriangle,
+  Rocket,
+  QrCode,
+  Eye,
+  Copy,
+  Download,
+  Loader2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface PublishModalProps {
-  cardId: string;
-  cardName: string;
-  cardSlug: string;
   open: boolean;
   onClose: () => void;
-  onPublished: () => void;
+  cardId?: string;
+  cardSlug: string;
+  cardName: string;
+  onPublished?: () => void;
 }
 
-type Step = "validate" | "confirm" | "success";
-
-export function PublishModal({ cardId, cardName, cardSlug, open, onClose, onPublished }: PublishModalProps) {
-  const [step, setStep] = useState<Step>("validate");
-  const [publishing, setPublishing] = useState(false);
+export function PublishModal({
+  open,
+  onClose,
+  cardSlug,
+  cardName,
+  onPublished,
+}: PublishModalProps) {
   const [copied, setCopied] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [published, setPublished] = useState(false);
 
-  const handlePublish = async () => {
+  const arUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/ar/${cardSlug}`;
+
+  const handleCopy = useCallback(async () => {
+    await navigator.clipboard.writeText(arUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [arUrl]);
+
+  const handlePublish = useCallback(async () => {
     setPublishing(true);
     try {
-      const res = await fetch(`/api/cards/${cardId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "ACTIVE" }),
-      });
-      if (res.ok) {
-        setStep("success");
+      if (onPublished) {
         onPublished();
-      } else {
-        toast.error("Failed to publish");
-        setStep("confirm");
       }
-    } catch {
-      toast.error("Failed to publish");
-      setStep("confirm");
+      setPublished(true);
+    } finally {
+      setPublishing(false);
     }
-    setPublishing(false);
-  };
+  }, [onPublished]);
 
-  const startPublish = () => {
-    setStep("validate");
-    setTimeout(() => setStep("confirm"), 800);
-  };
+  if (published) {
+    return (
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Your HoloCard is Live!</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check className="w-8 h-8 text-emerald-500" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {cardName}&apos;s AR business card is now live.
+              </p>
+            </div>
 
-  const copyArUrl = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/ar/${cardSlug}`);
-    setCopied(true);
-    toast.success("AR URL copied!");
-    setTimeout(() => setCopied(false), 2000);
-  };
+            <div className="grid grid-cols-2 gap-4">
+              <div className="glass rounded-xl p-4 text-center">
+                <QrCode className="w-12 h-12 text-primary mx-auto mb-2" />
+                <p className="text-xs font-medium mb-2">AR QR Code</p>
+                <Button variant="outline" size="sm">
+                  <Download className="w-3 h-3 mr-1" />
+                  Download
+                </Button>
+              </div>
+              <div className="glass rounded-xl p-4 text-center">
+                <Eye className="w-12 h-12 text-primary mx-auto mb-2" />
+                <p className="text-xs font-medium mb-2">AR Experience</p>
+                <Button variant="outline" size="sm" onClick={handleCopy}>
+                  <Copy className="w-3 h-3 mr-1" />
+                  {copied ? "Copied!" : "Copy URL"}
+                </Button>
+              </div>
+            </div>
 
-  const handleClose = () => {
-    setStep("validate");
-    onClose();
-  };
-
-  if (!open) return null;
+            <div className="flex flex-col gap-2">
+              <Button onClick={() => window.open(arUrl, "_blank")} className="w-full">
+                <Eye className="w-4 h-4 mr-2" />
+                Experience Your AR Card
+              </Button>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="w-full"
+              >
+                Edit Card
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="publish-modal-title"
-    >
-      <div
-        className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-background shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={handleClose}
-          className="absolute right-3 top-3 z-10 rounded-full bg-muted p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          aria-label="Close publish dialog"
-        >
-          <X className="h-4 w-4" />
-        </button>
-
-        {/* Step: Validating */}
-        {step === "validate" && (
-          <div className="flex flex-col items-center p-8 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
-            </div>
-            <h2 id="publish-modal-title" className="text-xl font-bold">Validating Card</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Checking your card is ready to publish...
-            </p>
-          </div>
-        )}
-
-        {/* Step: Confirm */}
-        {step === "confirm" && (
-          <div className="p-6">
-            <h2 className="text-xl font-bold">Publish Your HoloCard</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Review and publish <strong>{cardName}</strong>
-            </p>
-
-            <div className="mt-4 space-y-3">
-              <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-                <Check className="h-4 w-4 text-success" />
-                <span className="text-sm">Profile information complete</span>
-              </div>
-              <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-                <Check className="h-4 w-4 text-success" />
-                <span className="text-sm">Card URL: /card/{cardSlug}</span>
-              </div>
-              <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-                <Check className="h-4 w-4 text-success" />
-                <span className="text-sm">AR QR code will be generated</span>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-center">Publish AR Card</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium">Profile Information</p>
+                <p className="text-xs text-muted-foreground">Profile name is set</p>
               </div>
             </div>
-
-            <div className="mt-6 flex gap-3">
-              <button
-                onClick={handlePublish}
-                disabled={publishing}
-                className={buttonVariants({ variant: "default" })}
-              >
-                {publishing ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Publishing...</>
-                ) : (
-                  <>Publish Now</>
-                )}
-              </button>
-              <button
-                onClick={handleClose}
-                className={buttonVariants({ variant: "outline" })}
-              >
-                Cancel
-              </button>
+            <div className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium">Card Image</p>
+                <p className="text-xs text-muted-foreground">Card image uploaded</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium">URL Slug</p>
+                <p className="text-xs text-muted-foreground">URL: /card/{cardSlug}</p>
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Step: Success */}
-        {step === "success" && (
-          <div className="p-6">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
-              <Check className="h-7 w-7 text-success" />
-            </div>
-            <h2 className="text-xl font-bold">Experience Published!</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {cardName} is live and ready to share.
-            </p>
-
-            <div className="mt-4 rounded-xl border border-border p-4">
-              <div className="flex items-center justify-center">
-                <QRGenerator slug={cardSlug} type="ar" size={140} />
-              </div>
-              <p className="mt-2 text-center text-xs text-muted-foreground">
-                Scan to Launch AR
-              </p>
-              <p className="mt-1 text-center text-xs font-mono text-muted-foreground">
-                /ar/{cardSlug}
-              </p>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link
-                href={`/ar/${cardSlug}`}
-                target="_blank"
-                className={buttonVariants({ variant: "default", size: "sm" })}
-              >
-                <ExternalLink className="mr-1 h-3 w-3" /> Open AR
-              </Link>
-              <a
-                href={`/api/qr/${cardSlug}?type=ar&format=png`}
-                download
-                className={buttonVariants({ variant: "outline", size: "sm" })}
-              >
-                <QrCode className="mr-1 h-3 w-3" /> Download QR
-              </a>
-              <button onClick={copyArUrl} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                {copied ? <Check className="mr-1 h-3 w-3" /> : <Copy className="mr-1 h-3 w-3" />}
-                {copied ? "Copied!" : "Copy AR Link"}
-              </button>
-            </div>
-
-            <div className="mt-4 border-t border-border pt-4">
-              <p className="text-xs text-muted-foreground mb-2">Digital Card</p>
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  href={`/card/${cardSlug}`}
-                  target="_blank"
-                  className={buttonVariants({ variant: "ghost", size: "sm" })}
-                >
-                  <ExternalLink className="mr-1 h-3 w-3" /> Open Card
-                </Link>
-                <a
-                  href={`/api/qr/${cardSlug}?type=card&format=png`}
-                  download
-                  className={buttonVariants({ variant: "ghost", size: "sm" })}
-                >
-                  <QrCode className="mr-1 h-3 w-3" /> Card QR
-                </a>
-              </div>
-            </div>
-
-            <button
-              onClick={handleClose}
-              className={buttonVariants({ variant: "outline", className: "mt-4 w-full" })}
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
             >
-              Done
-            </button>
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePublish}
+              disabled={publishing}
+              className="flex-1"
+            >
+              {publishing ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Rocket className="w-4 h-4 mr-2" />
+              )}
+              Publish
+            </Button>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

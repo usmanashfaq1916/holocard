@@ -21,7 +21,7 @@ export function ShareButtons({ slug, name, designation, company, phone, email: c
   const cardUrl = `${base}/card/${slug}`;
 
   const handleNativeShare = async () => {
-    await shareCard({ name, slug, designation });
+    await shareCard({ name, slug, designation }, cardUrl);
   };
 
   const handleCopy = async () => {
@@ -32,9 +32,9 @@ export function ShareButtons({ slug, name, designation, company, phone, email: c
     }
   };
 
-  const handleWhatsApp = () => shareViaWhatsApp({ name, slug });
-  const handleLinkedIn = () => shareViaLinkedIn({ name, slug });
-  const handleEmail = () => shareViaEmail({ name, slug });
+  const handleWhatsApp = () => shareViaWhatsApp({ name }, cardUrl);
+  const handleLinkedIn = () => shareViaLinkedIn(cardUrl);
+  const handleEmail = () => shareViaEmail({ name }, cardUrl);
   const handleVCard = () => downloadVCard({ name, designation, company, phone, email: cardEmail, website });
 
   const shareText = encodeURIComponent(`Check out ${name}'s digital business card`);

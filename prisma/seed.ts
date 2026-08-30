@@ -75,6 +75,12 @@ async function main() {
 
   console.log("Created demo card:", card.slug);
 
+  // Cleanup: remove any stale demo cards from previous slugs
+  await prisma.card.deleteMany({
+    where: { slug: { not: "demo-sample" }, userId: user.id },
+  });
+  console.log("Cleaned up stale demo cards");
+
   const templates = [
     { name: "Corporate", slug: "corporate", style: "CORPORATE" as const, description: "Professional blue tones for corporate environments", config: { primaryColor: "#2563EB", bgStyle: "solid" } },
     { name: "Executive", slug: "executive", style: "EXECUTIVE" as const, description: "Elegant dark theme for executives", config: { primaryColor: "#1E293B", bgStyle: "gradient" }, isPremium: true },

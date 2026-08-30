@@ -1,11 +1,10 @@
-export async function shareCard(card: { name: string; slug: string; designation?: string | null }) {
-  const url = `${typeof window !== "undefined" ? window.location.origin : ""}/card/${card.slug}`;
+export async function shareCard(card: { name: string; slug: string; designation?: string | null }, cardUrl: string) {
   const title = `${card.name} - ${card.designation || "Professional"} | HoloCard`;
   const text = `Check out ${card.name}'s digital business card on HoloCard`;
 
   if (navigator.share) {
     try {
-      await navigator.share({ title, text, url });
+      await navigator.share({ title, text, url: cardUrl });
       return true;
     } catch {
       return false;
@@ -21,23 +20,20 @@ export function copyToClipboard(text: string): Promise<boolean> {
   return Promise.resolve(false);
 }
 
-export function shareViaWhatsApp(card: { name: string; slug: string }) {
-  const url = `${window.location.origin}/card/${card.slug}`;
-  const text = `Check out ${card.name}'s digital business card: ${url}`;
+export function shareViaWhatsApp(card: { name: string }, cardUrl: string) {
+  const text = `Check out ${card.name}'s digital business card: ${cardUrl}`;
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
 }
 
-export function shareViaEmail(card: { name: string; slug: string }) {
-  const url = `${window.location.origin}/card/${card.slug}`;
+export function shareViaEmail(card: { name: string }, cardUrl: string) {
   const subject = `${card.name}'s Digital Business Card`;
-  const body = `Check out ${card.name}'s digital business card: ${url}`;
+  const body = `Check out ${card.name}'s digital business card: ${cardUrl}`;
   window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_blank");
 }
 
-export function shareViaLinkedIn(card: { name: string; slug: string }) {
-  const url = `${window.location.origin}/card/${card.slug}`;
+export function shareViaLinkedIn(cardUrl: string) {
   window.open(
-    `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(cardUrl)}`,
     "_blank"
   );
 }

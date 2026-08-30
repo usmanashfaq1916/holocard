@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HoloCard — Animated Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0f;
+    --surface: #14151d;
+    --surface-2: #1c1e29;
+    --text: #edeef3;
+    --text-muted: #8a8c9b;
+    --border: rgba(255,255,255,0.08);
+    --cyan: #6ef3d6;
+    --violet: #b18cff;
+    --pink: #ff8fd1;
+    --primary: #1a7a5a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+
+  /* ── Scene container ── */
+  .scene {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+  .scene.active { opacity: 1; pointer-events: auto; }
+
+  /* ── Scene 1: Logo ── */
+  .logo-scene { flex-direction: column; gap: 20px; }
+  .logo-mark {
+    width: 64px; height: 64px; border-radius: 16px;
+    background: linear-gradient(135deg, var(--cyan), var(--violet) 55%, var(--pink));
+    animation: logo-pulse 2s ease-in-out infinite;
+  }
+  @keyframes logo-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(110,243,214,0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 0 30px 10px rgba(110,243,214,0.15); }
+  }
+  .logo-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px; font-weight: 700; letter-spacing: -0.02em;
+    opacity: 0; animation: fade-up 0.8s 0.4s forwards;
+  }
+  .logo-tagline {
+    font-size: 16px; color: var(--text-muted);
+    opacity: 0; animation: fade-up 0.8s 0.8s forwards;
+  }
+
+  /* ── Scene 2: Problem ── */
+  .problem-scene { flex-direction: column; gap: 32px; }
+  .paper-cards {
+    display: flex; gap: 12px; perspective: 800px;
+  }
+  .paper-card {
+    width: 120px; height: 72px; border-radius: 8px;
+    background: #2a2b35; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: var(--text-muted);
+    animation: card-fall 0.4s ease-out forwards;
+    opacity: 0; transform: translateY(-40px) rotate(-5deg);
+  }
+  .paper-card:nth-child(1) { animation-delay: 0.2s; }
+  .paper-card:nth-child(2) { animation-delay: 0.4s; transform: translateY(-40px) rotate(3deg); }
+  .paper-card:nth-child(3) { animation-delay: 0.6s; transform: translateY(-40px) rotate(-2deg); }
+  .paper-card:nth-child(4) { animation-delay: 0.8s; transform: translateY(-40px) rotate(4deg); }
+  .paper-card:nth-child(5) { animation-delay: 1.0s; transform: translateY(-40px) rotate(-3deg); }
+  @keyframes card-fall {
+    to { opacity: 0.4; transform: translateY(0) rotate(var(--r, 0deg)); }
+  }
+  .problem-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px; font-weight: 600; text-align: center;
+    opacity: 0; animation: fade-up 0.6s 1.4s forwards;
+  }
+
+  /* ── Scene 3: 3D Card ── */
+  .card-scene { perspective: 1200px; }
+  .holo-card {
+    width: 340px; aspect-ratio: 1.586;
+    position: relative; transform-style: preserve-3d;
+    animation: card-float 4s ease-in-out infinite, card-entrance 1s ease-out forwards;
+    opacity: 0; transform: translateY(40px) scale(0.9);
+  }
+  @keyframes card-entrance {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes card-float {
+    0%, 100% { transform: translateY(0) rotateX(2deg) rotateY(-3deg); }
+    50% { transform: translateY(-12px) rotateX(-2deg) rotateY(3deg); }
+  }
+  .holo-face {
+    position: absolute; inset: 0; border-radius: 16px;
+    backface-visibility: hidden; overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6);
+  }
+  .holo-front {
+    background: radial-gradient(120% 140% at 50% 30%, rgba(255,255,255,0.16), transparent 55%),
+                linear-gradient(135deg, #171826, #0d0e15 60%);
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 22px 24px;
+  }
+  .holo-back {
+    background: radial-gradient(120% 140% at 50% 30%, rgba(255,255,255,0.14), transparent 55%),
+                linear-gradient(135deg, #0d0e15, #171826 60%);
+    transform: rotateY(180deg);
+    display: flex; flex-direction: column; justify-content: center;
+    gap: 10px; padding: 24px;
+  }
+  .holo-foil {
+    position: absolute; inset: -40%;
+    background: conic-gradient(from 0deg, transparent, var(--cyan) 15%, transparent 30%, var(--violet) 50%, transparent 55%, var(--pink) 75%, transparent 80%, var(--cyan) 95%, transparent);
+    opacity: 0.16; mix-blend-mode: screen; pointer-events: none;
+    animation: foil-spin 8s linear infinite;
+  }
+  @keyframes foil-spin { to { transform: rotate(360deg); } }
+  .holo-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .holo-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px; font-weight: 600;
+  }
+  .holo-title { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .holo-back .holo-name { font-size: 16px; }
+  .holo-row { font-size: 13px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+  .holo-save-btn {
+    margin-top: 8px; align-self: flex-start;
+    background: linear-gradient(100deg, var(--cyan), var(--violet));
+    color: #0a0b0f; border: none; font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600; font-size: 13px; padding: 9px 16px; border-radius: 100px;
+  }
+
+  /* ── Scene 4: QR Scan ── */
+  .qr-scene { flex-direction: column; gap: 40px; }
+  .qr-container {
+    position: relative; width: 200px; height: 200px;
+  }
+  .qr-code {
+    width: 100%; height: 100%; border-radius: 16px;
+    background: white; display: grid; grid-template-columns: repeat(7,1fr); grid-template-rows: repeat(7,1fr);
+    gap: 2px; padding: 16px; overflow: hidden;
+  }
+  .qr-cell { background: #0a0b0f; border-radius: 2px; }
+  .qr-cell.empty { background: transparent; }
+  .qr-scan-line {
+    position: absolute; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: qr-scan 2s ease-in-out infinite;
+    box-shadow: 0 0 15px var(--cyan);
+  }
+  @keyframes qr-scan {
+    0% { top: 0; } 50% { top: 100%; } 100% { top: 0; }
+  }
+  .qr-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px; font-weight: 600; text-align: center;
+  }
+  .qr-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 8px 16px; border-radius: 100px;
+    font-size: 13px; color: var(--text-muted);
+    opacity: 0; animation: fade-up 0.6s 1s forwards;
+  }
+  .qr-badge-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--cyan); animation: dot-pulse 1.5s infinite;
+  }
+  @keyframes dot-pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+
+  /* ── Scene 5: AR ── */
+  .ar-scene { perspective: 800px; }
+  .ar-phone {
+    width: 260px; height: 520px; border-radius: 32px;
+    background: #1a1b25; border: 3px solid #2a2b35;
+    position: relative; overflow: hidden;
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8);
+    animation: phone-entrance 0.8s ease-out forwards;
+    opacity: 0; transform: translateY(60px) scale(0.85);
+  }
+  @keyframes phone-entrance {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .ar-camera-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #1a2a1a, #0d1520, #1a1525);
+    opacity: 0.8;
+  }
+  .ar-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(110,243,214,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(110,243,214,0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    animation: grid-move 4s linear infinite;
+  }
+  @keyframes grid-move {
+    to { background-position: 20px 20px; }
+  }
+  .ar-card-3d {
+    position: absolute; top: 50%; left: 50%;
+    width: 180px; height: 114px; margin: -57px 0 0 -90px;
+    transform-style: preserve-3d;
+    animation: ar-card-float 3s ease-in-out infinite;
+  }
+  @keyframes ar-card-float {
+    0%, 100% { transform: rotateX(5deg) rotateY(-8deg) translateY(0); }
+    50% { transform: rotateX(-5deg) rotateY(8deg) translateY(-8px); }
+  }
+  .ar-card-inner {
+    width: 100%; height: 100%; border-radius: 12px;
+    background: linear-gradient(135deg, #1e2030, #14151d);
+    border: 1px solid rgba(110,243,214,0.3);
+    box-shadow: 0 0 30px rgba(110,243,214,0.15), 0 20px 40px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 16px; position: relative; overflow: hidden;
+  }
+  .ar-card-glow {
+    position: absolute; inset: -2px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--cyan), var(--violet), var(--pink));
+    opacity: 0.2; filter: blur(8px); z-index: -1;
+    animation: glow-shift 3s ease-in-out infinite;
+  }
+  @keyframes glow-shift {
+    0%, 100% { opacity: 0.15; } 50% { opacity: 0.3; }
+  }
+  .ar-status {
+    position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(12px);
+    padding: 6px 14px; border-radius: 100px;
+    font-size: 11px; color: var(--cyan);
+    border: 1px solid rgba(110,243,214,0.2);
+    animation: fade-in 0.6s 1.5s forwards; opacity: 0;
+  }
+  @keyframes fade-in { to { opacity: 1; } }
+  .ar-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: dot-pulse 1.5s infinite; }
+  .ar-bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 8px;
+    padding: 16px; background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    animation: fade-in 0.6s 2s forwards; opacity: 0;
+  }
+  .ar-btn {
+    padding: 8px 16px; border-radius: 100px;
+    font-size: 11px; font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.08); color: white;
+    backdrop-filter: blur(8px);
+  }
+
+  /* ── Scene 6: Features ── */
+  .features-scene { flex-direction: column; gap: 40px; }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    max-width: 600px;
+  }
+  .feature-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; text-align: center;
+    opacity: 0; transform: translateY(20px);
+    animation: feature-in 0.5s ease-out forwards;
+  }
+  .feature-card:nth-child(1) { animation-delay: 0.2s; }
+  .feature-card:nth-child(2) { animation-delay: 0.4s; }
+  .feature-card:nth-child(3) { animation-delay: 0.6s; }
+  @keyframes feature-in {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .feature-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px; font-size: 22px;
+  }
+  .feature-icon.cyan { background: rgba(110,243,214,0.12); color: var(--cyan); }
+  .feature-icon.violet { background: rgba(177,140,255,0.12); color: var(--violet); }
+  .feature-icon.pink { background: rgba(255,143,209,0.12); color: var(--pink); }
+  .feature-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 600; margin-bottom: 4px;
+  }
+  .feature-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+
+  /* ── Scene 7: CTA ── */
+  .cta-scene { flex-direction: column; gap: 24px; }
+  .cta-logo {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--cyan), var(--violet) 55%, var(--pink));
+    animation: logo-pulse 2s ease-in-out infinite;
+  }
+  .cta-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 36px; font-weight: 700; text-align: center;
+    opacity: 0; animation: fade-up 0.6s 0.3s forwards;
+  }
+  .cta-title span {
+    background: linear-gradient(100deg, var(--cyan), var(--violet) 50%, var(--pink));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .cta-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; color: var(--text-muted);
+    opacity: 0; animation: fade-up 0.6s 0.6s forwards;
+  }
+  .cta-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(100deg, var(--cyan), var(--violet) 60%, var(--pink));
+    color: #0a0b0f; text-decoration: none;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+    font-size: 15px; padding: 14px 28px; border-radius: 100px;
+    opacity: 0; animation: fade-up 0.6s 0.9s forwards;
+  }
+
+  /* ── Shared ── */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Progress bar ── */
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 3px;
+    background: rgba(255,255,255,0.05); z-index: 100;
+  }
+  .progress-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--cyan), var(--violet), var(--pink));
+    transition: width 0.3s ease;
+  }
+
+  /* ── Controls ── */
+  .controls {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 100;
+  }
+  .ctrl-btn {
+    padding: 8px 16px; border-radius: 100px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-muted); font-size: 12px; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: all 0.2s;
+  }
+  .ctrl-btn:hover { border-color: rgba(255,255,255,0.18); color: var(--text); }
+  .ctrl-btn.active { background: var(--surface-2); color: var(--text); border-color: var(--violet); }
+
+  /* ── Scene label ── */
+  .scene-label {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-muted);
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 6px 14px; border-radius: 100px;
+    opacity: 0; transition: opacity 0.3s; z-index: 100;
+  }
+  .scene-label.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="scene-label" id="sceneLabel"></div>
+
+<!-- Scene 1: Logo -->
+<div class="scene logo-scene active" data-scene="0">
+  <div class="logo-mark"></div>
+  <div class="logo-text">HoloCard</div>
+  <div class="logo-tagline">Your business card, but alive.</div>
+</div>
+
+<!-- Scene 2: Problem -->
+<div class="scene problem-scene" data-scene="1">
+  <div class="paper-cards">
+    <div class="paper-card">John D.</div>
+    <div class="paper-card">Sarah M.</div>
+    <div class="paper-card">Alex K.</div>
+    <div class="paper-card">Mike R.</div>
+    <div class="paper-card">Lisa T.</div>
+  </div>
+  <div class="problem-text">Paper cards get lost.</div>
+</div>
+
+<!-- Scene 3: 3D Card -->
+<div class="scene card-scene" data-scene="2">
+  <div class="holo-card">
+    <div class="holo-face holo-front">
+      <div class="holo-foil"></div>
+      <div>
+        <div class="holo-kicker">Product Designer</div>
+        <div class="holo-name">Alex Rivera</div>
+        <div class="holo-title">Studio Nine — Brand & Interaction</div>
+      </div>
+      <div class="holo-kicker">Move cursor to tilt</div>
+    </div>
+    <div class="holo-face holo-back">
+      <div class="holo-foil"></div>
+      <div class="holo-name">Contact</div>
+      <div class="holo-row">alex@studionine.co</div>
+      <div class="holo-row">studionine.co/alex</div>
+      <button class="holo-save-btn">Save contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scene 4: QR Scan -->
+<div class="scene qr-scene" data-scene="3">
+  <div class="qr-container">
+    <div class="qr-code" id="qrCode"></div>
+    <div class="qr-scan-line"></div>
+  </div>
+  <div class="qr-text">Scan to view</div>
+  <div class="qr-badge">
+    <span class="qr-badge-dot"></span>
+    No app needed — works in any browser
+  </div>
+</div>
+
+<!-- Scene 5: AR -->
+<div class="scene ar-scene" data-scene="4">
+  <div class="ar-phone">
+    <div class="ar-camera-bg"></div>
+    <div class="ar-grid"></div>
+    <div class="ar-card-3d">
+      <div class="ar-card-glow"></div>
+      <div class="ar-card-inner">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">Product Designer</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;">Alex Rivera</div>
+        <div style="font-size:9px;color:var(--text-muted);">Studio Nine</div>
+      </div>
+    </div>
+    <div class="ar-status">
+      <span class="ar-dot"></span>
+      AR Active
+    </div>
+    <div class="ar-bottom-bar">
+      <div class="ar-btn">Call</div>
+      <div class="ar-btn">Email</div>
+      <div class="ar-btn">Save</div>
+    </div>
+  </div>
+</div>
+
+<!-- Scene 6: Features -->
+<div class="scene features-scene" data-scene="5">
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon cyan">&#9670;</div>
+      <div class="feature-title">3D Holographic</div>
+      <div class="feature-desc">Interactive card with tilt, flip, and foil effects</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon violet">&#9783;</div>
+      <div class="feature-title">AR Experience</div>
+      <div class="feature-desc">View your card in augmented reality</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon pink">&#9733;</div>
+      <div class="feature-title">Analytics</div>
+      <div class="feature-desc">Track views, scans, and contact saves</div>
+    </div>
+  </div>
+</div>
+
+<!-- Scene 7: CTA -->
+<div class="scene cta-scene" data-scene="6">
+  <div class="cta-logo"></div>
+  <div class="cta-title">Your card, <span>alive.</span></div>
+  <div class="cta-url">holocard.app</div>
+  <a href="https://holocard-fawn.vercel.app" target="_blank" class="cta-btn">Create yours free →</a>
+</div>
+
+<div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+<div class="controls">
+  <button class="ctrl-btn" onclick="prevScene()">← Prev</button>
+  <button class="ctrl-btn" id="playBtn" onclick="togglePlay()">▶ Play</button>
+  <button class="ctrl-btn" onclick="nextScene()">Next →</button>
+</div>
+
+<script>
+  const scenes = document.querySelectorAll('.scene');
+  const label = document.getElementById('sceneLabel');
+  const progressBar = document.getElementById('progressBar');
+  const labels = ['Logo Reveal', 'The Problem', '3D Holographic Card', 'QR Code Scan', 'AR Experience', 'Features', 'Get Started'];
+  let current = 0;
+  let playing = false;
+  let timer;
+
+  function showScene(i) {
+    scenes.forEach(s => s.classList.remove('active'));
+    scenes[i].classList.add('active');
+    label.textContent = labels[i];
+    label.classList.add('show');
+    progressBar.style.width = `${((i + 1) / scenes.length) * 100}%`;
+    current = i;
+  }
+
+  function nextScene() {
+    showScene((current + 1) % scenes.length);
+  }
+
+  function prevScene() {
+    showScene((current - 1 + scenes.length) % scenes.length);
+  }
+
+  function togglePlay() {
+    playing = !playing;
+    document.getElementById('playBtn').textContent = playing ? '⏸ Pause' : '▶ Play';
+    if (playing) {
+      showScene(0);
+      timer = setInterval(() => {
+        if (current < scenes.length - 1) {
+          nextScene();
+        } else {
+          togglePlay();
+        }
+      }, 4000);
+    } else {
+      clearInterval(timer);
+    }
+  }
+
+  // Generate QR pattern
+  const qr = document.getElementById('qrCode');
+  const pattern = [
+    1,1,1,0,1,1,1,
+    1,0,1,1,1,0,1,
+    1,1,1,0,1,1,1,
+    0,1,0,1,0,1,0,
+    1,1,1,0,1,1,1,
+    1,0,1,1,1,0,1,
+    1,1,1,0,1,1,1
+  ];
+  pattern.forEach(v => {
+    const cell = document.createElement('div');
+    cell.className = v ? 'qr-cell' : 'qr-cell empty';
+    qr.appendChild(cell);
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextScene(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevScene(); }
+    if (e.key === 'Enter') { e.preventDefault(); togglePlay(); }
+  });
+
+  // Click to advance
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.controls')) nextScene();
+  });
+
+  showScene(0);
+</script>
+</body>
+</html>

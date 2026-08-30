@@ -336,3 +336,333 @@ html {
     min-width: 44px;
   }
 }
+
+/* AR Walkthrough 3D Card */
+.card-scene {
+  width: 340px;
+  max-width: 88vw;
+  aspect-ratio: 1.586;
+  position: relative;
+  transform-style: preserve-3d;
+  touch-action: none;
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+  transition: transform 0.15s ease-out;
+}
+
+.card-front {
+  background:
+    radial-gradient(120% 140% at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, 0.16), transparent 55%),
+    linear-gradient(135deg, #171826, #0d0e15 60%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px 24px;
+}
+
+.card-back {
+  background:
+    radial-gradient(120% 140% at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, 0.14), transparent 55%),
+    linear-gradient(135deg, #0d0e15, #171826 60%);
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+}
+
+.foil-sheen {
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(
+    from calc(var(--angle, 0deg)),
+    transparent,
+    #6ef3d6 15%,
+    transparent 30%,
+    #b18cff 50%,
+    transparent 55%,
+    #ff8fd1 75%,
+    transparent 80%,
+    #6ef3d6 95%,
+    transparent
+  );
+  opacity: 0.16;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.card-scene.flipped .card-front {
+  transform: rotateY(180deg);
+}
+
+.card-scene.flipped .card-back {
+  transform: rotateY(360deg);
+}
+
+/* Walkthrough layout */
+.walkthrough-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+  min-height: 100vh;
+}
+
+.walkthrough-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-geist-sans), "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: var(--foreground);
+  margin-bottom: 64px;
+}
+
+.walkthrough-brand-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #6ef3d6, #b18cff 55%, #ff8fd1);
+}
+
+.walkthrough-hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.walkthrough-hero h1 {
+  font-family: var(--font-geist-sans), "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: clamp(34px, 6vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+
+.walkthrough-hero h1 span {
+  background: linear-gradient(100deg, #6ef3d6, #b18cff 50%, #ff8fd1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.walkthrough-hero p {
+  color: var(--muted-foreground);
+  font-size: 17px;
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.walkthrough-stage {
+  display: flex;
+  justify-content: center;
+  padding: 56px 0 20px;
+  perspective: 1200px;
+}
+
+.walkthrough-kicker {
+  font-family: var(--font-geist-mono), "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.walkthrough-card-name {
+  font-family: var(--font-geist-sans), "Space Grotesk", sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.walkthrough-title {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  margin-top: 2px;
+}
+
+.walkthrough-back-row {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), "JetBrains Mono", monospace;
+  letter-spacing: 0.01em;
+}
+
+.walkthrough-save-btn {
+  margin-top: 8px;
+  align-self: flex-start;
+  background: linear-gradient(100deg, #6ef3d6, #b18cff);
+  color: #0a0b0f;
+  border: none;
+  font-family: var(--font-geist-sans), "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 9px 16px;
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+.walkthrough-save-btn:focus-visible {
+  outline: 2px solid #ff8fd1;
+  outline-offset: 2px;
+}
+
+.walkthrough-steps {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.walkthrough-step-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-sans), "Inter", sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.walkthrough-step-num {
+  font-family: var(--font-geist-mono), "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.walkthrough-step-btn:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--foreground);
+}
+
+.walkthrough-step-btn:focus-visible {
+  outline: 2px solid #b18cff;
+  outline-offset: 2px;
+}
+
+.walkthrough-step-btn.active {
+  background: var(--secondary);
+  color: var(--foreground);
+  border-color: #b18cff;
+}
+
+.walkthrough-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 26px;
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto 64px;
+}
+
+.walkthrough-panel h3 {
+  font-family: var(--font-geist-sans), "Space Grotesk", sans-serif;
+  font-size: 17px;
+  margin: 0 0 6px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.walkthrough-panel p {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.walkthrough-cta {
+  text-align: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.walkthrough-cta p {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+
+.walkthrough-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(100deg, #6ef3d6, #b18cff 60%, #ff8fd1);
+  color: #0a0b0f;
+  text-decoration: none;
+  font-family: var(--font-geist-sans), "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  padding: 13px 24px;
+  border-radius: 100px;
+}
+
+.walkthrough-cta-btn:focus-visible {
+  outline: 2px solid #ff8fd1;
+  outline-offset: 3px;
+}
+
+.walkthrough-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 13px;
+  padding: 11px 18px;
+  border-radius: 100px;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 50;
+}
+
+.walkthrough-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-face,
+  .card-scene,
+  .walkthrough-toast {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .walkthrough-wrap {
+    padding: 36px 18px 64px;
+  }
+
+  .walkthrough-brand {
+    margin-bottom: 40px;
+  }
+
+  .walkthrough-stage {
+    padding: 36px 0 16px;
+  }
+}

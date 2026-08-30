@@ -269,10 +269,11 @@ export function PublicCard({ card }: { card: Card }) {
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
-    const shared = await shareCard(card);
+    const base = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
+    const cardUrl = `${base}/card/${card.slug}`;
+    const shared = await shareCard(card, cardUrl);
     if (!shared) {
-      const url = `${window.location.origin}/card/${card.slug}`;
-      const success = await copyToClipboard(url);
+      const success = await copyToClipboard(cardUrl);
       if (success) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);

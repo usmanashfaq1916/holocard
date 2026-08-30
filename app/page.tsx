@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import {
   QrCode,
   Smartphone,
@@ -185,6 +185,87 @@ function ScanEffect() {
   );
 }
 
+const demoCaptions = [
+  "Your card, but different.",
+  "Scan. Tap. That's it.",
+  "No app to download.",
+  "Tilt to explore.",
+  "Tap for details.",
+  "Save instantly.",
+  "Works on any device.",
+];
+
+function VideoDemoSection() {
+  const [captionIndex, setCaptionIndex] = useState(0);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCaptionIndex((prev) => (prev + 1) % demoCaptions.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-black">
+      {/* Video or fallback */}
+      <div className="relative aspect-video w-full">
+        {!videoLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#171826] to-[#0d0e15]">
+            <div className="text-center">
+              <HeroHoloCard />
+            </div>
+          </div>
+        )}
+        <video
+          className={`h-full w-full object-cover ${videoLoaded ? "opacity-100" : "opacity-0"}`}
+          poster="/videos/holo-loop.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          onLoadedData={() => setVideoLoaded(true)}
+          onError={() => setVideoLoaded(false)}
+        >
+          <source src="/videos/holo-loop.mp4" type="video/mp4" />
+        </video>
+
+        {/* Animated caption overlay */}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 pt-16">
+          <motion.p
+            key={captionIndex}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.4 }}
+            className="text-center text-xl font-semibold text-white md:text-2xl"
+          >
+            {demoCaptions[captionIndex]}
+          </motion.p>
+        </div>
+      </div>
+
+      {/* CTA row */}
+      <div className="flex flex-col items-center gap-3 border-t border-border bg-card px-6 py-4 sm:flex-row sm:justify-center">
+        <Link
+          href="/holocard-ar-walkthrough"
+          className={buttonVariants({ variant: "default", size: "sm" }) + " bg-primary text-primary-foreground hover:bg-primary/90"}
+        >
+          Try it live
+          <ArrowRight className="ml-2 h-3 w-3" />
+        </Link>
+        <Link
+          href="/register"
+          className={buttonVariants({ variant: "outline", size: "sm" }) + " border-border text-foreground hover:bg-muted/80"}
+        >
+          Create yours
+          <ArrowRight className="ml-2 h-3 w-3" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: scrollRef, offset: ["start end", "end start"] });
@@ -230,6 +311,9 @@ export default function HomePage() {
                   <Eye className="mr-2 h-4 w-4" />
                   Try Live AR Demo
                 </Link>
+                <Link href="/holocard-ar-walkthrough" className={buttonVariants({ variant: "ghost", size: "lg" }) + " text-muted-foreground hover:text-foreground hover:bg-muted/50"}>
+                  Watch Walkthrough →
+                </Link>
               </div>
               <p className="mt-4 text-xs text-muted-foreground/70">No app required. Works directly in your mobile browser.</p>
             </motion.div>
@@ -247,7 +331,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Phase 4: Interactive AR Demo — Split layout below hero */}
+      {/* Phase 4: Video Demo — Hero video with animated captions */}
       <section className="border-t border-border py-24">
         <div className="mx-auto max-w-6xl px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
@@ -255,42 +339,18 @@ export default function HomePage() {
               See Your Card <span className="text-gradient">Come Alive</span>
             </h2>
             <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
-              Scan the QR code or try the 3D preview. The future of business networking.
+              Scan. Tilt. Flip. Save. A business card that does everything paper can&apos;t.
             </p>
           </motion.div>
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="flex flex-col items-center gap-6">
-              <div className="glass rounded-xl p-6 shadow-lg border border-border text-center">
-                <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Sample HoloCard</div>
-                <div className="mb-1 text-lg font-semibold">John Doe</div>
-                <div className="text-sm text-muted-foreground">Software Engineer @ TechCorp</div>
-              </div>
-              <div className="text-2xl text-primary">&#8595;</div>
-              <div className="glass rounded-2xl p-4 border border-primary/30">
-                <QrCode className="h-32 w-32 text-primary" />
-              </div>
-              <span className="text-sm font-medium text-primary">Scan to Experience HoloCard</span>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }} className="flex flex-col items-center">
-              <div className="relative w-64 rounded-[2.5rem] border-4 border-stone-300 bg-stone-200 p-2 shadow-2xl">
-                <div className="absolute left-1/2 top-0 h-5 w-24 -translate-x-1/2 rounded-b-xl bg-stone-300" />
-                <div className="overflow-hidden rounded-[2rem] bg-stone-100">
-                  <div className="p-4">
-                    <HeroHoloCard />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-6 flex gap-3">
-                <Link href={DEMO_AR_URL} className={buttonVariants({ variant: "default", size: "sm" }) + " bg-primary text-primary-foreground hover:bg-primary/90"}>
-                  <Eye className="mr-2 h-3 w-3" />
-                  Try AR Demo
-                </Link>
-                <Link href={DEMO_CARD_URL} className={buttonVariants({ variant: "outline", size: "sm" }) + " border-border text-foreground hover:bg-muted/80"}>
-                  Open Digital Card
-                </Link>
-              </div>
-            </motion.div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mx-auto max-w-3xl"
+          >
+            <VideoDemoSection />
+          </motion.div>
         </div>
       </section>
 

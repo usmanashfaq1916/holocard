@@ -7,6 +7,27 @@ interface RouteParams {
   params: Promise<{ cardId: string }>;
 }
 
+export async function GET(_req: Request, { params }: RouteParams) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { cardId } = await params;
+  const card = await prisma.card.findUnique({ where: { id: cardId } });
+
+  if (!card || card.userId !== session.user.id) {
+    return NextResponse.json({ error: "Card not found" }, { status: 404 });
+  }
+
+  const links = await prisma.socialLink.findMany({
+    where: { cardId },
+    orderBy: { order: "asc" },
+  });
+
+  return NextResponse.json(links);
+}
+
 export async function POST(req: Request, { params }: RouteParams) {
   const session = await auth();
   if (!session?.user?.id) {

@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { canCreateCard, canUsePremiumTemplates, PLANS } from "@/lib/plans";
 
 describe("Plans", () => {
-  it("FREE allows 1 card", () => {
+  it("FREE allows unlimited cards", () => {
     expect(canCreateCard(0, "FREE")).toBe(true);
-    expect(canCreateCard(1, "FREE")).toBe(false);
+    expect(canCreateCard(100, "FREE")).toBe(true);
   });
 
   it("PRO allows 5 cards", () => {
@@ -29,7 +29,7 @@ describe("Plans", () => {
   });
 
   it("has correct plan configs", () => {
-    expect(PLANS.FREE.maxCards).toBe(1);
+    expect(PLANS.FREE.maxCards).toBe(-1);
     expect(PLANS.PRO.maxCards).toBe(5);
     expect(PLANS.BUSINESS.maxCards).toBe(-1);
   });

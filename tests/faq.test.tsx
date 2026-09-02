@@ -7,7 +7,7 @@ const faqs = [
   { q: "What is HoloCard?", a: "HoloCard is a platform that creates interactive digital business cards with Augmented Reality experiences." },
   { q: "How does the AR experience work?", a: "When someone scans your QR code or opens your link on a mobile device, they can activate AR mode." },
   { q: "Do I need to install an app?", a: "No app installation is required. HoloCard works directly in mobile browsers using WebAR technology." },
-  { q: "Can I create multiple cards?", a: "Yes! Free users get 1 card, while Pro and Business users can create unlimited cards." },
+  { q: "Can I create multiple cards?", a: "Yes! All users can create unlimited cards." },
   { q: "Is my data secure?", a: "Absolutely. We use enterprise-grade encryption and security practices." },
   { q: "Can I track who viewed my card?", a: "Yes, our analytics dashboard provides insights into views, QR scans, contact saves, and engagement metrics." },
 ];

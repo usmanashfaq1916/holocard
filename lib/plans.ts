@@ -12,7 +12,7 @@ export interface PlanConfig {
 export const PLANS: Record<PlanTier, PlanConfig> = {
   FREE: {
     name: "Free",
-    maxCards: 1,
+    maxCards: -1,
     maxStorage: "100MB",
     premiumTemplates: false,
     aiFeatures: false,
